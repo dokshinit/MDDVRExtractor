@@ -1,92 +1,63 @@
-///*
-// * To change this template, choose Tools | Templates
-// * and open the template in the editor.
-// */
-//package dvrextract;
-//
-//import java.awt.Dimension;
-//import java.io.File;
-//import java.io.FileFilter;
-//import java.io.FileOutputStream;
-//import java.io.IOException;
-//import java.io.OutputStream;
-//import java.io.PrintStream;
-//import java.io.RandomAccessFile;
-//import java.nio.ByteBuffer;
-//import java.nio.ByteOrder;
-//import java.util.ArrayList;
-//import java.util.Date;
-//import java.util.SortedMap;
-//import java.util.TimeZone;
-//import java.util.regex.Pattern;
-//import javax.swing.JButton;
-//import javax.swing.JCheckBox;
-//import javax.swing.JComboBox;
-//import javax.swing.JFrame;
-//import javax.swing.JProgressBar;
-//import javax.swing.JTextField;
-//import net.miginfocom.swing.MigLayout;
-//
-///**
-// *
-// * @author lex
-// */
-//public class DVRExtract extends JFrame {
-//
-//    final byte[] baHeader = new byte[93];
-//    final ByteBuffer bbH = ByteBuffer.wrap(baHeader);
-//    final byte[] baFrame = new byte[1000000]; // один фрейм
-//    final ByteBuffer bbF = ByteBuffer.wrap(baFrame);
-//
-//    {
-//        bbH.order(ByteOrder.LITTLE_ENDIAN);
-//        bbF.order(ByteOrder.LITTLE_ENDIAN);
-//    }
-//    int camNumber = 0;
-//    boolean isAudio = false;
-//    String sInput = null;
-//    String sFile = null;
-//    String sVideo = null;
-//    String sSRT = null;
-//    //
-//    FileOutputStream fout = null;
-//    PrintStream fsrt = null;
-//    Process proc = null;
-//    OutputStream procOut = null;
-//    int frameCount = 0;
-//    int frameInStepCount = 0;
-//    //
-//
-//    class CamInfo {
-//
-//        boolean isExists;
-//        long framesCount;
-//        long framesSize;
-//        Date minTime, maxTime;
-//
-//        public CamInfo() {
-//            isExists = false;
-//            framesCount = 0;
-//            framesSize = 0;
-//            minTime = null;
-//            maxTime = null;
-//        }
-//    }
-//    public static final int MAXCAMS = 16;
-//    CamInfo[] info = new CamInfo[MAXCAMS];
-//    //boolean[] isCams = new boolean[16];
-//    long startDataPos = 0;
-//    long endDataPos = 0;
-//    long curPos = 0;
-//
-//    /**
-//     * Вывод строки лога.
-//     * @param text Текст сообщения.
-//     */
-//    void log(String text) {
-//        System.out.println(text);
-//    }
-//
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package dvrextract;
+
+import java.util.ArrayList;
+import java.util.Date;
+
+/**
+ *
+ * @author lex
+ */
+public class App {
+
+    public static final int MAXCAMS = 8;
+
+    public enum FileType {
+
+        ARCHIVE, HDD
+    };
+
+    /**
+     * Вывод строки лога.
+     * @param text Текст сообщения.
+     */
+    public static void log(String text) {
+        System.out.println(text);
+    }
+    static int camNumber = 0;
+    static boolean isAudio = false;
+    static String sInput = null;
+    static String sFile = null;
+    static String sVideo = null;
+    static String sSRT = null;
+    int frameCount = 0;
+    int frameInStepCount = 0;
+    //
+
+    class CamInfo {
+
+        boolean isExists; // для архива - если есть флаг, для hdd - если есть файлы
+        long framesCount; // только для архива
+        long framesSize; // только для архива
+        Date minTime, maxTime;
+        ArrayList<HDDFileInfo> files;
+
+        public CamInfo() {
+            isExists = false;
+            framesCount = 0;
+            framesSize = 0;
+            minTime = null;
+            maxTime = null;
+        }
+    }
+    CamInfo[] info = new CamInfo[MAXCAMS];
+    long startDataPos = 0;
+    long endDataPos = 0;
+    long curPos = 0;
+
 //    boolean parseFrame() {
 //        try {
 //            readIn(baHeader, baHeader.length);
@@ -253,7 +224,6 @@
 //        return 0;
 //    }
 //    //
-//    
 //    Date srtTime = null;
 //    long srtFrame = 0;
 //    long srtFrameCount = 0;
@@ -520,57 +490,6 @@
 //
 //        return 0;
 //    }
-//    //SortedMap<long, FileInfo> files = new SortedMap<long, FileInfo>() {};
-//    // Фильтр для отбора обрабатываемых файлов: daNNNNN - где N - номер файла.
-//    final Pattern ptrn = Pattern.compile("da+",
-//            Pattern.UNICODE_CASE | Pattern.CASE_INSENSITIVE);
-//    ArrayList<HDDFileInfo>[] camFiles = new ArrayList[MAXCAMS];
-//    ArrayList<HDDFileInfo> files = new ArrayList<HDDFileInfo>();
-//
-//    /**
-//     * Распознавание начального и конечного кадров файла.
-//     * Создание записи информации о файле и добавление её в массив соответсвенной камере.
-//     * @param fileName Имя файла.
-//     */
-//    void parseHDDFileInfo(String fileName) {
-//        curPos = 0;
-//        // Ищем первый кадр.
-//        // Ищем последний кадр.
-//        
-//        
-//    }
-//    
-//    /**
-//     * Рекурсивное построение списка файлов по фильтру (с обходом подкаталогов).
-//     * @param path Путь к каталогу сканирования.
-//     */
-//    void scanHDDFiles(String path) {
-//        try {
-//            File f = new File(path);
-//            File[] fa = f.listFiles(new FileFilter() {
-//
-//                @Override
-//                public boolean accept(File pathname) {
-//                    if (pathname.isDirectory()) {
-//                        return true;
-//                    }
-//                    return ptrn.matcher(pathname.getName()).matches();
-//                }
-//            });
-//
-//            for (int i = 0; i < fa.length; i++) {
-//                if (fa[i].isDirectory()) {
-//                    scanHDDFiles(fa[i].getPath());
-//                } else {
-//                    // Обработка файлов.
-//                    parseHDDFileInfo(fa[i].getPath());
-//                }
-//            }
-//            
-//        } catch (Exception ex) {
-//            ex.printStackTrace();
-//        }
-//    }
 //
 //    //
 //    //
@@ -611,26 +530,62 @@
 //     * Точка запуска приложения.
 //     * @param Аргументы.
 //     */
-//    public static void main(String[] args) {
-//
-//        DVRExtract dvr = new DVRExtract();
-//        dvr.camNumber = 6;
-//        dvr.sInput = "/home/work/files/AZSVIDEO/RESEARCH/rest/131/da00013";
-//        dvr.sVideo = "/home/work/files/AZSVIDEO/RESEARCH/rest/da00013.mkv";
-//        dvr.sSRT = "/home/work/files/AZSVIDEO/RESEARCH/rest/da00013.srt";
-//        dvr.parseHdd();
-//
-//        //TODO: Сделать процедуру считывающую первый заголовок и последний и выдающую инфу наверх.
-//        //TODO: Сделать процедуру обрабатывающую все файлы в каталоге и собирающую инфу в разрезе камер.
-//        // к каждой камере - список файлов с определенными параметрами
-//        //Можно ли делать скриншоты из одного опорного кадра?
-//        //Каким образом в видео добавить дату-время (титрами?)?
-//
-//        //dvr.init();
-//        //dvr.setVisible(true);
-//
-//    }
+    public static void main(String[] args) {
+
+        App app = new App();
+        HDDFiles hdd = new HDDFiles("/home/work/files/AZSVIDEO/RESEARCH/rest/131");
+        hdd.scan();
+
+        for (int i = 0; i < App.MAXCAMS; i++) {
+            long size = 0, time = 0;
+            for (int n = 0; n < hdd.files[i].size(); n++) {
+                HDDFileInfo info = hdd.files[i].get(n);
+                size += info.fileSize;
+                time += info.frameLast.time.getTime() - info.frameFirst.time.getTime();
+            }
+            log("CAM" + (i + 1) + " files=" + hdd.files[i].size() + " size=" + size + " time=" + (time / 1000));
+        }
+        /*
+         * info     Сбор и отображение информации о данных.
+         * process  Обработка данных. Если не задано ни одного действия по 
+         *          сохранению, выполняется вхолостую с выводом детальной инфы.
+         * -if=файл
+         *          Задание источника (файл \ каталог).
+         * -itype=тип 
+         *          Задание типа данных источника. Если не задан - определяется
+         *          исходя из названия файла (*.exe - archive, da* - hdd).
+         *              hdd - каталог с файлами диска.
+         *              archive - файл архивных данных.
+         * 
+         * -cam=1   Выбор номера камеры.
+         * -start=YYYY.MM.DD.HH.MM.SS
+         * -end=YYYY.MM.DD.HH.MM.SS
+         * 
+         * 
+         * 
+         * 
+         * 
+         * 
+         * 
+         * 
+         * 
+         * 
+         * 
+         */
+
+
+
+        //TODO: Сделать процедуру считывающую первый заголовок и последний и выдающую инфу наверх.
+        //TODO: Сделать процедуру обрабатывающую все файлы в каталоге и собирающую инфу в разрезе камер.
+        // к каждой камере - список файлов с определенными параметрами
+        //Можно ли делать скриншоты из одного опорного кадра?
+        //Каким образом в видео добавить дату-время (титрами?)?
+
+        //dvr.init();
+        //dvr.setVisible(true);
+
+    }
 //    //TODO: Два режима работы - графический и консольный.
 //    //TODO: Прикрутить ключи для консольного использования.
 //    //TODO: Сделать просмотр или просто первые кадры камер? Средства?
-//}
+}

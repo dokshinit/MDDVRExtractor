@@ -13,7 +13,9 @@ import java.util.TimeZone;
  * @author lex
  */
 public class Frame {
-
+    public static final int ARCH_HSIZE = 93; // Размер заголовка фрейма в архивных файлах выгрузки.
+    public static final int HDD_HSIZE = 77; // Размер заголовка фрейма в файлах на HDD.
+    
     public Date time; // Дата-время (смещение в секундах от 1970 г.)
     public int camNumber; // Номер камеры (+допинфа в старшем байте? игнорируем).
     public int fps; // Чстота кадров в секунду.
@@ -22,13 +24,26 @@ public class Frame {
     public int audioSize; // Размер кадра аудиоданных.
     public int number; // Номер кадра.
     public long pos; // Позиция начала в файле.
+    public boolean isParsed;
 
+    public Frame() {
+        this.time = null;
+        this.camNumber = 0;
+        this.fps = 0;
+        this.isMainFrame = false;
+        this.videoSize = -1;
+        this.audioSize = -1;
+        this.number = -1;
+        this.pos = -1;
+        this.isParsed = false;
+    }
+    
     /**
      * Преобразование даты регистратора в дату Java.
      * Дата хранится в формате int - кол-во секунд от 01.01.1970.
      * @return Дата и время в формате джавы или null при ошибке.
      */
-    public Date getDate(int bdate) {
+    private Date getDate(int bdate) {
         try {
             // Часовой пояс для вычисления коррекции к мировому времени.
             TimeZone curZone = TimeZone.getDefault();
@@ -48,7 +63,9 @@ public class Frame {
      * Распарсивает буфер заголовка, если успешно - в переменных фрейма - значения.
      * @return 0 - успешно, иначе - код ошибки (>0).
      */
-    int parseHeader(ByteBuffer bb, int offset) {
+    public int parseHeader(ByteBuffer bb, int offset) {
+        isParsed = false;
+        
         int b1 = bb.get(offset + 0x31);
         int b2 = bb.get(offset + 0x32);
         int b3 = bb.get(offset + 0x33);
@@ -57,7 +74,7 @@ public class Frame {
         }
         // Номер камеры (+допинфа в старшем байте? игнорируем).
         camNumber = (bb.getInt(offset + 0x8) & 0xFF) + 1;
-        if (camNumber < 1 || camNumber > DVRExtract.MAXCAMS) {
+        if (camNumber < 1 || camNumber > App.MAXCAMS) {
             return 2;
         }
         fps = bb.get(offset + 0x12);
@@ -79,6 +96,8 @@ public class Frame {
         number = bb.getInt(offset + 0x2D); // Номер кадра.
         time = getDate(bb.getInt(offset + 0x04)); // Дата-время (смещение в секундах от 1970 г.)
         isMainFrame = (mf == 0) ? true : false; // Базовый кадр.
+        pos = -1;
+        isParsed = true;
         return 0;
     }
 }
