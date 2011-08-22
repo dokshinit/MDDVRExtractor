@@ -20,12 +20,12 @@ import java.util.regex.Pattern;
 public class HDDFiles {
 
     // Фильтр для отбора обрабатываемых файлов: daNNNNN - где N - номер файла.
-    private final Pattern ptrn = Pattern.compile("da.+",
+    private static final Pattern ptrn = Pattern.compile("da.+",
             Pattern.UNICODE_CASE | Pattern.CASE_INSENSITIVE);
     // Сканируемый каталог.
     private String name;
     // Массив "камер" с массивами информации о файлах камеры.
-    public ArrayList<HDDFileInfo>[] files = new ArrayList[App.MAXCAMS];
+    public final ArrayList<HDDFileInfo>[] files = new ArrayList[App.MAXCAMS];
 
     /**
      * 
@@ -44,8 +44,8 @@ public class HDDFiles {
      * сортируются по возрастанию по времени первого кадра.
      * @param path Путь к каталогу сканирования.
      */
-    public void scan() {
-        scanDir(name);
+    public void scan(int cam) {
+        scanDir(cam, name);
         for (int i = 0; i < files.length; i++) {
             Collections.sort(files[i], HDDFileInfo.getComparator());
         }
@@ -55,7 +55,7 @@ public class HDDFiles {
      * Рекурсивное построение списка файлов по фильтру (с обходом подкаталогов).
      * @param path Путь к каталогу сканирования.
      */
-    private void scanDir(String path) {
+    private void scanDir(int cam, String path) {
         try {
             File f = new File(path);
             File[] fa = f.listFiles(new FileFilter() {
@@ -74,14 +74,15 @@ public class HDDFiles {
 
             for (int i = 0; i < fa.length; i++) {
                 if (fa[i].isDirectory()) {
-                    scanDir(fa[i].getPath()); // Переходим глубже на один уровень.
+                    scanDir(cam, fa[i].getPath()); // Переходим глубже на один уровень.
                 } else {
-                    HDDFileInfo info = parseFileBuffered(fa[i].getPath());
+                    HDDFileInfo info = parseFileBuffered(cam, fa[i].getPath());
                     if (info != null) {
                         files[info.camNumber - 1].add(info);
-                        App.log("file=" + fa[i].getPath() + " cam=" + info.camNumber +
-                                " t="+(info.frameLast.time.getTime()-info.frameFirst.time.getTime())+
-                                " time1="+info.frameFirst.time.toString()+" time2="+info.frameLast.time.toString());
+                        App.log((info.frameFirst.pos > 0 ? "ERR=" + info.frameFirst.pos + " " : "")
+                                + "file=" + fa[i].getPath() + " cam=" + info.camNumber
+                                + " t=" + (info.frameLast.time.getTime() - info.frameFirst.time.getTime())
+                                + " time1=" + info.frameFirst.time.toString() + " time2=" + info.frameLast.time.toString());
                     } else {
                         //App.log("file=" + fa[i].getPath());
                     }
@@ -98,7 +99,7 @@ public class HDDFiles {
      * Создание записи информации о файле и добавление её в массив соответсвенной камере.
      * @param fileName Имя файла.
      */
-    public HDDFileInfo parseFile(String fileName) {
+    public HDDFileInfo parseFile(int cam, String fileName) {
         try {
             final byte[] baFrame = new byte[100]; // один фрейм
             final ByteBuffer bbF = ByteBuffer.wrap(baFrame);
@@ -119,6 +120,11 @@ public class HDDFiles {
                 in.seek(pos);
                 in.read(baFrame, Frame.HDD_HSIZE);
                 if (info.frameFirst.parseHeader(bbF, 0) == 0) {
+                    // Если номер камеры указан и это не он - пропускаем разбор.
+                    if (cam > 0 && info.frameFirst.camNumber != cam) {
+                        in.close();
+                        return null;
+                    }
                     info.frameFirst.pos = pos;
                     info.camNumber = info.frameFirst.camNumber; // из первого кадра!
                     break;
@@ -160,9 +166,9 @@ public class HDDFiles {
      * Создание записи информации о файле и добавление её в массив соответсвенной камере.
      * @param fileName Имя файла.
      */
-    public HDDFileInfo parseFileBuffered(String fileName) {
+    public HDDFileInfo parseFileBuffered(int cam, String fileName) {
         try {
-            final byte[] baFrame = new byte[1000]; // буфер чтения
+            final byte[] baFrame = new byte[100000]; // буфер чтения
             final ByteBuffer bbF = ByteBuffer.wrap(baFrame);
             bbF.order(ByteOrder.LITTLE_ENDIAN);
 
@@ -173,7 +179,7 @@ public class HDDFiles {
             info.fileSize = in.getSize();
             Frame f = new Frame();
 
-            // Ищем первый кадр.
+            // Ищем первый кадр (от начала к концу).
             long pos = 0;
             long ost = in.getSize();
             while (pos < in.getSize() - Frame.HDD_HSIZE) {
@@ -183,15 +189,14 @@ public class HDDFiles {
 
                 for (int i = 0; i < len - Frame.HDD_HSIZE; i++) {
                     if (f.parseHeader(bbF, i) == 0) {
-                        if (f.camNumber != 6) {
+                        // Если номер камеры указан и это не он - пропускаем разбор.
+                        if (cam > 0 && f.camNumber != cam) {
                             in.close();
                             return null;
                         }
                         f.pos = pos + i;
-                        info.camNumber = f.camNumber; // из первого кадра!
+                        info.camNumber = f.camNumber; // Из первого кадра!
                         info.frameFirst = f;
-                        break;
-                    } else {
                         break;
                     }
                 }
@@ -203,12 +208,12 @@ public class HDDFiles {
                 }
             }
             if (!f.isParsed) {
-                // разбор не получился.
+                // Разбор не получился.
                 in.close();
                 return null;
             }
 
-            // Ищем последний кадр.
+            // Ищем последний кадр (от конца к началу).
             f = new Frame();
             pos = in.getSize();
             ost = in.getSize();
@@ -227,17 +232,18 @@ public class HDDFiles {
                 if (f.isParsed) {
                     break;
                 } else {
-                    //pos -= len - Frame.HDD_HSIZE;
                     ost -= len - Frame.HDD_HSIZE;
                 }
             }
             if (!f.isParsed) {
-                // разбор не получился.
+                // Разбор не получился.
                 in.close();
                 return null;
             }
-            in.close();
+
+            // Разбор успешный - возвращаем результат.
             //App.log("CAM"+info.camNumber+" file="+info.fileName);
+            in.close();
             return info;
 
         } catch (IOException ioe) {

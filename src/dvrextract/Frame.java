@@ -13,9 +13,14 @@ import java.util.TimeZone;
  * @author lex
  */
 public class Frame {
-    public static final int ARCH_HSIZE = 93; // Размер заголовка фрейма в архивных файлах выгрузки.
-    public static final int HDD_HSIZE = 77; // Размер заголовка фрейма в файлах на HDD.
-    
+
+    // Размер заголовка фрейма в архивных файлах выгрузки.
+    public static final int EXE_HSIZE = 93;
+    // Размер заголовка фрейма в файлах на HDD.
+    public static final int HDD_HSIZE = 77;
+    // Смещение времени по зонам.
+    public static long timeZone = TimeZone.getDefault().getRawOffset() + 3600000;
+    //
     public Date time; // Дата-время (смещение в секундах от 1970 г.)
     public int camNumber; // Номер камеры (+допинфа в старшем байте? игнорируем).
     public int fps; // Чстота кадров в секунду.
@@ -23,40 +28,53 @@ public class Frame {
     public int videoSize; // Размер кадра видеоданных.
     public int audioSize; // Размер кадра аудиоданных.
     public int number; // Номер кадра.
+    //
+    public boolean isParsed; // Флаг успешного разбора кадра.
     public long pos; // Позиция начала в файле.
-    public boolean isParsed;
 
     public Frame() {
-        this.time = null;
-        this.camNumber = 0;
-        this.fps = 0;
-        this.isMainFrame = false;
-        this.videoSize = -1;
-        this.audioSize = -1;
-        this.number = -1;
-        this.pos = -1;
-        this.isParsed = false;
+        time = null;
+        camNumber = 0;
+        fps = 0;
+        isMainFrame = false;
+        videoSize = -1;
+        audioSize = -1;
+        number = -1;
+        pos = -1;
+        isParsed = false;
     }
-    
-    static final TimeZone curZone = TimeZone.getDefault();
+
+    public static void setZoneShift(long msec) {
+        timeZone = msec;
+    }
+
+    public static long getZoneShift() {
+        return timeZone;
+    }
+
     /**
      * Преобразование даты регистратора в дату Java.
      * Дата хранится в формате int - кол-во секунд от 01.01.1970.
-     * @return Дата и время в формате джавы или null при ошибке.
+     * @return Дата и время в формате джавы.
      */
     public static Date getDate(int bdate) {
-        try {
-            // Часовой пояс для вычисления коррекции к мировому времени.
-            // Приведение к дате в счислении Java: кол-во мс от 01.01.1970.
-            // отнимаем 60 минут чтобы компенсировать ленее время - ПРОКОНТРОЛИРОВАТЬ НА СТЫКЕ!
-            long javaDate = (long) bdate * 1000 - 3600000;
-            // Внесение коррекции на часовой пояс.
-            // НЕ учитывается переход на летнее и зимнее время, т.к. исходная
-            // информация уже с учётом летнего времени!
-            return new Date(javaDate - curZone.getRawOffset());
-        } catch (Exception e) {
-            return null;
-        }
+        // Часовой пояс для вычисления коррекции к мировому времени.
+        // Приведение к дате в счислении Java: кол-во мс от 01.01.1970.
+        // отнимаем 60 минут чтобы компенсировать ленее время - ПРОКОНТРОЛИРОВАТЬ НА СТЫКЕ!
+        long javaDate = (long) bdate * 1000;
+        // Внесение коррекции на часовой пояс.
+        // НЕ учитывается переход на летнее и зимнее время, т.к. исходная
+        // информация уже с учётом летнего времени!
+        return new Date(javaDate - timeZone);
+    }
+
+    /**
+     * Обратное преобразование в время DVR.
+     * @param date Дата.
+     * @return Время в формате DVR.
+     */
+    public static int getDate(Date date) {
+        return (int) ((date.getTime() + timeZone) / 1000);
     }
 
     /**
@@ -65,7 +83,7 @@ public class Frame {
      */
     public int parseHeader(ByteBuffer bb, int offset) {
         isParsed = false;
-        
+
         int b1 = bb.get(offset + 0x31);
         int b2 = bb.get(offset + 0x32);
         int b3 = bb.get(offset + 0x33);
@@ -93,8 +111,8 @@ public class Frame {
         if (audioSize < 0 || audioSize > 1000000) {
             return 6;
         }
-        int tb = bb.getInt(offset + 0x04);
-        if (tb < 1104541200 || tb > new Date().getTime() / 1000 + 4*3600) {
+        int tb = bb.getInt(offset + 0x04); // Дата и время кадра.
+        if (tb < 1104541200) {
             return 7;
         }
         time = getDate(tb); // Дата-время (смещение в секундах от 1970 г.)

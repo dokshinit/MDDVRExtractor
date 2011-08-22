@@ -14,11 +14,12 @@ import java.util.Date;
  */
 public class App {
 
-    public static final int MAXCAMS = 8;
+    public static final int MAXCAMS = 8; // Максимальное кол-во обрабатываемых камер.
 
+    // Типы обрабатываемых файлов
     public enum FileType {
 
-        ARCHIVE, HDD
+        EXE, HDD
     };
 
     /**
@@ -28,6 +29,21 @@ public class App {
     public static void log(String text) {
         System.out.println(text);
     }
+    
+    public static MainFrame mainFrame;
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     static int camNumber = 0;
     static boolean isAudio = false;
     static String sInput = null;
@@ -534,16 +550,17 @@ public class App {
     public static void main(String[] args) {
 
         Calendar c = Calendar.getInstance();
-        c.set(2005, 00, 01, 4, 0, 0);
-        long nn = (int)(c.getTime().getTime()/1000);
-        log("Time="+c.getTime().toString()+" n="+nn+" dt="+Frame.getDate((int)nn));
-        //if (true) return;
-        
-        
+        c.set(2005, 00, 01, 0, 0, 0);
+        int t1 = Frame.getDate(c.getTime());
+        Date d1 = Frame.getDate(t1);
+        log("Time=" + c.getTime() + " t1=" + t1 + " dt=" + d1);
+//        if (true) return;
+
+
         App app = new App();
 //        HDDFiles hdd = new HDDFiles("/home/work/files/AZSVIDEO/RESEARCH/rest/131");
         HDDFiles hdd = new HDDFiles("/mnt/131");
-        hdd.scan();
+        hdd.scan(6);
 
         for (int i = 0; i < App.MAXCAMS; i++) {
             long size = 0, time = 0;
@@ -554,31 +571,37 @@ public class App {
             }
             log("CAM" + (i + 1) + " files=" + hdd.files[i].size() + " size=" + size + " time=" + (time / 1000));
         }
+
+
         /*
+         * Ориентировочный синтаксис использования из консоли:
+         * 
          * info     Сбор и отображение информации о данных.
-         * process  Обработка данных. Если не задано ни одного действия по 
-         *          сохранению, выполняется вхолостую с выводом детальной инфы.
-         * -if=файл
-         *          Задание источника (файл \ каталог).
-         * -itype=тип 
+         *          Если источник hdd - собирает инфу о всех файлах.
+         *          Если источник exe - выводит инфу о файле.
+         * 
+         * process  Обработка данных. Сначала делает шаг info, потом производит
+         *          обработку данных для указанной камеры. Если не задано ни 
+         *          одного действия по обработке, выполняется вхолостую с 
+         *          выводом детальной инфы.
+         * 
+         * -src=<источник>
+         *          Задание источника (файл - *.exe или daNNNNN \ каталог (hdd)).
+         * 
+         * ? -type=<тип>
          *          Задание типа данных источника. Если не задан - определяется
          *          исходя из названия файла (*.exe - archive, da* - hdd).
          *              hdd - каталог с файлами диска.
          *              archive - файл архивных данных.
          * 
-         * -cam=1   Выбор номера камеры.
-         * -start=YYYY.MM.DD.HH.MM.SS
-         * -end=YYYY.MM.DD.HH.MM.SS
+         * -cam=<номер>
+         *          Номер камеры.
          * 
+         * -start=YYYY.MM.DD,HH:MM:SS
+         *          Дата и время начала сохранения данных.
          * 
-         * 
-         * 
-         * 
-         * 
-         * 
-         * 
-         * 
-         * 
+         * -end=YYYY.MM.DD,HH:MM:SS
+         *          Дата и время конца сохранения данных.
          * 
          */
 
