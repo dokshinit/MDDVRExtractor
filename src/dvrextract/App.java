@@ -5,6 +5,7 @@
 package dvrextract;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -532,8 +533,16 @@ public class App {
 //     */
     public static void main(String[] args) {
 
+        Calendar c = Calendar.getInstance();
+        c.set(2005, 00, 01, 4, 0, 0);
+        long nn = (int)(c.getTime().getTime()/1000);
+        log("Time="+c.getTime().toString()+" n="+nn+" dt="+Frame.getDate((int)nn));
+        //if (true) return;
+        
+        
         App app = new App();
-        HDDFiles hdd = new HDDFiles("/home/work/files/AZSVIDEO/RESEARCH/rest/131");
+//        HDDFiles hdd = new HDDFiles("/home/work/files/AZSVIDEO/RESEARCH/rest/131");
+        HDDFiles hdd = new HDDFiles("/mnt/131");
         hdd.scan();
 
         for (int i = 0; i < App.MAXCAMS; i++) {

@@ -38,15 +38,15 @@ public class Frame {
         this.isParsed = false;
     }
     
+    static final TimeZone curZone = TimeZone.getDefault();
     /**
      * Преобразование даты регистратора в дату Java.
      * Дата хранится в формате int - кол-во секунд от 01.01.1970.
      * @return Дата и время в формате джавы или null при ошибке.
      */
-    private Date getDate(int bdate) {
+    public static Date getDate(int bdate) {
         try {
             // Часовой пояс для вычисления коррекции к мировому времени.
-            TimeZone curZone = TimeZone.getDefault();
             // Приведение к дате в счислении Java: кол-во мс от 01.01.1970.
             // отнимаем 60 минут чтобы компенсировать ленее время - ПРОКОНТРОЛИРОВАТЬ НА СТЫКЕ!
             long javaDate = (long) bdate * 1000 - 3600000;
@@ -93,8 +93,12 @@ public class Frame {
         if (audioSize < 0 || audioSize > 1000000) {
             return 6;
         }
+        int tb = bb.getInt(offset + 0x04);
+        if (tb < 1104541200 || tb > new Date().getTime() / 1000 + 4*3600) {
+            return 7;
+        }
+        time = getDate(tb); // Дата-время (смещение в секундах от 1970 г.)
         number = bb.getInt(offset + 0x2D); // Номер кадра.
-        time = getDate(bb.getInt(offset + 0x04)); // Дата-время (смещение в секундах от 1970 г.)
         isMainFrame = (mf == 0) ? true : false; // Базовый кадр.
         pos = -1;
         isParsed = true;

@@ -37,7 +37,7 @@ public class HDDFiles {
             files[i] = new ArrayList<HDDFileInfo>();
         }
     }
-    
+
     /**
      * Рекурсивное построение списков файлов по фильтру (с обходом подкаталогов).
      * Списки файлов формируются для каждой камеры отдельно. Далее списки 
@@ -79,6 +79,11 @@ public class HDDFiles {
                     HDDFileInfo info = parseFileBuffered(fa[i].getPath());
                     if (info != null) {
                         files[info.camNumber - 1].add(info);
+                        App.log("file=" + fa[i].getPath() + " cam=" + info.camNumber +
+                                " t="+(info.frameLast.time.getTime()-info.frameFirst.time.getTime())+
+                                " time1="+info.frameFirst.time.toString()+" time2="+info.frameLast.time.toString());
+                    } else {
+                        //App.log("file=" + fa[i].getPath());
                     }
                 }
             }
@@ -87,6 +92,7 @@ public class HDDFiles {
             ex.printStackTrace();
         }
     }
+
     /**
      * Распознавание начального и конечного кадров файла.
      * Создание записи информации о файле и добавление её в массив соответсвенной камере.
@@ -97,7 +103,7 @@ public class HDDFiles {
             final byte[] baFrame = new byte[100]; // один фрейм
             final ByteBuffer bbF = ByteBuffer.wrap(baFrame);
             bbF.order(ByteOrder.LITTLE_ENDIAN);
-            
+
             InputData in = new InputData(fileName);
 
             HDDFileInfo info = new HDDFileInfo();
@@ -106,7 +112,7 @@ public class HDDFiles {
             info.frameFirst = new Frame();
             info.frameLast = new Frame();
             Frame f = new Frame();
-            
+
             // Ищем первый кадр.
             long pos = 0;
             while (pos < in.getSize() - Frame.HDD_HSIZE) {
@@ -148,7 +154,7 @@ public class HDDFiles {
             return null;
         }
     }
-    
+
     /**
      * Распознавание начального и конечного кадров файла.
      * Создание записи информации о файле и добавление её в массив соответсвенной камере.
@@ -156,7 +162,7 @@ public class HDDFiles {
      */
     public HDDFileInfo parseFileBuffered(String fileName) {
         try {
-            final byte[] baFrame = new byte[100000]; // буфер чтения
+            final byte[] baFrame = new byte[1000]; // буфер чтения
             final ByteBuffer bbF = ByteBuffer.wrap(baFrame);
             bbF.order(ByteOrder.LITTLE_ENDIAN);
 
@@ -172,14 +178,20 @@ public class HDDFiles {
             long ost = in.getSize();
             while (pos < in.getSize() - Frame.HDD_HSIZE) {
                 in.seek(pos);
-                int len = (int)Math.min(baFrame.length, ost);
+                int len = (int) Math.min(baFrame.length, ost);
                 in.read(baFrame, (int) len);
 
                 for (int i = 0; i < len - Frame.HDD_HSIZE; i++) {
                     if (f.parseHeader(bbF, i) == 0) {
+                        if (f.camNumber != 6) {
+                            in.close();
+                            return null;
+                        }
                         f.pos = pos + i;
                         info.camNumber = f.camNumber; // из первого кадра!
                         info.frameFirst = f;
+                        break;
+                    } else {
                         break;
                     }
                 }
@@ -195,16 +207,16 @@ public class HDDFiles {
                 in.close();
                 return null;
             }
-            
+
             // Ищем последний кадр.
             f = new Frame();
             pos = in.getSize();
             ost = in.getSize();
             while (pos > 0) {
-                int len = (int)Math.min(baFrame.length, ost);
+                int len = (int) Math.min(baFrame.length, ost);
                 pos -= len;
                 in.seek(pos);
-                in.read(baFrame, (int)len);
+                in.read(baFrame, (int) len);
                 for (int i = len - Frame.HDD_HSIZE; i >= 0; i--) {
                     if (f.parseHeader(bbF, i) == 0) {
                         f.pos = pos + i;
@@ -233,5 +245,4 @@ public class HDDFiles {
             return null;
         }
     }
-    
 }
