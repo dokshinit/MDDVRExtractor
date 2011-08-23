@@ -4,6 +4,7 @@
  */
 package dvrextract;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -507,10 +508,18 @@ public class App {
         //String laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
 
         // Отключение жирного шрифта в UI.
-        UIManager.put("swing.boldMetal", Boolean.FALSE);
+        //UIManager.put("swing.boldMetal", Boolean.FALSE);
         //UIManager.put("swing.useSystemFontSettings", Boolean.TRUE);
-        UIManager.put("swing.metalTheme", "steel");
+        //UIManager.put("swing.metalTheme", "steel");
 
+        // Отключение жирного шрифта в UI.
+        UIManager.put("swing.boldMetal", Boolean.FALSE);
+        // Фон кнопок - вместо уродского градиента.
+        UIManager.put("Button.background", new Color(0xF8F8F8));
+        UIManager.put("ToggleButton.background", new Color(0xF8F8F8));
+        UIManager.put("ToolTip.background", GUI.colorToolTipBg);
+        UIManager.put("ToolTip.foreground", GUI.colorToolTipFg);
+        UIManager.put("ToolTip.border", GUI.borderToolTip);
         //JFrame.setDefaultLookAndFeelDecorated(true);
         //JDialog.setDefaultLookAndFeelDecorated(true);
 
@@ -518,9 +527,9 @@ public class App {
             Class c = Class.forName(laf);
             UIManager.setLookAndFeel(laf);
         } catch (java.lang.ClassNotFoundException e) {
-            log("Не найден L&F (" + laf + ")! " + e);
+            App.log("Не найден L&F (" + laf + ")! " + e);
         } catch (Exception e) {
-            log("Ошибка включения L&F (" + laf + ")!" + e);
+            App.log("Ошибка включения L&F (" + laf + ")!" + e);
         }
     }
 

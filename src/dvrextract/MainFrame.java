@@ -5,6 +5,7 @@
 package dvrextract;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.io.DataInputStream;
@@ -23,8 +24,8 @@ import net.miginfocom.swing.MigLayout;
  */
 public class MainFrame extends JFrame {
 
-    JTextField textInput;
-    JButton buttonInput;
+    JTextField textSource;
+    JButton buttonSource;
     //
     JCheckBox checkRaw; // Создавать сырой файл?
     JTextField textRaw; // Путь и имя файла.
@@ -52,17 +53,51 @@ public class MainFrame extends JFrame {
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(700, 550));
 
-        JTabbedPane tabPane = new JTabbedPane();
-        JPanel panelTab1 = new JPanel(new MigLayout());
-        tabPane.addTab("Управление", panelTab1);
-        JPanel panelTab2 = new JPanel(new MigLayout());
-        tabPane.addTab("Источник", panelTab2);
+        TabPane tabPane = new TabPane();
+        
+        ////////////////////////////////////////////////////////////////////////
+        // Вкладка "Источник"
+        ////////////////////////////////////////////////////////////////////////
+        JPanel ptabSource = new JPanel(new MigLayout());
+        ptabSource.add(new JLabel("Источник"));
+        textSource = new JTextField(50);
+        ptabSource.add(textSource, "growx");
+        buttonSource = new JButton("Выбор");
+        ptabSource.add(buttonSource, "wrap");
+        JPanel panelSrcInfo = new JPanel(new MigLayout());
+        
+        panelSrcInfo.add(new JLabel("Тип:"));
+        JTextField textType = new JTextField("не определён", 20);
+        textType.setEditable(false);
+        //textType.setEnabled(false);
+        panelSrcInfo.add(textType);
+        panelSrcInfo.add(new JLabel("Камера:"));
+        JComboBox comboCam = new JComboBox();
+        panelSrcInfo.add(comboCam, "wrap");
+        ptabSource.add(panelSrcInfo, "span, grow");
+        
+        tabPane.addTab("Источник", ptabSource);
+        //tabPane.setEnabledAt(1,false);
+        
+        ////////////////////////////////////////////////////////////////////////
+        // Вкладка "Обработка"
+        ////////////////////////////////////////////////////////////////////////
+        JPanel ptabProcess = new JPanel(new MigLayout());
+        tabPane.addTab("Обработка", ptabProcess);
+
+        ////////////////////////////////////////////////////////////////////////
+        // Вкладка "Состояние" (обработки)
+        ////////////////////////////////////////////////////////////////////////
         JPanel panelTab3 = new JPanel(new MigLayout());
         tabPane.addTab("Состояние", panelTab3);
+        
+        ////////////////////////////////////////////////////////////////////////
+        // Вкладка "Лог" (обработки)
+        ////////////////////////////////////////////////////////////////////////
         JPanel panelTab4 = new JPanel(new MigLayout());
         tabPane.addTab("Лог", panelTab4);
-        add(tabPane, BorderLayout.CENTER);
-
+        
+        
         ImagePanel p = new ImagePanel();
         p.setPreferredSize(new Dimension(352, 288));
         p.setMinimumSize(new Dimension(352, 288));
@@ -93,12 +128,6 @@ public class MainFrame extends JFrame {
         //textInput = new JTextField(50);
         //buttonInput = new JButton("Выбор");
 
-        textRaw = new JTextField(50);
-        buttonRaw = new JButton("Выбор");
-        panelTab1.add(new JLabel("Источник"), "skip");
-        panelTab1.add(textRaw);
-        panelTab1.add(buttonRaw, "wrap");
-        panelTab1.add(p, "span");
 
         textVideo = new JTextField(50);
         buttonVideo = new JButton("Выбор");
@@ -111,7 +140,17 @@ public class MainFrame extends JFrame {
         buttonProcess = new JButton("Обработка");
 
         progressBar = new JProgressBar();
-        add(progressBar, BorderLayout.SOUTH);
+
+        add(tabPane, BorderLayout.CENTER);
+
+        JPanel panelButton = new JPanel(new MigLayout("","[grow,fill][10px]"));
+        JLabel lInfo = new JLabel("Инфо:");
+        panelButton.add(lInfo);
+        panelButton.add(buttonProcess, "spany 2, growy, wrap");
+        panelButton.add(progressBar);
+        add(panelButton, BorderLayout.SOUTH);
+        panelButton.setBackground(Color.red);
+        
 
         pack();
     }
