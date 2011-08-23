@@ -4,9 +4,15 @@
  */
 package dvrextract;
 
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.UIManager;
 
 /**
  *
@@ -29,21 +35,7 @@ public class App {
     public static void log(String text) {
         System.out.println(text);
     }
-    
     public static MainFrame mainFrame;
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     static int camNumber = 0;
     static boolean isAudio = false;
     static String sInput = null;
@@ -508,45 +500,34 @@ public class App {
 //        return 0;
 //    }
 //
-//    //
-//    //
-//    JButton buttonInput, buttonFile, buttonVideo;
-//    JTextField textInput, textFile, textVideo;
-//    JComboBox comboCams;
-//    JCheckBox checkAudio;
-//    JButton buttonProcess, buttonStop;
-//    JProgressBar progressBar;
 //
-//    void init() {
-//        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-//        setLayout(new MigLayout());
-//        setPreferredSize(new Dimension(300, 300));
-//
-//        textInput = new JTextField(50);
-//        buttonInput = new JButton("Выбор");
-//
-//        textFile = new JTextField(50);
-//        buttonFile = new JButton("Выбор");
-//
-//        textVideo = new JTextField(50);
-//        buttonVideo = new JButton("Выбор");
-//
-//        comboCams = new JComboBox();
-//        checkAudio = new JCheckBox("Включать аудиоданные.");
-//
-//        buttonProcess = new JButton("Обработка");
-//
-//        buttonStop = new JButton("Стоп");
-//
-//        progressBar = new JProgressBar();
-//
-//        pack();
-//    }
-//
-//    /**
-//     * Точка запуска приложения.
-//     * @param Аргументы.
-//     */
+    static {
+        String laf = "javax.swing.plaf.metal.MetalLookAndFeel";
+        //String laf = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
+        //String laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+
+        // Отключение жирного шрифта в UI.
+        UIManager.put("swing.boldMetal", Boolean.FALSE);
+        //UIManager.put("swing.useSystemFontSettings", Boolean.TRUE);
+        UIManager.put("swing.metalTheme", "steel");
+
+        //JFrame.setDefaultLookAndFeelDecorated(true);
+        //JDialog.setDefaultLookAndFeelDecorated(true);
+
+        try {
+            Class c = Class.forName(laf);
+            UIManager.setLookAndFeel(laf);
+        } catch (java.lang.ClassNotFoundException e) {
+            log("Не найден L&F (" + laf + ")! " + e);
+        } catch (Exception e) {
+            log("Ошибка включения L&F (" + laf + ")!" + e);
+        }
+    }
+
+    /**
+     * Точка запуска приложения.
+     * @param Аргументы.
+     */
     public static void main(String[] args) {
 
         Calendar c = Calendar.getInstance();
@@ -558,19 +539,34 @@ public class App {
 
 
         App app = new App();
-//        HDDFiles hdd = new HDDFiles("/home/work/files/AZSVIDEO/RESEARCH/rest/131");
-        HDDFiles hdd = new HDDFiles("/mnt/131");
-        hdd.scan(6);
+        // Старт многооконного приложения
+        java.awt.EventQueue.invokeLater(new Runnable() {
 
-        for (int i = 0; i < App.MAXCAMS; i++) {
-            long size = 0, time = 0;
-            for (int n = 0; n < hdd.files[i].size(); n++) {
-                HDDFileInfo info = hdd.files[i].get(n);
-                size += info.fileSize;
-                time += info.frameLast.time.getTime() - info.frameFirst.time.getTime();
+            @Override
+            public void run() {
+                // Позиционируем по центру экрана
+                mainFrame = new MainFrame();
+                Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+                mainFrame.setLocation(
+                        new Point((screenSize.width - mainFrame.getWidth()) / 2,
+                        (screenSize.height - mainFrame.getHeight()) / 2));
+                mainFrame.setVisible(true);
             }
-            log("CAM" + (i + 1) + " files=" + hdd.files[i].size() + " size=" + size + " time=" + (time / 1000));
-        }
+        });
+
+//        HDDFiles hdd = new HDDFiles("/home/work/files/AZSVIDEO/RESEARCH/rest/131");
+//        HDDFiles hdd = new HDDFiles("/mnt/131");
+//        hdd.scan(6);
+//
+//        for (int i = 0; i < App.MAXCAMS; i++) {
+//            long size = 0, time = 0;
+//            for (int n = 0; n < hdd.files[i].size(); n++) {
+//                HDDFileInfo info = hdd.files[i].get(n);
+//                size += info.fileSize;
+//                time += info.frameLast.time.getTime() - info.frameFirst.time.getTime();
+//            }
+//            log("CAM" + (i + 1) + " files=" + hdd.files[i].size() + " size=" + size + " time=" + (time / 1000));
+//        }
 
 
         /*
@@ -607,17 +603,13 @@ public class App {
 
 
 
-        //TODO: Сделать процедуру считывающую первый заголовок и последний и выдающую инфу наверх.
-        //TODO: Сделать процедуру обрабатывающую все файлы в каталоге и собирающую инфу в разрезе камер.
-        // к каждой камере - список файлов с определенными параметрами
-        //Можно ли делать скриншоты из одного опорного кадра?
-        //Каким образом в видео добавить дату-время (титрами?)?
-
-        //dvr.init();
-        //dvr.setVisible(true);
-
     }
-//    //TODO: Два режима работы - графический и консольный.
-//    //TODO: Прикрутить ключи для консольного использования.
-//    //TODO: Сделать просмотр или просто первые кадры камер? Средства?
+    //TODO: Два режима работы - графический и консольный.
+    //TODO: Прикрутить ключи для консольного использования.
+    //TODO: Сделать просмотр или просто первые кадры камер? Средства?
+    //TODO: Сделать процедуру считывающую первый заголовок и последний и выдающую инфу наверх.
+    //TODO: Сделать процедуру обрабатывающую все файлы в каталоге и собирающую инфу в разрезе камер.
+    // к каждой камере - список файлов с определенными параметрами
+    //Можно ли делать скриншоты из одного опорного кадра?
+    //Каким образом в видео добавить дату-время (титрами?)?
 }
