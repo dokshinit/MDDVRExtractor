@@ -8,6 +8,9 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -22,11 +25,17 @@ import net.miginfocom.swing.MigLayout;
  * Основное окно приложения.
  * @author lex
  */
-public class MainFrame extends JFrame {
-
+public final class GUI_Main extends GUIFrame {
+    ////////////////////////////////////////////////////////////////////////////
+    // Закладка: Источник
+    ////////////////////////////////////////////////////////////////////////////
     JTextField textSource;
     JButton buttonSource;
-    //
+    JTextField textType;
+    JExtComboBox comboCam;
+    ////////////////////////////////////////////////////////////////////////////
+    // Закладка: Обработка
+    ////////////////////////////////////////////////////////////////////////////
     JCheckBox checkRaw; // Создавать сырой файл?
     JTextField textRaw; // Путь и имя файла.
     JButton buttonRaw; // Выбор файла.
@@ -38,13 +47,14 @@ public class MainFrame extends JFrame {
     //
     JComboBox comboCams; // Выбор камеры из списка.
     JCheckBox checkAudio; // Обрабатывать аудио поток.
-    //
-    JButton buttonInfo; // Запуск\остановка сбора информации.
+    ////////////////////////////////////////////////////////////////////////////
+    // На всех вкладках
+    ////////////////////////////////////////////////////////////////////////////
+    JLabel labelInfo; // Строка состояния обработки.
     JButton buttonProcess; // Запуск\остановка обработки.
-    //
     JProgressBar progressBar; // Прогрес выполнения операции.
 
-    public MainFrame() {
+    public GUI_Main() {
         init();
     }
 
@@ -53,31 +63,33 @@ public class MainFrame extends JFrame {
         setLayout(new BorderLayout());
         setPreferredSize(new Dimension(700, 550));
 
-        TabPane tabPane = new TabPane();
+        GUITabPane tabPane = new GUITabPane();
         
         ////////////////////////////////////////////////////////////////////////
         // Вкладка "Источник"
         ////////////////////////////////////////////////////////////////////////
         JPanel ptabSource = new JPanel(new MigLayout());
-        ptabSource.add(new JLabel("Источник"));
-        textSource = new JTextField(50);
-        ptabSource.add(textSource, "growx");
-        buttonSource = new JButton("Выбор");
-        ptabSource.add(buttonSource, "wrap");
-        JPanel panelSrcInfo = new JPanel(new MigLayout());
+        ptabSource.add(GUI.createLabel("Источник"));
+        ptabSource.add(textSource = GUI.createText(50), "growx");
+        ptabSource.add(buttonSource = GUI.createButton("Выбор"), "wrap");
         
-        panelSrcInfo.add(new JLabel("Тип:"));
-        JTextField textType = new JTextField("не определён", 20);
+        JPanel panelSrcInfo = new JPanel(new MigLayout("fill"));
+        // Отображение типа источника.
+        panelSrcInfo.add(GUI.createLabel("Тип:"), "skip");
+        panelSrcInfo.add(textType = GUI.createText("не определён", 10), "skip");
         textType.setEditable(false);
-        //textType.setEnabled(false);
-        panelSrcInfo.add(textType);
-        panelSrcInfo.add(new JLabel("Камера:"));
-        JComboBox comboCam = new JComboBox();
-        panelSrcInfo.add(comboCam, "wrap");
+        textType.setHorizontalAlignment(JTextField.CENTER);
+        // Выбор камеры для обработки.
+        panelSrcInfo.add(GUI.createLabel("Камера:"), "skip");
+        panelSrcInfo.add(comboCam = GUI.createCombo(false), "skip, push, wrap");
+        comboCam.addItem(1, "не выбрана");
+        comboCam.showData();
+        //panelSrcInfo.add(GUI.createButton("Сканировать"), );
         ptabSource.add(panelSrcInfo, "span, grow");
         
         tabPane.addTab("Источник", ptabSource);
-        //tabPane.setEnabledAt(1,false);
+        
+        App.log("BgColor="+getBackground().toString());
         
         ////////////////////////////////////////////////////////////////////////
         // Вкладка "Обработка"
@@ -119,7 +131,9 @@ public class MainFrame extends JFrame {
             os.close();
  * 
  */
-            p.setImage(ImageIO.read(is));
+            BufferedImage image = ImageIO.read(is);
+            p.setImage(image);
+            panelSrcInfo.add(p, "span, growx");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -130,21 +144,19 @@ public class MainFrame extends JFrame {
 
 
         textVideo = new JTextField(50);
-        buttonVideo = new JButton("Выбор");
+        buttonVideo = GUI.createButton("Выбор");
 
         comboCams = new JComboBox();
         checkAudio = new JCheckBox("Включать аудиоданные.");
 
-        buttonInfo = new JButton("Информация");
-
-        buttonProcess = new JButton("Обработка");
+        buttonProcess = GUI.createButton("Обработка");
 
         progressBar = new JProgressBar();
 
         add(tabPane, BorderLayout.CENTER);
 
         JPanel panelButton = new JPanel(new MigLayout("","[grow,fill][10px]"));
-        JLabel lInfo = new JLabel("Инфо:");
+        JLabel lInfo = GUI.createLabel("Инфо:");
         panelButton.add(lInfo);
         panelButton.add(buttonProcess, "spany 2, growy, wrap");
         panelButton.add(progressBar);
@@ -153,5 +165,15 @@ public class MainFrame extends JFrame {
         
 
         pack();
+        
+        buttonSource.addActionListener(new ActionListener() {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                GUI_SourceSelect dlg = new GUI_SourceSelect();
+                dlg.center();
+                dlg.setVisible(true);
+            }
+        });
     }
 }
