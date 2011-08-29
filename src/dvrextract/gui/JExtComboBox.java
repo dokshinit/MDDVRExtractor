@@ -1,4 +1,4 @@
-package dvrextract;
+package dvrextract.gui;
 
 import java.awt.Dimension;
 import java.util.*;
@@ -45,13 +45,18 @@ public class JExtComboBox extends JComboBox {
     /**
      * Применение модели.
      */
-    protected void showData() {
+    public void showData() {
         setModel(new DefaultComboBoxModel(items.toArray()));
         setEnabled(true);
     }
 
     public void addItem(int id, String title) {
         items.add(new ExtItem(id, title));
+    }
+
+    
+    public void removeItems() {
+        items.clear();
     }
 
     /**
@@ -97,9 +102,4 @@ public class JExtComboBox extends JComboBox {
         }
     }
 
-    /**
-     * Метод генерации события.
-     */
-    public void fireAfterLoad() {
-    }
 }

@@ -1,5 +1,6 @@
-package dvrextract;
+package dvrextract.gui;
 
+import dvrextract.gui.JExtComboBox;
 import java.awt.Color;
 import javax.swing.*;
 import javax.swing.border.*;

@@ -4,19 +4,20 @@
  */
 package dvrextract;
 
+import dvrextract.gui.GUI;
+import dvrextract.gui.GUITabPane;
+import dvrextract.gui.GUIFrame;
+import dvrextract.gui.JExtComboBox;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import net.miginfocom.swing.MigLayout;
@@ -29,6 +30,7 @@ public final class GUI_Main extends GUIFrame {
     ////////////////////////////////////////////////////////////////////////////
     // Закладка: Источник
     ////////////////////////////////////////////////////////////////////////////
+
     JTextField textSource;
     JButton buttonSource;
     JTextField textType;
@@ -64,7 +66,7 @@ public final class GUI_Main extends GUIFrame {
         setPreferredSize(new Dimension(700, 550));
 
         GUITabPane tabPane = new GUITabPane();
-        
+
         ////////////////////////////////////////////////////////////////////////
         // Вкладка "Источник"
         ////////////////////////////////////////////////////////////////////////
@@ -72,7 +74,7 @@ public final class GUI_Main extends GUIFrame {
         ptabSource.add(GUI.createLabel("Источник"));
         ptabSource.add(textSource = GUI.createText(50), "growx");
         ptabSource.add(buttonSource = GUI.createButton("Выбор"), "wrap");
-        
+
         JPanel panelSrcInfo = new JPanel(new MigLayout("fill"));
         // Отображение типа источника.
         panelSrcInfo.add(GUI.createLabel("Тип:"), "skip");
@@ -86,11 +88,11 @@ public final class GUI_Main extends GUIFrame {
         comboCam.showData();
         //panelSrcInfo.add(GUI.createButton("Сканировать"), );
         ptabSource.add(panelSrcInfo, "span, grow");
-        
+
         tabPane.addTab("Источник", ptabSource);
-        
-        App.log("BgColor="+getBackground().toString());
-        
+
+        App.log("BgColor=" + getBackground().toString());
+
         ////////////////////////////////////////////////////////////////////////
         // Вкладка "Обработка"
         ////////////////////////////////////////////////////////////////////////
@@ -102,14 +104,14 @@ public final class GUI_Main extends GUIFrame {
         ////////////////////////////////////////////////////////////////////////
         JPanel panelTab3 = new JPanel(new MigLayout());
         tabPane.addTab("Состояние", panelTab3);
-        
+
         ////////////////////////////////////////////////////////////////////////
         // Вкладка "Лог" (обработки)
         ////////////////////////////////////////////////////////////////////////
         JPanel panelTab4 = new JPanel(new MigLayout());
         tabPane.addTab("Лог", panelTab4);
-        
-        
+
+
         ImagePanel p = new ImagePanel();
         p.setPreferredSize(new Dimension(352, 288));
         p.setMinimumSize(new Dimension(352, 288));
@@ -119,18 +121,18 @@ public final class GUI_Main extends GUIFrame {
             Process pr = Runtime.getRuntime().exec("ffmpeg -i ./2.frame -r 1 -s 352x288 -f image2 -");
             InputStream is = pr.getInputStream();
             FileOutputStream os = new FileOutputStream("2jpg.out");
-/*
+            /*
             byte[] bb = new byte[100000];
             while (true) {
-                int n = is.read(bb);
-                if (n < 0) {
-                    break;
-                }
-                os.write(bb, 0, n);
+            int n = is.read(bb);
+            if (n < 0) {
+            break;
+            }
+            os.write(bb, 0, n);
             }
             os.close();
- * 
- */
+             * 
+             */
             BufferedImage image = ImageIO.read(is);
             p.setImage(image);
             panelSrcInfo.add(p, "span, growx");
@@ -155,17 +157,17 @@ public final class GUI_Main extends GUIFrame {
 
         add(tabPane, BorderLayout.CENTER);
 
-        JPanel panelButton = new JPanel(new MigLayout("","[grow,fill][10px]"));
+        JPanel panelButton = new JPanel(new MigLayout("", "[grow,fill][10px]"));
         JLabel lInfo = GUI.createLabel("Инфо:");
         panelButton.add(lInfo);
         panelButton.add(buttonProcess, "spany 2, growy, wrap");
         panelButton.add(progressBar);
         add(panelButton, BorderLayout.SOUTH);
         panelButton.setBackground(Color.red);
-        
+
 
         pack();
-        
+
         buttonSource.addActionListener(new ActionListener() {
 
             @Override
@@ -175,5 +177,24 @@ public final class GUI_Main extends GUIFrame {
                 dlg.setVisible(true);
             }
         });
+    }
+
+    public void setSource(String src, int type) {
+        textSource.setText(src);
+        textType.setText(SourceFileFilter.getTypeTitle(type));
+    }
+
+    public void setCams(ArrayList<Integer> cams) {
+        comboCam.removeItems();
+        for (int i : cams) {
+            comboCam.addItem(i, i == 0 ? "не выбрана" : "CAM" + i);
+        }
+        comboCam.showData();
+    }
+
+    public void setCams(int cam) {
+        comboCam.removeItems();
+        comboCam.addItem(cam, cam == 0 ? "не выбрана" : "CAM" + cam);
+        comboCam.showData();
     }
 }

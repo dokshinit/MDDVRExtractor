@@ -20,7 +20,7 @@ public class Frame {
     public static final int HDD_HSIZE = 77;
     // Смещение времени по зонам.
     public static long timeZone = TimeZone.getDefault().getRawOffset() + 3600000;
-    //
+    // Поля:
     public Date time; // Дата-время (смещение в секундах от 1970 г.)
     public int camNumber; // Номер камеры (+допинфа в старшем байте? игнорируем).
     public int fps; // Чстота кадров в секунду.
@@ -118,7 +118,8 @@ public class Frame {
         time = getDate(tb); // Дата-время (смещение в секундах от 1970 г.)
         number = bb.getInt(offset + 0x2D); // Номер кадра.
         isMainFrame = (mf == 0) ? true : false; // Базовый кадр.
-        pos = -1;
+        
+        pos = -1; // Вычисляется позже.
         isParsed = true;
         return 0;
     }

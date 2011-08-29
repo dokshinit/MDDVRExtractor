@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package dvrextract;
+package dvrextract.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -14,7 +14,7 @@ import javax.swing.JDialog;
  *
  * @author lex
  */
-class GUIDialog extends JDialog {
+public class GUIDialog extends JDialog {
 
     public GUIDialog() {
         setModal(true);

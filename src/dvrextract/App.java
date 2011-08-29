@@ -4,6 +4,7 @@
  */
 package dvrextract;
 
+import dvrextract.gui.GUI;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
@@ -47,23 +48,6 @@ public class App {
     int frameInStepCount = 0;
     //
 
-    class CamInfo {
-
-        boolean isExists; // для архива - если есть флаг, для hdd - если есть файлы
-        long framesCount; // только для архива
-        long framesSize; // только для архива
-        Date minTime, maxTime;
-        ArrayList<HDDFileInfo> files;
-
-        public CamInfo() {
-            isExists = false;
-            framesCount = 0;
-            framesSize = 0;
-            minTime = null;
-            maxTime = null;
-        }
-    }
-    CamInfo[] info ;
     long startDataPos = 0;
     long endDataPos = 0;
     long curPos = 0;
@@ -116,8 +100,6 @@ public class App {
             App.log("Ошибка включения L&F (" + laf + ")!" + e);
         }
     }
-
-    static
     
     // Указатель на процесс сканирования (если запущен).
     static Thread scanTask = null;
@@ -127,19 +109,20 @@ public class App {
     public static boolean isTaskRunning() {
         return (scanTask != null || processTask != null) ? true : false;
     }
-    
     // Информация о источнике:
     // Подразумевается, что источником может быть или одиночный файл или
     // каталог. При этом каждый файл распознаётся исходя из имени файла:
     // по шалону *.exe - файл архива, по шаблону da*. - файл hdd.
     //
     // Каталог или файл.
-    String srcName; 
+    public static String srcName;
     // Тип источника: 0-EXE, 1-HDD
-    int srcType; 
+    public static int srcType;
+    // Ограничение одной камерой (если = 0 - без ограничений).
+    public static int srcCamNumber;
     // Массив разделения источников по камерам.
-    CamInfo[] srcCams = new CamInfo[MAXCAMS]; 
-    
+    public static CamInfo[] srcCams = new CamInfo[MAXCAMS];
+   
     /**
      * Стартует сканирование источника. Можно запускать только при отсутсвии 
      * текущего процесса сканирования \ обработки.
@@ -147,17 +130,26 @@ public class App {
      * @param cam Номер камеры для ограничения сканирования только по ней 
      * (если = 0 - для всех камер).
      */
-    public static void scanTask(String src, int cam) {
+    public static void scanTask(String src, int type, int cam) {
         if (isTaskRunning()) {
             return;
         }
+        srcName = src;
+        srcType = type;
+        srcCamNumber = cam;
+
+        mainFrame.setSource(src, type);
+        mainFrame.setCams(cam);
+
         scanTask = new Thread(new Runnable() {
 
             @Override
             public void run() {
                 // Сканирование источника.
+                scanTask = null;
             }
         });
+        scanTask.start();
 
     }
 
@@ -177,6 +169,7 @@ public class App {
                 // Позиционируем по центру экрана
                 mainFrame = new GUI_Main();
                 mainFrame.center();
+                mainFrame.setVisible(true);
             }
         });
 
@@ -227,6 +220,17 @@ public class App {
          * 
          */
 
+        
+        /*
+         * 1. Выбор источника данных: каталог или файл exe/hdd.
+         * 2. Сканирование источника. 
+         *    Если это файл, то параметры файла.
+         *    Если каталог - параметры каждого файла в каталоге.
+         * 3. Если каталог - выбор файлов.
+         * 4. Настройка параметров обработки. 
+         *    Видеопотока, титров, аудио, выходных файлов, доп.параметров ffmpeg.
+         * 5. Обработка с отображением прогреса.
+         */
 
 
     }
