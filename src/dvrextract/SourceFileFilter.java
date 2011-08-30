@@ -10,6 +10,8 @@ import javax.swing.filechooser.FileFilter;
  */
 public class SourceFileFilter extends FileFilter {
 
+    // Общий фильтр для всех типов файлов.
+    public static final SourceFileFilter instALL = new SourceFileFilter("(.+\\.exe$|^da\\d+)", "Все файлы DVR");
     // Фильтр для EXE файлов.
     public static final SourceFileFilter instEXE = new SourceFileFilter(".+\\.exe$", "Файлы EXE-архивы DVR");
     // Фильтр для HDD файлов.
@@ -20,6 +22,7 @@ public class SourceFileFilter extends FileFilter {
 
     public SourceFileFilter(String ptrn, String desc) {
         pattern = Pattern.compile(ptrn, Pattern.UNICODE_CASE | Pattern.CASE_INSENSITIVE);
+        description = desc;
     }
 
     // Разрешаем каталоги и файлы HDD.
@@ -38,32 +41,26 @@ public class SourceFileFilter extends FileFilter {
     }
 
     // Возвращает тип файла.
-    public static int getType(File f) {
+    public static FileType getType(File f) {
         if (f.isDirectory()) {
-            return 0;
+            return FileType.DIR;
         } else if (instEXE.accept(f)) {
-            return 1;
+            return FileType.EXE;
         } else if (instHDD.accept(f)) {
-            return 2;
+            return FileType.HDD;
         } else {
-            return -1;
+            return FileType.NO;
         }
     }
     
-    public static String getTypeTitle(int type) {
+    public static SourceFileFilter get(FileType type) {
         switch (type) {
-            case 0:
-                return "каталог";
-            case 1:
-                return "EXE";
-            case 2:
-                return "HDD";
+            case EXE:
+                return instEXE;
+            case HDD:
+                return instHDD;
             default:
-                return "не определён";
+                return instALL;
         }
-    }
-    
-    public static String getTypeTitle(File f) {
-        return getTypeTitle(getType(f));
     }
 }

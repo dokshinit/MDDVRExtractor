@@ -9,9 +9,7 @@ import java.io.FileFilter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.regex.Pattern;
 
 /**
  *
@@ -52,8 +50,7 @@ public class Files {
                     if (pathname.length() == 0) {
                         return false;
                     }
-                    return SourceFileFilter.instEXE.accept(pathname)
-                            || SourceFileFilter.instHDD.accept(pathname);
+                    return SourceFileFilter.instALL.accept(pathname);
                 }
             });
 
@@ -61,13 +58,8 @@ public class Files {
                 if (fa[i].isDirectory()) {
                     scanDir(fa[i].getPath(), cam); // Переходим глубже на один уровень.
                 } else {
-                    FileInfo info = null;
-                    if (SourceFileFilter.instEXE.accept(fa[i])) {
-                        info = parseEXEFileBuffered(fa[i].getPath(), 1, cam);
-                    } else if (SourceFileFilter.instHDD.accept(fa[i])) {
-                        info = parseHDDFileBuffered(fa[i].getPath(), cam);
-                        //App.log("file=" + fa[i].getPath());
-                    }
+                    FileType type = SourceFileFilter.getType(fa[i]);
+                    FileInfo info = parseFileBuffered(fa[i].getPath(), type, cam);
                     if (info != null) {
                         // Добавляем файл ко всем камерам, какие в нём перечислены.
                         for (int n : info.camNumbers) {
@@ -91,6 +83,7 @@ public class Files {
      * Создание записи информации о файле и добавление её в массив соответсвенной камере.
      * @param fileName Имя файла.
      */
+    // <editor-fold defaultstate="collapsed" desc="Deprecated parseFile(...)">
     @Deprecated
     public FileInfo parseHDDFile(String fileName, int cam) {
         try {
@@ -153,12 +146,14 @@ public class Files {
             return null;
         }
     }
+    // </editor-fold>
 
     /**
      * Распознавание начального и конечного кадров файла.
      * Создание записи информации о файле и добавление её в массив соответсвенной камере.
      * @param fileName Имя файла.
      */
+    
     public FileInfo parseHDDFileBuffered(String fileName, int cam) {
         try {
             final byte[] baFrame = new byte[100000]; // буфер чтения
@@ -250,7 +245,7 @@ public class Files {
      * Создание записи информации о файле и добавление её в массив соответсвенной камере.
      * @param fileName Имя файла.
      */
-    public FileInfo parseEXEFileBuffered(String fileName, int type, int cam) {
+    public FileInfo parseFileBuffered(String fileName, FileType type, int cam) {
         try {
             final byte[] baFrame = new byte[100000]; // буфер чтения
             final ByteBuffer bbF = ByteBuffer.wrap(baFrame);
@@ -263,12 +258,13 @@ public class Files {
             info.fileSize = in.getSize();
             Frame f = new Frame();
 
-            long pos = 0;
-            long ost = in.getSize();
-            long size = in.getSize();
+            long pos = 0; // Позиция поиска.
+            long ost = in.getSize(); // Остаток данных.
+            long size = in.getSize(); // Размер данных (конечная позиция).
+            int frameSize = Frame.HDD_HSIZE;
 
             // Если это EXE - делаем разбор инфы в конце файла.
-            if (type == 1) {
+            if (type == FileType.EXE) {
                 in.seek(in.getSize() - 28 * 16);
                 in.read(baFrame, 28 * 16);
 
@@ -283,16 +279,17 @@ public class Files {
                 pos = bbF.getInt(24*16);
                 size = bbF.getInt(12 * 16);
                 ost = size - pos;
-                App.log("Общий размер данных = " + ost);
+                frameSize = Frame.EXE_HSIZE;
             }
+            App.log("Общий размер данных = " + ost);
 
             // Ищем первый кадр (от начала к концу).
-            while (pos < in.getSize() - Frame.HDD_HSIZE) {
+            while (pos < in.getSize() - frameSize) {
                 in.seek(pos);
                 int len = (int) Math.min(baFrame.length, ost);
                 in.read(baFrame, (int) len);
 
-                for (int i = 0; i < len - Frame.HDD_HSIZE; i++) {
+                for (int i = 0; i < len - frameSize; i++) {
                     if (f.parseHeader(bbF, i) == 0) {
                         // Если номер камеры указан и это не он - пропускаем разбор.
                         if (cam > 0 && f.camNumber != cam) {
@@ -308,8 +305,8 @@ public class Files {
                 if (f.isParsed) {
                     break;
                 } else {
-                    pos += len - Frame.HDD_HSIZE;
-                    ost -= len - Frame.HDD_HSIZE;
+                    pos += len - frameSize;
+                    ost -= len - frameSize;
                 }
             }
             if (!f.isParsed) {

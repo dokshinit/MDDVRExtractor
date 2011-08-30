@@ -29,10 +29,10 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
     JTextField textType;
     JExtComboBox comboCam;
     JButton buttonScan;
-    int type; // тип выбранного файла: 0 - не определен, 1 - EXE, 2 - HDD.
+    FileType type; // тип выбранного файла
 
     public GUI_SourceSelect() {
-        type = 0;
+        type = FileType.NO;
         init();
     }
 
@@ -41,20 +41,23 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         setLayout(new MigLayout("fill"));
 
         // Источник:
-        add(GUI.createLabel("Источник:"), "");
+        add(GUI.createLabel("Источник:"), "right");
         add(textSource = GUI.createText(30), "span, growx, split 2");
         textSource.setText(App.srcName);
         textSource.setEditable(false);
         add(buttonSelect = GUI.createButton("Выбор"), "wrap");
         buttonSelect.addActionListener(this);
         // Тип источника:
-        add(GUI.createLabel("Тип:"));
-        add(textType = GUI.createText("не определён", 10));
+        add(GUI.createLabel("Тип:"), "right");
+        add(textType = GUI.createText("не определён", 10), "");
         textType.setEditable(false);
         textType.setHorizontalAlignment(JTextField.CENTER);
+        // Примечание:
+        JLabel l = GUI.createNoteLabel("<html>* Выбор конкретной камеры может существенно<br>уменьшить время сканирования источника при<br>больших объёмах данных!</html>");
+        add(l, "spany 2, wrap");
         // Выбор камеры:
-        add(GUI.createLabel("Камера:"), "");
-        add(comboCam = GUI.createCombo(true), "push");
+        add(GUI.createLabel("Камера:"), "right");
+        add(comboCam = GUI.createCombo(true), "growx, wrap");
         comboCam.addItem(0, "< все >");
         for (int i = 0; i < App.MAXCAMS; i++) {
             comboCam.addItem(i + 1, "CAM" + (i + 1));
@@ -62,17 +65,15 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         comboCam.showData();
         comboCam.addActionListener(this);
         // Кнопка начала сканиования:
-        add(buttonScan = GUI.createButton("Сканировать"), "wrap");
+        add(buttonScan = GUI.createButton("Сканировать"), "gapy 15, h 30, span, center, wrap");
         buttonScan.addActionListener(this);
-        // Примечание:
-        JLabel l = GUI.createNoteLabel("<html>* Ограничение по камере может существенно уменьшить время<br>сканирования HDD-источника при больших объёмах данных!</html>");
-        add(l, "span, growx");
 
         pack();
         setResizable(false); // После вычисления размера - изменение ни к чему.
 
         File f = new File(textSource.getText());
-        textType.setText(SourceFileFilter.getTypeTitle(f));
+        type = SourceFileFilter.getType(f);
+        textType.setText(type.title);
     }
 
     @Override
@@ -125,9 +126,10 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         };
         fd.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         fd.setAcceptAllFileFilterUsed(false);
+        fd.addChoosableFileFilter(SourceFileFilter.instALL);
         fd.addChoosableFileFilter(SourceFileFilter.instEXE);
         fd.addChoosableFileFilter(SourceFileFilter.instHDD);
-        fd.setFileFilter(type == 2 ? SourceFileFilter.instHDD : SourceFileFilter.instEXE);
+        fd.setFileFilter(SourceFileFilter.get(type));
         fd.setDialogTitle("Выбор файла/каталога источника");
         fd.setMultiSelectionEnabled(false);
         String name = textSource.getText().trim();
@@ -139,7 +141,8 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         if (res == JFileChooser.APPROVE_OPTION) {
             File f = fd.getSelectedFile();
             textSource.setText(f.getAbsolutePath());
-            textType.setText(SourceFileFilter.getTypeTitle(type));
+            type = SourceFileFilter.getType(f);
+            textType.setText(type.title);
         }
     }
 

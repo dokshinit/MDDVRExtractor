@@ -63,35 +63,36 @@ public final class GUI_Main extends GUIFrame {
     void init() {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
-        setPreferredSize(new Dimension(700, 550));
+        setPreferredSize(new Dimension(800, 600));
 
         GUITabPane tabPane = new GUITabPane();
 
         ////////////////////////////////////////////////////////////////////////
         // Вкладка "Источник"
         ////////////////////////////////////////////////////////////////////////
-        JPanel ptabSource = new JPanel(new MigLayout());
+        JPanel ptabSource = new JPanel(new MigLayout("","","[]2[][]"));
+        
         ptabSource.add(GUI.createLabel("Источник"));
-        ptabSource.add(textSource = GUI.createText(50), "growx");
+        ptabSource.add(textSource = GUI.createText(100), "growx, span, split 2");
+        textSource.setEditable(false);
         ptabSource.add(buttonSource = GUI.createButton("Выбор"), "wrap");
 
-        JPanel panelSrcInfo = new JPanel(new MigLayout("fill"));
         // Отображение типа источника.
-        panelSrcInfo.add(GUI.createLabel("Тип:"), "skip");
-        panelSrcInfo.add(textType = GUI.createText("не определён", 10), "skip");
+        ptabSource.add(GUI.createLabel("Тип:"), "right");
+        ptabSource.add(textType = GUI.createText("не определён", 10), "span, split 3");
         textType.setEditable(false);
         textType.setHorizontalAlignment(JTextField.CENTER);
         // Выбор камеры для обработки.
-        panelSrcInfo.add(GUI.createLabel("Камера:"), "skip");
-        panelSrcInfo.add(comboCam = GUI.createCombo(false), "skip, push, wrap");
+        ptabSource.add(GUI.createLabel("Камера:"), "");
+        ptabSource.add(comboCam = GUI.createCombo(false), "w 110, wrap");
         comboCam.addItem(1, "не выбрана");
         comboCam.showData();
+
+        JPanel panelSrcInfo = new JPanel(new MigLayout("fill, ins 0"));
         //panelSrcInfo.add(GUI.createButton("Сканировать"), );
         ptabSource.add(panelSrcInfo, "span, grow");
 
         tabPane.addTab("Источник", ptabSource);
-
-        App.log("BgColor=" + getBackground().toString());
 
         ////////////////////////////////////////////////////////////////////////
         // Вкладка "Обработка"
@@ -179,9 +180,9 @@ public final class GUI_Main extends GUIFrame {
         });
     }
 
-    public void setSource(String src, int type) {
+    public void setSource(String src, FileType type) {
         textSource.setText(src);
-        textType.setText(SourceFileFilter.getTypeTitle(type));
+        textType.setText(type.title);
     }
 
     public void setCams(ArrayList<Integer> cams) {

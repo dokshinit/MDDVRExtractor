@@ -35,7 +35,7 @@ public class GUITabPane extends JPanel implements ActionListener {
         items = new ArrayList<Item>();
         index = -1;
         setLayout(new BorderLayout());
-        panelBar = new JPanel(new MigLayout("ins 5 5 5 5, gap 2", "[]"));
+        panelBar = new JPanel(new MigLayout("ins 5 5 5 5, gap 2"));
         add(panelBar, BorderLayout.NORTH);
     }
 

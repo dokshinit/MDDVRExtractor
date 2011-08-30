@@ -117,7 +117,7 @@ public class App {
     // Каталог или файл.
     public static String srcName;
     // Тип источника: 0-EXE, 1-HDD
-    public static int srcType;
+    public static FileType srcType;
     // Ограничение одной камерой (если = 0 - без ограничений).
     public static int srcCamNumber;
     // Массив разделения источников по камерам.
@@ -130,7 +130,7 @@ public class App {
      * @param cam Номер камеры для ограничения сканирования только по ней 
      * (если = 0 - для всех камер).
      */
-    public static void scanTask(String src, int type, int cam) {
+    public static void scanTask(String src, FileType type, int cam) {
         if (isTaskRunning()) {
             return;
         }
