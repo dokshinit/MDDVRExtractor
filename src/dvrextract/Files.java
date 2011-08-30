@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dvrextract;
 
 import java.io.File;
@@ -12,67 +8,66 @@ import java.nio.ByteOrder;
 import java.util.Collections;
 
 /**
- *
+ * Осуществление действий с источником: сканирование, обработка.
  * @author lex
  */
 public class Files {
 
     /**
-     * Рекурсивное построение списков файлов по фильтру (с обходом подкаталогов).
-     * Списки файлов формируются для каждой камеры отдельно. Далее списки 
-     * сортируются по возрастанию по времени первого кадра.
-     * @param startpath Путь к каталогу сканирования.
+     * Сканирование источника (с рекурсивным обходом подкаталогов).
+     * Если источник файл - сканируется один файл, если каталог - сканируются 
+     * все файлы в каталоге и во всех подкаталогах. Распознанные файлы 
+     * распределяются по камерам и в итоге сортируются по возрастанию по времени 
+     * первого кадра.
+     * @param startpath Источник (файл или каталог).
      */
     public void scan(String startpath, int cam) {
+        // Очистка всех данных о предыдущем сканировании.
         for (int i = 0; i < App.MAXCAMS; i++) {
             App.srcCams[i].clear();
         }
+        // Сканирование.
         scanDir(startpath, cam);
+        // Сортировка списков файлов.
         for (int i = 0; i < App.MAXCAMS; i++) {
             Collections.sort(App.srcCams[i].files, FileInfo.getComparator());
         }
     }
 
     /**
-     * Рекурсивное построение списка файлов по фильтру (с обходом подкаталогов).
-     * @param path Путь к каталогу сканирования.
+     * Сканирование уровня источника с рекурсией вглубь.
+     * @param path Источник (файл или каталог).
      */
     private void scanDir(String path, int cam) {
         try {
             File f = new File(path);
-            File[] fa = f.listFiles(new FileFilter() {
-
-                @Override
-                public boolean accept(File pathname) {
-                    if (pathname.isDirectory()) {
-                        return true;
-                    }
-                    if (pathname.length() == 0) {
-                        return false;
-                    }
-                    return SourceFileFilter.instALL.accept(pathname);
-                }
-            });
+            File[] fa = f.listFiles((FileFilter) SourceFileFilter.instALL);
 
             for (int i = 0; i < fa.length; i++) {
-                if (fa[i].isDirectory()) {
+                if (fa[i].isDirectory()) { // Каталог.
                     scanDir(fa[i].getPath(), cam); // Переходим глубже на один уровень.
-                } else {
-                    FileType type = SourceFileFilter.getType(fa[i]);
-                    FileInfo info = parseFileBuffered(fa[i].getPath(), type, cam);
-                    if (info != null) {
-                        // Добавляем файл ко всем камерам, какие в нём перечислены.
-                        for (int n : info.camNumbers) {
-                            App.srcCams[n - 1].addFile(info);
-                            App.log((info.frameFirst.pos > 0 ? "ERR=" + info.frameFirst.pos + " " : "")
-                                    + "file=" + fa[i].getPath() + " cam=" + n
-                                    + " t=" + (info.frameLast.time.getTime() - info.frameFirst.time.getTime())
-                                    + " time1=" + info.frameFirst.time.toString() + " time2=" + info.frameLast.time.toString());
-                        }
+                    continue;
+                }
+                if (fa[i].length() <= 0) { // Пустой файл.
+                    continue;
+                }
+                // Простой файл.
+                FileType type = SourceFileFilter.getType(fa[i]);
+                FileInfo info = parseFileBuffered(fa[i].getPath(), type, cam);
+                if (info != null) {
+                    // Добавляем файл ко всем камерам, какие в нём перечислены.
+                    for (int n : info.camNumbers) {
+                        App.srcCams[n - 1].addFile(info);
+                        App.log((info.frameFirst.pos > 0
+                                ? "ERR=" + info.frameFirst.pos + " " : "")
+                                + "file=" + fa[i].getPath() + " cam=" + n
+                                + " t=" + (info.frameLast.time.getTime()
+                                - info.frameFirst.time.getTime())
+                                + " time1=" + info.frameFirst.time.toString()
+                                + " time2=" + info.frameLast.time.toString());
                     }
                 }
             }
-
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -153,7 +148,8 @@ public class Files {
      * Создание записи информации о файле и добавление её в массив соответсвенной камере.
      * @param fileName Имя файла.
      */
-    
+    // <editor-fold defaultstate="collapsed" desc="Deprecated parseHDDFile(...)">
+    @Deprecated
     public FileInfo parseHDDFileBuffered(String fileName, int cam) {
         try {
             final byte[] baFrame = new byte[100000]; // буфер чтения
@@ -239,15 +235,22 @@ public class Files {
             return null;
         }
     }
+    // </editor-fold>
 
     /**
-     * Распознавание начального и конечного кадров файла.
-     * Создание записи информации о файле и добавление её в массив соответсвенной камере.
-     * @param fileName Имя файла.
+     */
+    /**
+     * Сканирование файла-источника. Если это EXE - чтение инфы. Распознавание 
+     * начального и конечного кадров файла.
+     * @param fileName Имя файла-источника.
+     * @param type Тип файла-источника.
+     * @param cam Ограничение по камере (0-по всем, иначе только для данной камеры).
+     * @return 
      */
     public FileInfo parseFileBuffered(String fileName, FileType type, int cam) {
         try {
-            final byte[] baFrame = new byte[100000]; // буфер чтения
+            // Буфер чтения и парсинга данных.
+            final byte[] baFrame = new byte[100000];
             final ByteBuffer bbF = ByteBuffer.wrap(baFrame);
             bbF.order(ByteOrder.LITTLE_ENDIAN);
 
@@ -270,13 +273,13 @@ public class Files {
 
                 // Наличие треков камер.
                 for (int i = 0; i < App.MAXCAMS; i++) {
-                    if (bbF.getInt() != 0 && (cam == 0 || cam == (i+1))) {
+                    if (bbF.getInt() != 0 && (cam == 0 || cam == (i + 1))) {
                         info.camNumbers.add(i);
                         App.log("CAM" + (i + 1) + " данные в наличии!");
                     }
                 }
                 // Позиции начала и конца данных в файле.
-                pos = bbF.getInt(24*16);
+                pos = bbF.getInt(24 * 16);
                 size = bbF.getInt(12 * 16);
                 ost = size - pos;
                 frameSize = Frame.EXE_HSIZE;

@@ -52,7 +52,7 @@ public class SourceFileFilter extends FileFilter {
             return FileType.NO;
         }
     }
-    
+
     public static SourceFileFilter get(FileType type) {
         switch (type) {
             case EXE:

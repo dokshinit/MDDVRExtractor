@@ -8,6 +8,8 @@ import dvrextract.gui.GUI;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.io.File;
+import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -47,7 +49,6 @@ public class App {
     int frameCount = 0;
     int frameInStepCount = 0;
     //
-
     long startDataPos = 0;
     long endDataPos = 0;
     long curPos = 0;
@@ -100,7 +101,6 @@ public class App {
             App.log("Ошибка включения L&F (" + laf + ")!" + e);
         }
     }
-    
     // Указатель на процесс сканирования (если запущен).
     static Thread scanTask = null;
     // Указатель на процесс обработки (если запущена).
@@ -122,7 +122,7 @@ public class App {
     public static int srcCamNumber;
     // Массив разделения источников по камерам.
     public static CamInfo[] srcCams = new CamInfo[MAXCAMS];
-   
+
     /**
      * Стартует сканирование источника. Можно запускать только при отсутсвии 
      * текущего процесса сканирования \ обработки.
@@ -159,6 +159,16 @@ public class App {
      */
     public static void main(String[] args) {
 
+        File f = new File("/home/work");
+        File[] fa = f.listFiles(new FileFilter() {
+
+            @Override
+            public boolean accept(File pathname) {
+                return true;
+            }
+        });
+
+        
         initLAF();
 
         // Старт многооконного приложения
@@ -220,7 +230,7 @@ public class App {
          * 
          */
 
-        
+
         /*
          * 1. Выбор источника данных: каталог или файл exe/hdd.
          * 2. Сканирование источника. 
