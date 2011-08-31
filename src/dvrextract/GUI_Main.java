@@ -7,17 +7,13 @@ package dvrextract;
 import dvrextract.gui.GUI;
 import dvrextract.gui.GUITabPane;
 import dvrextract.gui.GUIFrame;
-import dvrextract.gui.JExtComboBox;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import net.miginfocom.swing.MigLayout;
@@ -27,14 +23,11 @@ import net.miginfocom.swing.MigLayout;
  * @author lex
  */
 public final class GUI_Main extends GUIFrame {
+
     ////////////////////////////////////////////////////////////////////////////
     // Закладка: Источник
     ////////////////////////////////////////////////////////////////////////////
-
-    JTextField textSource;
-    JButton buttonSource;
-    JTextField textType;
-    JExtComboBox comboCam;
+    public GUI_TabSource tabSource;
     ////////////////////////////////////////////////////////////////////////////
     // Закладка: Обработка
     ////////////////////////////////////////////////////////////////////////////
@@ -60,9 +53,9 @@ public final class GUI_Main extends GUIFrame {
         init();
     }
 
-    void init() {
-        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    private void init() {
         setLayout(new BorderLayout());
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setPreferredSize(new Dimension(800, 600));
 
         GUITabPane tabPane = new GUITabPane();
@@ -70,29 +63,7 @@ public final class GUI_Main extends GUIFrame {
         ////////////////////////////////////////////////////////////////////////
         // Вкладка "Источник"
         ////////////////////////////////////////////////////////////////////////
-        JPanel ptabSource = new JPanel(new MigLayout("","","[]2[][]"));
-        
-        ptabSource.add(GUI.createLabel("Источник"));
-        ptabSource.add(textSource = GUI.createText(100), "growx, span, split 2");
-        textSource.setEditable(false);
-        ptabSource.add(buttonSource = GUI.createButton("Выбор"), "wrap");
-
-        // Отображение типа источника.
-        ptabSource.add(GUI.createLabel("Тип:"), "right");
-        ptabSource.add(textType = GUI.createText("не определён", 10), "span, split 3");
-        textType.setEditable(false);
-        textType.setHorizontalAlignment(JTextField.CENTER);
-        // Выбор камеры для обработки.
-        ptabSource.add(GUI.createLabel("Камера:"), "");
-        ptabSource.add(comboCam = GUI.createCombo(false), "w 110, wrap");
-        comboCam.addItem(1, "не выбрана");
-        comboCam.showData();
-
-        JPanel panelSrcInfo = new JPanel(new MigLayout("fill, ins 0"));
-        //panelSrcInfo.add(GUI.createButton("Сканировать"), );
-        ptabSource.add(panelSrcInfo, "span, grow");
-
-        tabPane.addTab("Источник", ptabSource);
+        tabPane.addTab("Источник", tabSource = new GUI_TabSource());
 
         ////////////////////////////////////////////////////////////////////////
         // Вкладка "Обработка"
@@ -136,7 +107,7 @@ public final class GUI_Main extends GUIFrame {
              */
             BufferedImage image = ImageIO.read(is);
             p.setImage(image);
-            panelSrcInfo.add(p, "span, growx");
+            //tabSource.panelImage.add(p, "span, growx");
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -166,36 +137,6 @@ public final class GUI_Main extends GUIFrame {
         add(panelButton, BorderLayout.SOUTH);
         panelButton.setBackground(Color.red);
 
-
         pack();
-
-        buttonSource.addActionListener(new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                GUI_SourceSelect dlg = new GUI_SourceSelect();
-                dlg.center();
-                dlg.setVisible(true);
-            }
-        });
-    }
-
-    public void setSource(String src, FileType type) {
-        textSource.setText(src);
-        textType.setText(type.title);
-    }
-
-    public void setCams(ArrayList<Integer> cams) {
-        comboCam.removeItems();
-        for (int i : cams) {
-            comboCam.addItem(i, i == 0 ? "не выбрана" : "CAM" + i);
-        }
-        comboCam.showData();
-    }
-
-    public void setCams(int cam) {
-        comboCam.removeItems();
-        comboCam.addItem(cam, cam == 0 ? "не выбрана" : "CAM" + cam);
-        comboCam.showData();
     }
 }

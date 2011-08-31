@@ -238,8 +238,6 @@ public class Files {
     // </editor-fold>
 
     /**
-     */
-    /**
      * Сканирование файла-источника. Если это EXE - чтение инфы. Распознавание 
      * начального и конечного кадров файла.
      * @param fileName Имя файла-источника.
@@ -259,8 +257,8 @@ public class Files {
             FileInfo info = new FileInfo();
             info.fileName = fileName;
             info.fileSize = in.getSize();
-            Frame f = new Frame();
 
+            Frame f = new Frame();
             long pos = 0; // Позиция поиска.
             long ost = in.getSize(); // Остаток данных.
             long size = in.getSize(); // Размер данных (конечная позиция).

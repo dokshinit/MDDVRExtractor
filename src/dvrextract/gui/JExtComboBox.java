@@ -15,46 +15,63 @@ import javax.swing.*;
  *     public JModeComboBox() throws FaultException {
  *         super(false);
  *         init();
- *     }
- *
- *     public void addItem(ResultSet rs) throws Exception {
- *         items.add(new ExtItem(0, "Наличные"));
- *         items.add(new ExtItem(1, "МК-деньги (без СБ и Петрол)"));
- *         items.add(new ExtItem(2, "МК-Сбербанк"));
- *         items.add(new ExtItem(3, "МК-Петрол"));
- *         items.add(new ExtItem(4, "МК-ответ-хранение (без разбивки по клиентам!)"));
+ *         addItem(0, "Режим 1");
+ *         addItem(1, "Режим 2");
+ *         addItem(2, "Режим 3");
+ *         showData();
  *     }
  * }
+ * 
+ * JModeComboBox b = new JModeComboBox();
+ * b.showData();
+ * 
  * </pre>
  * @author Докшин_А_Н
  */
 public class JExtComboBox extends JComboBox {
 
-    // Список
-    protected ArrayList items;          // Объекты записей списка.
+    // Объекты записей списка.
+    protected ArrayList items;
 
     /**
      * Конструктор.
-     * @param isAddItem_All Флаг - добавлять в список элемент "Все".
      */
     public JExtComboBox() {
         items = new ArrayList();
         setEnabled(false);
     }
-    
+
     /**
-     * Применение модели.
+     * Применение модели - отображение списка.
      */
     public void showData() {
         setModel(new DefaultComboBoxModel(items.toArray()));
         setEnabled(true);
     }
 
-    public void addItem(int id, String title) {
-        items.add(new ExtItem(id, title));
+    /**
+     * Добавление элемента в список
+     * (для отображения необходимо вызвать showData()).
+     * @param item Элемент списка.
+     */
+    public void addItem(ExtItem item) {
+        items.add(item);
     }
 
-    
+    /**
+     * Добавление элемента в список
+     * (для отображения необходимо вызвать showData()).
+     * @param id Код.
+     * @param title Название.
+     */
+    public void addItem(int id, String title) {
+        addItem(new ExtItem(id, title));
+    }
+
+    /**
+     * Очистка записей из списка 
+     * (для отображения необходимо вызвать showData()).
+     */
     public void removeItems() {
         items.clear();
     }
@@ -88,18 +105,28 @@ public class JExtComboBox extends JComboBox {
      */
     public class ExtItem {
 
+        // Код.
         public int id;
+        // Название.
         public String title;
 
+        /**
+         * Конструктор.
+         * @param id Код.
+         * @param title Название.
+         */
         public ExtItem(int id, String title) {
             this.id = id;
             this.title = title;
         }
 
+        /**
+         * Представление записи для отображения.
+         * @return Название.
+         */
         @Override
         public String toString() {
             return title;
         }
     }
-
 }

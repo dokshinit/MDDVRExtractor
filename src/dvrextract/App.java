@@ -138,8 +138,8 @@ public class App {
         srcType = type;
         srcCamNumber = cam;
 
-        mainFrame.setSource(src, type);
-        mainFrame.setCams(cam);
+        mainFrame.tabSource.setSource(src, type);
+        mainFrame.tabSource.setCams(cam);
 
         scanTask = new Thread(new Runnable() {
 
@@ -159,16 +159,6 @@ public class App {
      */
     public static void main(String[] args) {
 
-        File f = new File("/home/work");
-        File[] fa = f.listFiles(new FileFilter() {
-
-            @Override
-            public boolean accept(File pathname) {
-                return true;
-            }
-        });
-
-        
         initLAF();
 
         // Старт многооконного приложения

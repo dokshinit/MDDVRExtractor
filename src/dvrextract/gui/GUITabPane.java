@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dvrextract.gui;
 
 import java.awt.BorderLayout;
@@ -79,34 +75,36 @@ public class GUITabPane extends JPanel implements ActionListener {
         if (e.getSource() instanceof JToggleButton) {
             JToggleButton b = (JToggleButton) e.getSource();
             for (Item i2 : items) {
-                if (i2.button == b) {
-                    Item i1 = items.get(index);
-
-                    i1.button.setSelected(false); // Выключаем старую кнопку.
-                    i2.button.setSelected(true); // Включаем новую кнопку.
-
-                    remove(i1.comp);
-                    add(i2.comp, BorderLayout.CENTER);
-                    index = i2.index;
-
-                    // Перерисовываем канву.
-                    validate();
-                    repaint();
-                    break;
+                if (i2.button != b) {
+                    continue;
                 }
+                Item i1 = items.get(index);
+                // Выключаем старую кнопку.
+                i1.button.setSelected(false);
+                remove(i1.comp);
+                // Включаем новую кнопку.
+                i2.button.setSelected(true);
+                add(i2.comp, BorderLayout.CENTER);
+                index = i2.index;
+                // Перерисовываем канву.
+                validate();
+                repaint();
+                break;
             }
-
         }
     }
 
     /**
      * Класс - закладка.
      */
-    class Item {
+    public class Item {
 
-        public int index; // Индекс закладки в массиве закладок.
-        public Component comp; // Содержимое закладки.
-        public JToggleButton button; // Кнопка-селектор закладки.
+        // Индекс закладки в массиве закладок.
+        private int index;
+        // Содержимое закладки.
+        private Component comp;
+        // Кнопка-селектор закладки.
+        private JToggleButton button;
 
         /**
          * Конструктор.
@@ -120,8 +118,21 @@ public class GUITabPane extends JPanel implements ActionListener {
             this.comp = comp;
             button.addActionListener(GUITabPane.this);
         }
+
+        public int getIndex() {
+            return index;
+        }
+
+        public Component getComp() {
+            return comp;
+        }
+
+        public JToggleButton getButton() {
+            return button;
+        }
     }
 
+    // <editor-fold defaultstate="collapsed" desc="Demo">
     /**
      * Для проверки - демо.
      * @param args 
@@ -163,4 +174,5 @@ public class GUITabPane extends JPanel implements ActionListener {
 
         frm.setVisible(true);
     }
+    // </editor-fold>
 }
