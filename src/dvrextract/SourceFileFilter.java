@@ -17,15 +17,26 @@ public class SourceFileFilter extends FileFilter {
     // Фильтр для HDD файлов.
     public static final SourceFileFilter instHDD = new SourceFileFilter("^da\\d+", "Файлы HDD DVR");
     //
-    private Pattern pattern; // Маска фильтрации файлов.
-    private String description; // Описание.
+    // Маска фильтрации файлов.
+    private Pattern pattern; 
+    // Описание.
+    private String description; 
 
+    /**
+     * Конструктор.
+     * @param ptrn Регулярное выражение для фильтрации.
+     * @param desc Описание фильтра.
+     */
     public SourceFileFilter(String ptrn, String desc) {
         pattern = Pattern.compile(ptrn, Pattern.UNICODE_CASE | Pattern.CASE_INSENSITIVE);
         description = desc;
     }
 
-    // Разрешаем каталоги и файлы HDD.
+    /**
+     * Метод фильтрации (разрешаем каталоги и файлы по фильтру).
+     * @param f Проверяемый файл.
+     * @return true - разрешаем, false - запрещаем.
+     */
     @Override
     public boolean accept(File f) {
         if (f.isDirectory()) {
@@ -34,13 +45,20 @@ public class SourceFileFilter extends FileFilter {
         return pattern.matcher(f.getName()).matches();
     }
 
-    // Описание фильтра.
+    /**
+     * Описание фильтра.
+     * @return Описание фильтра.
+     */
     @Override
     public String getDescription() {
         return description;
     }
 
-    // Возвращает тип файла.
+    /**
+     * Возвращает тип файла.
+     * @param f Файл.
+     * @return Тип файла.
+     */
     public static FileType getType(File f) {
         if (f.isDirectory()) {
             return FileType.DIR;
@@ -53,6 +71,11 @@ public class SourceFileFilter extends FileFilter {
         }
     }
 
+    /**
+     * Возвращает фильтр по типу файла.
+     * @param type Тип файла.
+     * @return Фильтр.
+     */
     public static SourceFileFilter get(FileType type) {
         switch (type) {
             case EXE:

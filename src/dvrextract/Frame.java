@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dvrextract;
 
 import java.nio.ByteBuffer;
@@ -9,7 +5,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 /**
- *
+ * Работа с кадрами источника.
  * @author lex
  */
 public class Frame {
@@ -20,18 +16,32 @@ public class Frame {
     public static final int HDD_HSIZE = 77;
     // Смещение времени по зонам.
     public static long timeZone = TimeZone.getDefault().getRawOffset() + 3600000;
-    // Поля:
-    public Date time; // Дата-время (смещение в секундах от 1970 г.)
-    public int camNumber; // Номер камеры (+допинфа в старшем байте? игнорируем).
-    public int fps; // Чстота кадров в секунду.
-    public boolean isMainFrame; // Базовый кадр.
-    public int videoSize; // Размер кадра видеоданных.
-    public int audioSize; // Размер кадра аудиоданных.
-    public int number; // Номер кадра.
     //
-    public boolean isParsed; // Флаг успешного разбора кадра.
-    public long pos; // Позиция начала в файле.
+    // Поля:
+    // Дата-время (смещение в секундах от 1970 г.)
+    public Date time; 
+    // Номер камеры (+допинфа в старшем байте? игнорируем).
+    public int camNumber; 
+    // Частота кадров в секунду.
+    public int fps; 
+    // Базовый кадр.
+    public boolean isMainFrame; 
+    // Размер кадра видеоданных.
+    public int videoSize; 
+    // Размер кадра аудиоданных.
+    public int audioSize; 
+    // Номер кадра.
+    public int number; 
+    //
+    // Флаг успешного разбора кадра.
+    public boolean isParsed; 
+    // Позиция начала в файле.
+    public long pos; 
 
+    
+    /**
+     * Конструктор.
+     */
     public Frame() {
         time = null;
         camNumber = 0;
@@ -40,14 +50,23 @@ public class Frame {
         videoSize = -1;
         audioSize = -1;
         number = -1;
-        pos = -1;
+        
         isParsed = false;
+        pos = -1;
     }
 
+    /**
+     * Установка зонального смещения (часовой пояс отн.мирового).
+     * @param msec Новое смещение в миллисекундах).
+     */
     public static void setZoneShift(long msec) {
         timeZone = msec;
     }
 
+    /**
+     * Возвращает зональное смещение в миллисекундах.
+     * @return Смещение в миллисекундах.
+     */
     public static long getZoneShift() {
         return timeZone;
     }
@@ -103,23 +122,29 @@ public class Frame {
         if (mf > 1) { // MainFrame
             return 4;
         }
-        videoSize = bb.getInt(offset + 0x19); // Размер кадра видеоданных.
+        // Размер кадра видеоданных.
+        videoSize = bb.getInt(offset + 0x19); 
         if (videoSize < 0 || videoSize > 1000000) {
             return 5;
         }
-        audioSize = bb.getInt(offset + 0x1D); // Размер кадра аудиоданных.
+        // Размер кадра аудиоданных.
+        audioSize = bb.getInt(offset + 0x1D); 
         if (audioSize < 0 || audioSize > 1000000) {
             return 6;
         }
-        int tb = bb.getInt(offset + 0x04); // Дата и время кадра.
+        // Дата и время кадра.
+        int tb = bb.getInt(offset + 0x04); 
         if (tb < 1104541200) {
             return 7;
         }
-        time = getDate(tb); // Дата-время (смещение в секундах от 1970 г.)
-        number = bb.getInt(offset + 0x2D); // Номер кадра.
-        isMainFrame = (mf == 0) ? true : false; // Базовый кадр.
-        
-        pos = -1; // Вычисляется позже.
+        // Дата-время (смещение в секундах от 1970 г.)
+        time = getDate(tb); 
+        // Номер кадра.
+        number = bb.getInt(offset + 0x2D); 
+        // Базовый кадр.
+        isMainFrame = (mf == 0) ? true : false; 
+        // Позиция вычисляется позже.
+        pos = -1;
         isParsed = true;
         return 0;
     }

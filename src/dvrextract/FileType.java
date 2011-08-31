@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dvrextract;
 
 /**
@@ -9,21 +5,21 @@ package dvrextract;
  * @author lex
  */
 public enum FileType {
-    
+
     // Не определён или не задан.
-    NO(-1, "не определён"), 
+    NO(-1, "не определён"),
     // Каталог - могут быть внутри файлы лубых типов.
     DIR(0, "каталог"),
     // Файл выгрузки видео EXE.
-    EXE(1, "EXE"), 
+    EXE(1, "EXE"),
     // Файл хранения видео на HDD.
     HDD(2, "HDD");
-
-    // Код.
-    public int id; 
-    // Название.
-    public String title; 
     
+    // Код.
+    public int id;
+    // Название.
+    public String title;
+
     /**
      * Конструктор.
      * @param id Код.

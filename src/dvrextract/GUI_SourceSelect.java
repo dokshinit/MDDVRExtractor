@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dvrextract;
 
 import dvrextract.gui.GUI;
@@ -19,23 +15,36 @@ import javax.swing.UIManager;
 import net.miginfocom.swing.MigLayout;
 
 /**
- *
+ * Диалог выбора источника (с запуском сканирования при выборе).
  * @author lex
  */
 public final class GUI_SourceSelect extends GUIDialog implements ActionListener {
 
+    // Отображение пути и имени файла.
     JTextField textSource;
+    // Кнопка выбора источника.
     JButton buttonSelect;
+    // Отображение типа источника.
     JTextField textType;
+    // Отображение списка камер для ограничения сканирования.
     JExtComboBox comboCam;
+    // Кнопка сканирования источника - подтверждение выбора.
     JButton buttonScan;
-    FileType type; // тип выбранного файла
+    //
+    // Тип выбранного файла.
+    FileType type; 
 
+    /**
+     * Конструктор.
+     */
     public GUI_SourceSelect() {
         type = FileType.NO;
         init();
     }
 
+    /**
+     * Инициализация графических компонетов.
+     */
     public void init() {
         setTitle("Сканирование источника");
         setLayout(new MigLayout("fill"));
@@ -76,11 +85,14 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         textType.setText(type.title);
     }
 
+    /**
+     * Обработка событий нажатий на кнопки.
+     * @param e 
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == comboCam) {
             // При выборе камеры что-то делаем? Вроде нет...
-            //
         } else if (e.getSource() == buttonSelect) {
             // Выбор каталога или файла.
             do_Select();
@@ -88,9 +100,12 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
             // Старт сканирования...
             do_Scan();
         }
-
     }
 
+    /**
+     * Обработка нажатия на кнопку выбора источника.
+     * Вызывается диалог выбора файла/каталога.
+     */
     private void do_Select() {
         UIManager.put("FileChooser.readOnly", true);
 
@@ -113,7 +128,7 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         UIManager.put("FileChooser.refreshActionLabelText", "Обновить");
         UIManager.put("FileChooser.viewMenuLabelText", "Вид");
 
-        JFileChooser fd = new JFileChooser(textSource.getText()) {
+        JFileChooser fd = new JFileChooser() {
 
             @Override
             public void approveSelection() {
@@ -134,7 +149,9 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         fd.setMultiSelectionEnabled(false);
         String name = textSource.getText().trim();
         if (name.length() > 0) {
-            fd.setSelectedFile(new File(name));
+            File f = new File(name);
+            fd.setCurrentDirectory(f);
+            fd.setSelectedFile(f);
         }
 
         int res = fd.showOpenDialog(this);
@@ -146,6 +163,10 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         }
     }
 
+    /**
+     * Обработка нажатия на кнопку сканирования.
+     * 
+     */
     private void do_Scan() {
         App.scanTask(textSource.getText(), type, comboCam.getSelectedItem().id);
         dispose();

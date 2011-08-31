@@ -1,14 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dvrextract;
 
 import java.util.ArrayList;
-import java.util.Date;
 
 /**
- *
+ * Информация по камере 
+ * (создаётся при сканировании, дополняется при обработке).
  * @author lex
  */
 public final class CamInfo {
@@ -20,16 +16,16 @@ public final class CamInfo {
     public boolean isExists;
     // Файлы содержащие данные этой камеры.
     public ArrayList<FileInfo> files;
-    
     ////////////////////////////////////////////////////////////////////////////
-    // Информация заполняемая при обработке. Нужна ли? Может рассчитывать из файлов?
+    // Информация заполняемая при обработке. 
+    // Нужна ли? Может логичнее рассчитывать на лету из файлов?
     ////////////////////////////////////////////////////////////////////////////
     // Кол-во распарсеных кадров.
-    public long p_ParsedCount; 
+    public long p_ParsedCount;
     // Кол-во обработанных кадров.
     public long p_Count;
     // Размер обработанных данных.
-    public long p_Size; 
+    public long p_Size;
     // Размер обработанных данных всего?
     public long p_RawSize;
     // Обработанный первый кадр.
@@ -37,7 +33,7 @@ public final class CamInfo {
     // Обработанный последний кадр.
     public Frame p_Last;
     // Минимальное и максимальное время среди обработанных кадров.
-    public long p_MinTime, p_MaxTime; 
+    public long p_MinTime, p_MaxTime;
 
     /**
      * Конструктор.
@@ -62,7 +58,7 @@ public final class CamInfo {
         p_MinTime = 0;
         p_MaxTime = 0;
     }
-    
+
     /**
      * Добавление файла в список файлов камеры.
      * @param info 

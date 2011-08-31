@@ -19,7 +19,7 @@ import net.miginfocom.swing.MigLayout;
  * Вкладка "Источник".
  * @author lex
  */
-public class GUI_TabSource extends JPanel implements ActionListener {
+public final class GUI_TabSource extends JPanel implements ActionListener {
 
     JTextField textSource;
     JButton buttonSource;
@@ -32,9 +32,9 @@ public class GUI_TabSource extends JPanel implements ActionListener {
     public GUI_TabSource() {
         init();
     }
-
+    
     public void init() {
-        setLayout(new MigLayout("debug", "", "[]2[][fill, grow]"));
+        setLayout(new MigLayout("", "", "[]2[][fill, grow]"));
 
         add(GUI.createLabel("Источник"));
         add(textSource = GUI.createText(100), "growx, span, split 2");
@@ -53,24 +53,23 @@ public class GUI_TabSource extends JPanel implements ActionListener {
         add(comboCam = GUI.createCombo(false), "w 110, wrap");
         comboCam.addItem(1, "не выбрана");
         comboCam.showData();
-        
-        JPanel panel = new JPanel(new MigLayout("fill, ins 0", "[]5[]", "[]5[]"));
-        panel.setBackground(Color.red);
+
+        JPanel panel = new JPanel(new MigLayout("debug, fill, ins 0", "[100:300:]5[352:352:704]", "[288:288:576]5[]"));
+        //panel.setBackground(Color.red);
         add(panel, "span, grow");
         
         // Панель отображения файлов источника.
-        panelFiles = new JPanel(new MigLayout("fill, ins 0 0 0 3"));
+        panelFiles = new JPanel(new MigLayout("fill, w 100, h 100, ins 0 0 0 3"));
         panelFiles.setBackground(Color.blue);
-        panel.add(panelFiles, "spany 2");
+        panel.add(panelFiles, "spany 2, top");
         // Панель отображения первого базового кадра файла.
-        panelImage = new JPanel(new MigLayout("fill, ins 0"));
+        panelImage = new JPanel(new MigLayout("fill, w 100%, h 100%, ins 0"));
         panelImage.setBackground(Color.green);
         panel.add(panelImage, "wrap");
         // Панель отображения информации о файле.
-        panelInfo = new JPanel(new MigLayout("fill, ins 0"));
+        panelInfo = new JPanel(new MigLayout("fill, w 100, h 100, ins 0"));
         panelInfo.setBackground(Color.cyan);
         panel.add(panelInfo, "");
-        
     }
 
     @Override

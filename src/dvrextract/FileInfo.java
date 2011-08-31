@@ -1,14 +1,11 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dvrextract;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 
 /**
- *
+ * Информация о файле-источнике 
+ * (заполняется при сканировании, дополняется при обработке).
  * @author lex
  */
 public final class FileInfo {

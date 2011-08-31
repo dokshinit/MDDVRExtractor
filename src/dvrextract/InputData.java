@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dvrextract;
 
 import java.io.FileNotFoundException;
@@ -9,34 +5,68 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 
 /**
- *
+ * Низкоуровневые операции с файлом-источником.
  * @author lex
  */
 public class InputData {
 
-    private String name = null;
-    private RandomAccessFile in = null;
+    // Имя файла.
+    private String name;
+    // Файл с произвольным доступом (из-за EXE и сканирования).
+    private RandomAccessFile in;
 
+    /**
+     * Конструктор.
+     * @param fileName Имя файла-источника.
+     * @throws FileNotFoundException Ошибка при отсутствии файла.
+     * @throws IOException Ошибка при позиционировании.
+     */
     public InputData(String fileName) throws FileNotFoundException, IOException {
         name = fileName;
-        in = new RandomAccessFile(name, "r");
-        in.seek(0);
+        in = null;
+        if (name != null) {
+            in = new RandomAccessFile(name, "r");
+            in.seek(0);
+        }
     }
-    
+
+    /**
+     * Возвращает размер файла.
+     * @return Размер файла.
+     * @throws IOException Ошибка ввода-вывода.
+     */
     public long getSize() throws IOException {
         return in.length();
     }
 
+    /**
+     * Позиционирует текущий указатель чтения/записи на заданную позицию от
+     * начала файла.
+     * @param n Позиция.
+     * @throws IOException Ошибка ввода-вывода.
+     */
     public void seek(long n) throws IOException {
         in.seek(n);
     }
 
+    /**
+     * Пропуск указанного кол-ва байт от текущей позиции (смещение позиции на
+     * указанное кол-во байт).
+     * @param n Смещение в байтах.
+     * @throws IOException Ошибка ввода-вывода.
+     */
     public void skip(int n) throws IOException {
         while (n > 0) {
             n -= in.skipBytes(n);
         }
     }
 
+    /**
+     * Чтение блока данных с текущей позиции в буфер (с начала).
+     * @param ba Буфер.
+     * @param size Размер данных в байтах.
+     * @throws IOException Ошибка ввода-вывода.
+     */
     public void read(byte[] ba, int size) throws IOException {
         int readed = 1, pos = 0;
         while (readed >= 0 && pos < size) {
@@ -45,6 +75,10 @@ public class InputData {
         }
     }
 
+    /**
+     * Закрытие файла-источника.
+     * @throws IOException Ошибка ввода-вывода.
+     */
     public void close() throws IOException {
         if (in != null) {
             in.close();
