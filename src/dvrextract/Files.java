@@ -41,7 +41,18 @@ public class Files {
     private void scanDir(String path, int cam) {
         try {
             File f = new File(path);
-            File[] fa = f.listFiles((FileFilter) SourceFileFilter.instALL);
+            File[] fa = null;
+            // Если источник - каталог, то получаем список его файлов.
+            if (f.isDirectory()) {
+                fa = f.listFiles(SourceFileFilter.instALL);
+            } else {
+                // Если источник - файл, добавляем в список только его.
+                fa = new File[1];
+                fa[0] = f;
+            }
+            if (fa == null) {
+                return;
+            }
 
             for (int i = 0; i < fa.length; i++) {
                 if (fa[i].isDirectory()) { // Каталог.
@@ -59,7 +70,7 @@ public class Files {
                     for (int n : info.camNumbers) {
                         App.srcCams[n - 1].addFile(info);
                         App.log((info.frameFirst.pos > 0
-                                ? "ERR=" + info.frameFirst.pos + " " : "")
+                                ? "Pos=" + info.frameFirst.pos + " " : "")
                                 + "file=" + fa[i].getPath() + " cam=" + n
                                 + " t=" + (info.frameLast.time.getTime()
                                 - info.frameFirst.time.getTime())
@@ -91,15 +102,15 @@ public class Files {
             FileInfo info = new FileInfo();
             info.fileName = fileName;
             info.fileSize = in.getSize();
-            info.frameFirst = new Frame();
-            info.frameLast = new Frame();
-            Frame f = new Frame();
+            info.frameFirst = new Frame(FileType.HDD);
+            info.frameLast = new Frame(FileType.HDD);
+            Frame f = new Frame(FileType.HDD);
 
             // Ищем первый кадр.
             long pos = 0;
-            while (pos < in.getSize() - Frame.HDD_HSIZE) {
+            while (pos < in.getSize() - f.getSize()) {
                 in.seek(pos);
-                in.read(baFrame, Frame.HDD_HSIZE);
+                in.read(baFrame, f.getSize());
                 if (info.frameFirst.parseHeader(bbF, 0) == 0) {
                     // Если номер камеры указан и это не он - пропускаем разбор.
                     if (cam > 0 && info.frameFirst.camNumber != cam) {
@@ -118,10 +129,10 @@ public class Files {
                 return null;
             }
             // Ищем последний кадр.
-            pos = in.getSize() - Frame.HDD_HSIZE;
+            pos = in.getSize() - f.getSize();
             while (pos >= 0) {
                 in.seek(pos);
-                in.read(baFrame, Frame.HDD_HSIZE);
+                in.read(baFrame, f.getSize());
                 if (info.frameLast.parseHeader(bbF, 0) == 0) {
                     info.frameLast.pos = pos;
                     break;
@@ -161,17 +172,17 @@ public class Files {
             FileInfo info = new FileInfo();
             info.fileName = fileName;
             info.fileSize = in.getSize();
-            Frame f = new Frame();
+            Frame f = new Frame(FileType.HDD);
 
             // Ищем первый кадр (от начала к концу).
             long pos = 0;
             long ost = in.getSize();
-            while (pos < in.getSize() - Frame.HDD_HSIZE) {
+            while (pos < in.getSize() - f.getSize()) {
                 in.seek(pos);
                 int len = (int) Math.min(baFrame.length, ost);
                 in.read(baFrame, (int) len);
 
-                for (int i = 0; i < len - Frame.HDD_HSIZE; i++) {
+                for (int i = 0; i < len - f.getSize(); i++) {
                     if (f.parseHeader(bbF, i) == 0) {
                         // Если номер камеры указан и это не он - пропускаем разбор.
                         if (cam > 0 && f.camNumber != cam) {
@@ -187,8 +198,8 @@ public class Files {
                 if (f.isParsed) {
                     break;
                 } else {
-                    pos += len - Frame.HDD_HSIZE;
-                    ost -= len - Frame.HDD_HSIZE;
+                    pos += len - f.getSize();
+                    ost -= len - f.getSize();
                 }
             }
             if (!f.isParsed) {
@@ -198,7 +209,7 @@ public class Files {
             }
 
             // Ищем последний кадр (от конца к началу).
-            f = new Frame();
+            f = new Frame(FileType.HDD);
             pos = in.getSize();
             ost = in.getSize();
             while (pos > 0) {
@@ -206,7 +217,7 @@ public class Files {
                 pos -= len;
                 in.seek(pos);
                 in.read(baFrame, (int) len);
-                for (int i = len - Frame.HDD_HSIZE; i >= 0; i--) {
+                for (int i = len - f.getSize(); i >= 0; i--) {
                     if (f.parseHeader(bbF, i) == 0) {
                         f.pos = pos + i;
                         info.frameLast = f;
@@ -216,7 +227,7 @@ public class Files {
                 if (f.isParsed) {
                     break;
                 } else {
-                    ost -= len - Frame.HDD_HSIZE;
+                    ost -= len - f.getSize();
                 }
             }
             if (!f.isParsed) {
@@ -258,11 +269,11 @@ public class Files {
             info.fileName = fileName;
             info.fileSize = in.getSize();
 
-            Frame f = new Frame();
+            Frame f = new Frame(type);
             long pos = 0; // Позиция поиска.
             long ost = in.getSize(); // Остаток данных.
             long size = in.getSize(); // Размер данных (конечная позиция).
-            int frameSize = Frame.HDD_HSIZE;
+            int frameSize = f.getSize();
 
             // Если это EXE - делаем разбор инфы в конце файла.
             if (type == FileType.EXE) {
@@ -277,15 +288,14 @@ public class Files {
                     }
                 }
                 // Позиции начала и конца данных в файле.
-                pos = bbF.getInt(24 * 16);
+                pos = bbF.getInt(64);
                 size = bbF.getInt(12 * 16);
                 ost = size - pos;
-                frameSize = Frame.EXE_HSIZE;
             }
             App.log("Общий размер данных = " + ost);
 
             // Ищем первый кадр (от начала к концу).
-            while (pos < in.getSize() - frameSize) {
+            while (pos < size - frameSize) {
                 in.seek(pos);
                 int len = (int) Math.min(baFrame.length, ost);
                 in.read(baFrame, (int) len);
@@ -317,7 +327,7 @@ public class Files {
             }
 
             // Ищем последний кадр (от конца к началу).
-            f = new Frame();
+            f = new Frame(type);
             pos = size;
             ost = size;
             while (pos > 0) {
@@ -325,7 +335,7 @@ public class Files {
                 pos -= len;
                 in.seek(pos);
                 in.read(baFrame, (int) len);
-                for (int i = len - Frame.HDD_HSIZE; i >= 0; i--) {
+                for (int i = len - frameSize; i >= 0; i--) {
                     if (f.parseHeader(bbF, i) == 0) {
                         f.pos = pos + i;
                         info.frameLast = f;
@@ -335,7 +345,7 @@ public class Files {
                 if (f.isParsed) {
                     break;
                 } else {
-                    ost -= len - Frame.HDD_HSIZE;
+                    ost -= len - frameSize;
                 }
             }
             if (!f.isParsed) {

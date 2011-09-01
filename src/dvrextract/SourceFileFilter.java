@@ -8,7 +8,7 @@ import javax.swing.filechooser.FileFilter;
  * Фильтр по файлам для выбора источника.
  * @author lex
  */
-public class SourceFileFilter extends FileFilter {
+public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
 
     // Общий фильтр для всех типов файлов.
     public static final SourceFileFilter instALL = new SourceFileFilter("(.+\\.exe$|^da\\d+)", "Все файлы DVR");

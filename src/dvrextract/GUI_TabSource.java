@@ -5,13 +5,17 @@
 package dvrextract;
 
 import dvrextract.gui.GUI;
+import dvrextract.gui.GUIImagePanel;
 import dvrextract.gui.JExtComboBox;
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import net.miginfocom.swing.MigLayout;
 
@@ -25,14 +29,15 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
     JButton buttonSource;
     JTextField textType;
     JExtComboBox comboCam;
-    JPanel panelFiles;
-    JPanel panelImage;
+    //
+    GUIFilesPanel filesPanel;
+    GUIImagePanel imagePanel;
     JPanel panelInfo;
 
     public GUI_TabSource() {
         init();
     }
-    
+
     public void init() {
         setLayout(new MigLayout("", "", "[]2[][fill, grow]"));
 
@@ -51,52 +56,84 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
         // Выбор камеры для обработки.
         add(GUI.createLabel("Камера:"), "");
         add(comboCam = GUI.createCombo(false), "w 110, wrap");
+        comboCam.addActionListener(this);
         comboCam.addItem(1, "не выбрана");
         comboCam.showData();
 
-        JPanel panel = new JPanel(new MigLayout("debug, fill, ins 0", "[100:300:]5[352:352:704]", "[288:288:576]5[]"));
+        //JPanel panel = new JPanel(new MigLayout("debug, fill, ins 0", "[100:300:]5[352:352:704]", "[288:288:576]5[]"));
+        JPanel panel = new JPanel(new BorderLayout());
         //panel.setBackground(Color.red);
         add(panel, "span, grow");
-        
+
         // Панель отображения файлов источника.
-        panelFiles = new JPanel(new MigLayout("fill, w 100, h 100, ins 0 0 0 3"));
-        panelFiles.setBackground(Color.blue);
-        panel.add(panelFiles, "spany 2, top");
+        filesPanel = new GUIFilesPanel();
+        filesPanel.setBackground(Color.blue);
+        filesPanel.setMinimumSize(new Dimension(300, 200));
+        //panel.add(panelFiles, "spany 2, top");
         // Панель отображения первого базового кадра файла.
-        panelImage = new JPanel(new MigLayout("fill, w 100%, h 100%, ins 0"));
-        panelImage.setBackground(Color.green);
-        panel.add(panelImage, "wrap");
+        imagePanel = new GUIImagePanel();
+        imagePanel.setBackground(Color.green);
+        imagePanel.setMinimumSize(new Dimension(352, 288));
+        imagePanel.setPreferredSize(new Dimension(352, 288));
+        imagePanel.setMaximumSize(new Dimension(352, 288));
+        //panel.add(panelImage, "wrap");
         // Панель отображения информации о файле.
-        panelInfo = new JPanel(new MigLayout("fill, w 100, h 100, ins 0"));
+        panelInfo = new JPanel(new MigLayout("fill, ins 5"));
         panelInfo.setBackground(Color.cyan);
-        panel.add(panelInfo, "");
+        panelInfo.add(imagePanel, "span, growx, left, top");
+        //panel.add(panelInfo, "");
+        JSplitPane sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, filesPanel, panelInfo);
+        sp.setDividerSize(8);
+        panel.add(sp, BorderLayout.CENTER);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == buttonSource) {
-            GUI_SourceSelect dlg = new GUI_SourceSelect();
-            dlg.center();
-            dlg.setVisible(true);
+        if (e.getSource() == comboCam) {
+            do_CamSelect();
+        } else if (e.getSource() == buttonSource) {
+            do_SourceSelect();
         }
     }
 
-    public void setSource(String src, FileType type) {
+    public void displaySource(String src, FileType type) {
         textSource.setText(src);
         textType.setText(type.title);
     }
 
-    public void setCams(ArrayList<Integer> cams) {
+    public void displayCams(ArrayList<Integer> cams) {
+        int id = comboCam.getSelectedItem().id;
         comboCam.removeItems();
-        for (int i : cams) {
-            comboCam.addItem(i, i == 0 ? "не выбрана" : "CAM" + i);
+        if (cams != null) {
+            if (cams.isEmpty()) {
+                comboCam.addItem(0, "не выбрана");
+            }
+            for (int i : cams) {
+                comboCam.addItem(i, i == 0 ? "не выбрана" : "CAM" + i);
+            }
         }
         comboCam.showData();
+        int newid = comboCam.getSelectedItem().id;
+        if (id != newid) {
+            // Применяем выбор.
+            filesPanel.selectCamModel(newid);
+        }
     }
 
-    public void setCams(int cam) {
-        comboCam.removeItems();
-        comboCam.addItem(cam, cam == 0 ? "не выбрана" : "CAM" + cam);
-        comboCam.showData();
+    public void displayCams(int cam) {
+        ArrayList<Integer> list = new ArrayList<Integer>();
+        list.add(cam);
+        displayCams(list);
+    }
+
+    private void do_SourceSelect() {
+        GUI_SourceSelect dlg = new GUI_SourceSelect();
+        dlg.center();
+        dlg.setVisible(true);
+    }
+
+    public void do_CamSelect() {
+        int newid = comboCam.getSelectedItem().id;
+        filesPanel.selectCamModel(newid);
     }
 }

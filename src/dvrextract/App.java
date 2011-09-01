@@ -1,6 +1,7 @@
 package dvrextract;
 
 import dvrextract.gui.GUI;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import javax.swing.UIManager;
@@ -103,7 +104,7 @@ public class App {
     // по шалону *.exe - файл архива, по шаблону da*. - файл hdd.
     //
     // Каталог или файл.
-    public static String srcName;
+    public static String srcName = "/home/work/files/AZSVIDEO/810.exe";
     // Тип источника: 0-EXE, 1-HDD
     public static FileType srcType;
     // Ограничение одной камерой (если = 0 - без ограничений).
@@ -126,14 +127,27 @@ public class App {
         srcType = type;
         srcCamNumber = cam;
 
-        mainFrame.tabSource.setSource(src, type);
-        mainFrame.tabSource.setCams(cam);
+        mainFrame.tabSource.displaySource(src, type);
+        mainFrame.tabSource.displayCams(cam);
 
         scanTask = new Thread(new Runnable() {
 
             @Override
             public void run() {
                 // Сканирование источника.
+                Files f = new Files();
+                f.scan(srcName, srcCamNumber);
+                log("SCAN END");
+
+                ArrayList<Integer> c = new ArrayList<Integer>();
+                for (int i = 0; i < MAXCAMS; i++) {
+                    if (srcCams[i].isExists) {
+                        c.add(i+1);
+                    }
+                }
+                srcCams[4].files.add(srcCams[4].files.get(0));
+                mainFrame.tabSource.displayCams(c);
+                //mainFrame.tabSource.filesPanel.test();
                 scanTask = null;
             }
         });
@@ -146,6 +160,10 @@ public class App {
      * @param Аргументы.
      */
     public static void main(String[] args) {
+
+        for (int i = 0; i < MAXCAMS; i++) {
+            srcCams[i] = new CamInfo();
+        }
 
         initLAF();
 

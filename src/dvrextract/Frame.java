@@ -19,30 +19,31 @@ public class Frame {
     //
     // Поля:
     // Дата-время (смещение в секундах от 1970 г.)
-    public Date time; 
+    public Date time;
     // Номер камеры (+допинфа в старшем байте? игнорируем).
-    public int camNumber; 
+    public int camNumber;
     // Частота кадров в секунду.
-    public int fps; 
+    public int fps;
     // Базовый кадр.
-    public boolean isMainFrame; 
+    public boolean isMainFrame;
     // Размер кадра видеоданных.
-    public int videoSize; 
+    public int videoSize;
     // Размер кадра аудиоданных.
-    public int audioSize; 
+    public int audioSize;
     // Номер кадра.
-    public int number; 
+    public int number;
     //
     // Флаг успешного разбора кадра.
-    public boolean isParsed; 
+    public boolean isParsed;
     // Позиция начала в файле.
-    public long pos; 
+    public long pos;
+    // Тип файла фрейма.
+    public FileType type;
 
-    
     /**
      * Конструктор.
      */
-    public Frame() {
+    public Frame(FileType type) {
         time = null;
         camNumber = 0;
         fps = 0;
@@ -50,9 +51,21 @@ public class Frame {
         videoSize = -1;
         audioSize = -1;
         number = -1;
-        
+
         isParsed = false;
         pos = -1;
+        this.type = type;
+    }
+
+    public int getSize() {
+        switch (type) {
+            case EXE:
+                return EXE_HSIZE;
+            case HDD:
+                return HDD_HSIZE;
+            default:
+                return 0;
+        }
     }
 
     /**
@@ -102,10 +115,22 @@ public class Frame {
      */
     public int parseHeader(ByteBuffer bb, int offset) {
         isParsed = false;
-
-        int b1 = bb.get(offset + 0x31);
-        int b2 = bb.get(offset + 0x32);
-        int b3 = bb.get(offset + 0x33);
+        
+        int nameofs = 0;
+        switch (type) {
+            case EXE:
+                nameofs = 0x41;
+                break;
+            case HDD:
+                nameofs = 0x31;
+                break;
+            default:
+                return 100;
+        }
+        
+        int b1 = bb.get(offset + nameofs);
+        int b2 = bb.get(offset + nameofs + 1);
+        int b3 = bb.get(offset + nameofs + 2);
         if (b1 != 'C' || b2 != 'A' || b3 != 'M') {
             return 1;
         }
@@ -123,26 +148,26 @@ public class Frame {
             return 4;
         }
         // Размер кадра видеоданных.
-        videoSize = bb.getInt(offset + 0x19); 
+        videoSize = bb.getInt(offset + 0x19);
         if (videoSize < 0 || videoSize > 1000000) {
             return 5;
         }
         // Размер кадра аудиоданных.
-        audioSize = bb.getInt(offset + 0x1D); 
+        audioSize = bb.getInt(offset + 0x1D);
         if (audioSize < 0 || audioSize > 1000000) {
             return 6;
         }
         // Дата и время кадра.
-        int tb = bb.getInt(offset + 0x04); 
+        int tb = bb.getInt(offset + 0x04);
         if (tb < 1104541200) {
             return 7;
         }
         // Дата-время (смещение в секундах от 1970 г.)
-        time = getDate(tb); 
+        time = getDate(tb);
         // Номер кадра.
-        number = bb.getInt(offset + 0x2D); 
+        number = bb.getInt(offset + 0x2D);
         // Базовый кадр.
-        isMainFrame = (mf == 0) ? true : false; 
+        isMainFrame = (mf == 0) ? true : false;
         // Позиция вычисляется позже.
         pos = -1;
         isParsed = true;

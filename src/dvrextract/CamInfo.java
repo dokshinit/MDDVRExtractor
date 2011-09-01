@@ -64,6 +64,7 @@ public final class CamInfo {
      * @param info 
      */
     public void addFile(FileInfo info) {
+        isExists = true;
         files.add(info);
     }
 }
