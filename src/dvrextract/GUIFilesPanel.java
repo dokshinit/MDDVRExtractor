@@ -23,35 +23,37 @@ public final class GUIFilesPanel extends JPanel {
     JDirectory dir;
     // Номер камеры отображаемых файлов.
     int camNumber;
-    
+
     public GUIFilesPanel() {
         camNumber = 0;
         init();
     }
-    
     static DefaultTableRenderer timeRender = new DefaultTableRenderer(
-                new FormattedDateValue("dd.MM.yyyy HH:mm:ss"));
-    
+            new FormattedDateValue("dd.MM.yyyy HH:mm:ss"));
     TableCellRenderer cr = new DefaultTableCellRenderer() {
 
         @Override
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-            Component com = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-            if (column == 2) {
-                ((DefaultTableCellRenderer)com).setHorizontalAlignment(JLabel.CENTER);
-                App.log(com.getName());
+        public Component getTableCellRendererComponent(JTable table, Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+            Component com = super.getTableCellRendererComponent(
+                    table, value, isSelected, hasFocus, row, column);
+            if (com instanceof DefaultTableCellRenderer) {
+                DefaultTableCellRenderer r = (DefaultTableCellRenderer) com;
+                if (column == 2) {
+                    r.setHorizontalAlignment(JLabel.CENTER);
+                }
             }
             return com;
         }
     };
-            
+
     /**
      * Инициализация списка для указанной камеры (если cam=0 - пустой список).
      * @param cam Номер камеры или ноль.
      */
     public void init() {
         setLayout(new BorderLayout());
-        
+
         TableColumnModel tm = new TableColumnModel();
         TableColumnExt c;
         c = tm.add("x", "x", 20, 20, 20);
@@ -63,7 +65,7 @@ public final class GUIFilesPanel extends JPanel {
         c.setCellRenderer(timeRender);
         c = tm.add("end", "Конец", 150, 150, 150);
         c.setCellRenderer(timeRender);
-        
+
         dir = new JDirectory(new FileListModel(camNumber), tm) {
 
             @Override
@@ -71,10 +73,10 @@ public final class GUIFilesPanel extends JPanel {
                 App.log("Edit!");
             }
         };
-        
+
         add(dir, BorderLayout.CENTER);
     }
-    
+
     public void selectCamModel(int cam) {
         if (cam != camNumber) {
             camNumber = cam;
