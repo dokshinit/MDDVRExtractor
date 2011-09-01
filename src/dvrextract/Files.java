@@ -283,7 +283,7 @@ public class Files {
                 // Наличие треков камер.
                 for (int i = 0; i < App.MAXCAMS; i++) {
                     if (bbF.getInt() != 0 && (cam == 0 || cam == (i + 1))) {
-                        info.camNumbers.add(i);
+                        info.camNumbers.add(i + 1);
                         App.log("CAM" + (i + 1) + " данные в наличии!");
                     }
                 }
@@ -308,7 +308,9 @@ public class Files {
                             return null;
                         }
                         f.pos = pos + i;
-                        info.camNumbers.add(f.camNumber); // Из первого кадра!
+                        if (info.camNumbers.isEmpty()) {
+                            info.camNumbers.add(f.camNumber); // Из первого кадра!
+                        }
                         info.frameFirst = f;
                         break;
                     }

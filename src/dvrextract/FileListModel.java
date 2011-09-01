@@ -43,6 +43,10 @@ public class FileListModel extends AbstractTableModel {
     public int getColumnCount() {
         return 6; // выбор,имя,тип,размер,датамин,датамакс
     }
+    // Типы столбцов.
+    static Class[] colTypes = {Boolean.class, String.class, String.class, Long.class, Date.class, Date.class};
+    // Имена столбцов.
+    static String[] colNames = {"x", "name", "type", "size", "start", "end"};
 
     /**
      * Возвращает тип данных столбца.
@@ -51,43 +55,13 @@ public class FileListModel extends AbstractTableModel {
      */
     @Override
     public Class getColumnClass(int column) {
-        switch (column) {
-            case 0:
-                return Boolean.class;
-            case 1:
-                return String.class;
-            case 2:
-                return String.class;
-            case 3:
-                return Long.class;
-            case 4:
-                return Date.class;
-            case 5:
-                return Date.class;
-            default:
-                return String.class;
-        }
+        return (column >= 0 && column < colTypes.length) ? colTypes[column] : String.class;
     }
 
     // название столбца
     @Override
     public String getColumnName(int column) {
-        switch (column) {
-            case 0:
-                return "x";
-            case 1:
-                return "Имя файла";
-            case 2:
-                return "Тип";
-            case 3:
-                return "Размер";
-            case 4:
-                return "Начало";
-            case 5:
-                return "Конец";
-            default:
-                return "";
-        }
+        return (column >= 0 && column < colNames.length) ? colNames[column] : "";
     }
 
     // данные в ячейке
@@ -123,5 +97,10 @@ public class FileListModel extends AbstractTableModel {
         }
     }
 
-    //    fireTableDataChanged();
+    @Override
+    public boolean isCellEditable(int rowIndex, int columnIndex) {
+        return columnIndex == 0 ? true : false;
+    }
+    
+    
 }

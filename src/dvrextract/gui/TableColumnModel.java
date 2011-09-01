@@ -1,0 +1,103 @@
+package dvrextract.gui;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import javax.swing.table.*;
+import org.jdesktop.swingx.table.TableColumnExt;
+//import org.jdesktop.swingx.table.TableColumnExt;
+
+/**
+ * Модель колонок таблицы
+ *
+ * @author Докшин_А_Н
+ */
+public class TableColumnModel extends DefaultTableColumnModel {
+
+    // Массив в котором сохраняются предпочитаемые ширины колонок
+    // Используется в механизме изменения размеров компонента (включение и
+    // выключение скроллинга) для корректного растяжения столбцов после
+    // отключения скроллинга
+    private ArrayList<Integer> columnSavedWidth;
+
+    /**
+     * Конструктор
+     * @param tm Ссылка на модель данных таблицы (для связывания с данными)
+     */
+    public TableColumnModel() {
+        columnSavedWidth = new ArrayList();
+    }
+
+    /**
+     * Возвращает сохраненный предпочитаемый размер для колонки
+     * @param index Индекс колонки
+     * @return Предпочтительная ширина колонки
+     */
+    public int getColumnSavedWidth(int index) {
+        return columnSavedWidth.get(index);
+    }
+
+    /**
+     * Добавление в модель колонки с заданием ее параметров
+     * @param colname   Наименование столбца в модели данных
+     * @param header    Текст заголовка столбца
+     * @param width     Ширина столбца предпочтительная (-1 - не задано)
+     * @param minwidth  Минимальная ширина (-1 - не задано)
+     * @param maxwidth  Максимальная ширина (-1 - не задано)
+     * @return Добавленный столбец (для возможной дополнительной настройки)
+     */
+    public TableColumnExt add(String colname, String header,
+            int width, int minwidth, int maxwidth) {
+        TableColumnExt col = (TableColumnExt) new TableColumnExt();
+        col.setIdentifier(colname);
+        col.setHeaderValue(header);
+        if (width != -1) {
+            col.setPreferredWidth(width);
+        }
+        if (minwidth != -1) {
+            col.setMinWidth(minwidth);
+        }
+        if (maxwidth != -1) {
+            col.setMaxWidth(maxwidth);
+        }
+        
+        addColumn(col);
+        columnSavedWidth.add(width);
+        return col;
+    }
+
+    /**
+     * Сопоставление столбцов и данных (по идентификаторам),
+     * присваивоение индеков.
+     */
+    public void linkToData(AbstractTableModel model) {
+        TableColumn col = null;
+        for (int i = 0; i < tableColumns.size(); i++) {
+            col = tableColumns.get(i);
+            int j = model.findColumn((String) col.getIdentifier());
+            if (j >= 0) {
+                col.setModelIndex(j);
+            }
+        }
+    }
+
+    /**
+     * Удаление из модели всех колонок
+     */
+    public void clear() {
+        for (int i = getColumnCount() - 1; i >= 0; i--) {
+            removeColumn(getColumn(i));
+        }
+        columnSavedWidth.clear();
+    }
+
+    public class DoubleComparator implements Comparator {
+
+        @Override
+        public int compare(Object o1, Object o2) {
+            Double d1 = Double.valueOf(o1 == null ? "0" : (String) o1);
+            Double d2 = Double.valueOf(o2 == null ? "0" : (String) o2);
+            return d1.compareTo(d2);
+        }
+    };
+}
+

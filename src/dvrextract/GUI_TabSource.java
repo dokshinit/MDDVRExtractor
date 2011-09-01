@@ -80,9 +80,9 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
         // Панель отображения информации о файле.
         panelInfo = new JPanel(new MigLayout("fill, ins 5"));
         panelInfo.setBackground(Color.cyan);
-        panelInfo.add(imagePanel, "span, growx, left, top");
+        panelInfo.add(imagePanel, "spany, growx, left, top");
         //panel.add(panelInfo, "");
-        JSplitPane sp = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, filesPanel, panelInfo);
+        JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, filesPanel, panelInfo);
         sp.setDividerSize(8);
         panel.add(sp, BorderLayout.CENTER);
     }
