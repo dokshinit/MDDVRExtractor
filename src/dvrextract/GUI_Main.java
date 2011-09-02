@@ -221,4 +221,8 @@ public final class GUI_Main extends GUIFrame {
     }
      * 
      */
+
+    void setInfo(String string, int i) {
+        
+    }
 }

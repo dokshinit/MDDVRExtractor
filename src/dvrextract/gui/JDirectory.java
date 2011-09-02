@@ -6,6 +6,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.sql.*;
 import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
@@ -38,7 +40,7 @@ public class JDirectory extends JPanel {
     public JDirectory(AbstractTableModel m, TableColumnModel tm) {
         tableModel = m;
         columnModel = tm;
-        
+
         scrolled = false;
         table = new JXTable(tableModel, columnModel);
         table.setColumnControlVisible(true);
@@ -56,6 +58,17 @@ public class JDirectory extends JPanel {
             @Override
             protected void fireDoubleClick(MouseEvent e) {
                 fireEdit(new ActionEvent(e.getSource(), e.getID(), "mouse-doubleclick"));
+            }
+        });
+        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    ListSelectionModel l = (ListSelectionModel)e.getSource();
+                    // Номер текущей строки таблицы
+                    fireSelect(e, l);
+                }
             }
         });
         // Установка своего обработчика нажатия клавиши Enter.
@@ -92,6 +105,9 @@ public class JDirectory extends JPanel {
      * @param e Событие.
      */
     protected void fireEdit(ActionEvent e) {
+    }
+
+    protected void fireSelect(ListSelectionEvent e, ListSelectionModel l) {
     }
 
     /**
@@ -150,7 +166,7 @@ public class JDirectory extends JPanel {
     public JXTable getTable() {
         return table;
     }
-    
+
     public JScrollPane getScroll() {
         return scroll;
     }

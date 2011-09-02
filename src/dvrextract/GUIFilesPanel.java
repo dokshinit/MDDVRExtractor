@@ -12,6 +12,8 @@ import java.util.Date;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
@@ -31,9 +33,10 @@ public final class GUIFilesPanel extends JPanel {
         camNumber = 0;
         init();
     }
-    static DefaultTableRenderer timeRender = new DefaultTableRenderer(
-            new FormattedDateValue("dd.MM.yyyy HH:mm:ss"));
+
+    // Форматтер представления дат.
     static DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+    // Рендер ячеек.
     static TableCellRenderer cr = new DefaultTableCellRenderer() {
 
         @Override
@@ -67,26 +70,30 @@ public final class GUIFilesPanel extends JPanel {
 
         FileListModel m = new FileListModel(camNumber);
 
-        TableColumnModel tm = new TableColumnModel();
+        TableColumnModel cm = new TableColumnModel();
         TableColumnExt c;
-        c = tm.add(m.getColumnName(0), "x", 20, 20, 20);
-        c = tm.add(m.getColumnName(1), "Имя", -1, 300, -1);
-        c = tm.add(ID_TYPE = m.getColumnName(2), "Тип", 100, 100, 100);
+        cm.add(m.getColumnName(0), "x", 20, 20, 20);
+        cm.add(m.getColumnName(1), "Имя", -1, 300, -1);
+        c = cm.add(ID_TYPE = m.getColumnName(2), "Тип", 100, 100, 100);
         c.setCellRenderer(cr);
-        tm.add(m.getColumnName(3), "Размер", 120, 120, 120);
-        c = tm.add(ID_START = m.getColumnName(4), "Начало", 150, 150, 150);
+        cm.add(m.getColumnName(3), "Размер", 120, 120, 120);
+        c = cm.add(ID_START = m.getColumnName(4), "Начало", 150, 150, 150);
         c.setCellRenderer(cr);
-        //c.setCellRenderer(timeRender);
-        c = tm.add(ID_END = m.getColumnName(5), "Конец", 150, 150, 150);
-        //c.setCellRenderer(timeRender);
+        c = cm.add(ID_END = m.getColumnName(5), "Конец", 150, 150, 150);
         c.setCellRenderer(cr);
 
-        dir = new JDirectory(m, tm) {
+        dir = new JDirectory(m, cm) {
 
             @Override
             protected void fireEdit(ActionEvent e) {
                 App.log("Edit!");
             }
+
+            @Override
+            protected void fireSelect(ListSelectionEvent e, ListSelectionModel l) {
+                App.log("Select! row="+l.getMinSelectionIndex());
+            }
+            
         };
 
         add(dir, BorderLayout.CENTER);

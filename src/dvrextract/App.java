@@ -129,6 +129,7 @@ public class App {
 
         mainFrame.tabSource.displaySource(src, type);
         mainFrame.tabSource.displayCams(cam);
+        mainFrame.setInfo("Сканирование файлов...", 0);
 
         scanTask = new Thread(new Runnable() {
 
