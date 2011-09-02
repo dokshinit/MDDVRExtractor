@@ -104,7 +104,7 @@ public class App {
     // по шалону *.exe - файл архива, по шаблону da*. - файл hdd.
     //
     // Каталог или файл.
-    public static String srcName = "/home/work/files/";
+    public static String srcName = "/home/work/files/AZSVIDEO/810.exe";
     // Тип источника: 0-EXE, 1-HDD
     public static FileType srcType;
     // Ограничение одной камерой (если = 0 - без ограничений).
