@@ -6,6 +6,9 @@ import dvrextract.gui.TableColumnModel;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
@@ -30,7 +33,8 @@ public final class GUIFilesPanel extends JPanel {
     }
     static DefaultTableRenderer timeRender = new DefaultTableRenderer(
             new FormattedDateValue("dd.MM.yyyy HH:mm:ss"));
-    TableCellRenderer cr = new DefaultTableCellRenderer() {
+    static DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+    static TableCellRenderer cr = new DefaultTableCellRenderer() {
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
@@ -39,13 +43,20 @@ public final class GUIFilesPanel extends JPanel {
                     table, value, isSelected, hasFocus, row, column);
             if (com instanceof DefaultTableCellRenderer) {
                 DefaultTableCellRenderer r = (DefaultTableCellRenderer) com;
-                if (column == 2) {
+                Object id = table.getColumnModel().getColumn(column).getIdentifier();
+                if (id == ID_TYPE) {
                     r.setHorizontalAlignment(JLabel.CENTER);
+                } else if (id == ID_START || id == ID_END) {
+                    r.setHorizontalAlignment(JLabel.CENTER);
+                    if (value != null) {
+                        r.setText(df.format((Date) value));
+                    }
                 }
             }
             return com;
         }
     };
+    static String ID_TYPE, ID_START, ID_END;
 
     /**
      * Инициализация списка для указанной камеры (если cam=0 - пустой список).
@@ -54,19 +65,23 @@ public final class GUIFilesPanel extends JPanel {
     public void init() {
         setLayout(new BorderLayout());
 
+        FileListModel m = new FileListModel(camNumber);
+
         TableColumnModel tm = new TableColumnModel();
         TableColumnExt c;
-        c = tm.add("x", "x", 20, 20, 20);
-        c = tm.add("name", "Имя файла", -1, 200, -1);
-        c = tm.add("type", "Тип", 100, 100, 100);
+        c = tm.add(m.getColumnName(0), "x", 20, 20, 20);
+        c = tm.add(m.getColumnName(1), "Имя", -1, 300, -1);
+        c = tm.add(ID_TYPE = m.getColumnName(2), "Тип", 100, 100, 100);
         c.setCellRenderer(cr);
-        tm.add("size", "Размер", 100, 100, 150);
-        c = tm.add("start", "Начало", 150, 150, 150);
-        c.setCellRenderer(timeRender);
-        c = tm.add("end", "Конец", 150, 150, 150);
-        c.setCellRenderer(timeRender);
+        tm.add(m.getColumnName(3), "Размер", 120, 120, 120);
+        c = tm.add(ID_START = m.getColumnName(4), "Начало", 150, 150, 150);
+        c.setCellRenderer(cr);
+        //c.setCellRenderer(timeRender);
+        c = tm.add(ID_END = m.getColumnName(5), "Конец", 150, 150, 150);
+        //c.setCellRenderer(timeRender);
+        c.setCellRenderer(cr);
 
-        dir = new JDirectory(new FileListModel(camNumber), tm) {
+        dir = new JDirectory(m, tm) {
 
             @Override
             protected void fireEdit(ActionEvent e) {
