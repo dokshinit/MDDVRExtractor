@@ -48,8 +48,6 @@ public final class FileInfo {
     ////////////////////////////////////////////////////////////////////////////
     // Для интерфейса.
     ////////////////////////////////////////////////////////////////////////////
-    // Флаг пометки для обработки.
-    public boolean isSelected;
     // Компаратор для сортировки списка файлов.
     private static final Comparator<FileInfo> comparator = new Comparator<FileInfo>() {
 
@@ -81,8 +79,6 @@ public final class FileInfo {
         p_MaxTime = 0;
         p_Skip = new ArrayList<Skip>();
         p_Error = new ArrayList<Error>();
-
-        isSelected = false;
     }
 
     /**

@@ -11,6 +11,11 @@ import javax.swing.table.AbstractTableModel;
  */
 public class FileListModel extends AbstractTableModel {
 
+    // Типы столбцов.
+    static Class[] colTypes = {String.class, String.class, Long.class, Date.class, Date.class};
+    // Имена столбцов.
+    static String[] colNames = {"name", "type", "size", "start", "end"};
+    // Строки.
     private final ArrayList<FileInfo> files;
 
     /**
@@ -41,12 +46,8 @@ public class FileListModel extends AbstractTableModel {
      */
     @Override
     public int getColumnCount() {
-        return 6; // выбор,имя,тип,размер,датамин,датамакс
+        return colTypes.length; // имя,тип,размер,датамин,датамакс
     }
-    // Типы столбцов.
-    static Class[] colTypes = {Boolean.class, String.class, String.class, Long.class, Date.class, Date.class};
-    // Имена столбцов.
-    static String[] colNames = {"x", "name", "type", "size", "start", "end"};
 
     /**
      * Возвращает тип данных столбца.
@@ -70,16 +71,14 @@ public class FileListModel extends AbstractTableModel {
         synchronized (files) {
             switch (column) {
                 case 0:
-                    return files.get(row).isSelected;
-                case 1:
                     return files.get(row).fileName;
-                case 2:
+                case 1:
                     return files.get(row).fileType.title;
-                case 3:
+                case 2:
                     return files.get(row).fileSize;
-                case 4:
+                case 3:
                     return files.get(row).frameFirst.time;
-                case 5:
+                case 4:
                     return files.get(row).frameLast.time;
                 default:
                     return "";
@@ -87,19 +86,13 @@ public class FileListModel extends AbstractTableModel {
         }
     }
 
-    // замена значения ячейки
     @Override
     public void setValueAt(Object value, int row, int column) {
-        synchronized (files) {
-            if (column == 0) {
-                files.get(row).isSelected = (Boolean) value;
-            }
-        }
     }
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return columnIndex == 0 ? true : false;
+        return false;
     }
     
     

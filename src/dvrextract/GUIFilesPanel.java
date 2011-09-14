@@ -72,14 +72,13 @@ public final class GUIFilesPanel extends JPanel {
 
         TableColumnModel cm = new TableColumnModel();
         TableColumnExt c;
-        cm.add(m.getColumnName(0), "x", 20, 20, 20);
-        cm.add(m.getColumnName(1), "Имя", -1, 300, -1);
-        c = cm.add(ID_TYPE = m.getColumnName(2), "Тип", 100, 100, 100);
+        cm.add(m.getColumnName(0), "Имя", -1, 300, -1);
+        c = cm.add(ID_TYPE = m.getColumnName(1), "Тип", 100, 100, 100);
         c.setCellRenderer(cr);
-        cm.add(m.getColumnName(3), "Размер", 120, 120, 120);
-        c = cm.add(ID_START = m.getColumnName(4), "Начало", 150, 150, 150);
+        cm.add(m.getColumnName(2), "Размер", 120, 120, 120);
+        c = cm.add(ID_START = m.getColumnName(3), "Начало", 150, 150, 150);
         c.setCellRenderer(cr);
-        c = cm.add(ID_END = m.getColumnName(5), "Конец", 150, 150, 150);
+        c = cm.add(ID_END = m.getColumnName(4), "Конец", 150, 150, 150);
         c.setCellRenderer(cr);
 
         dir = new JDirectory(m, cm) {

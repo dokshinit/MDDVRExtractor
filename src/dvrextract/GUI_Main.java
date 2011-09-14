@@ -13,7 +13,6 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
-import java.beans.PropertyVetoException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -146,6 +145,7 @@ public final class GUI_Main extends GUIFrame {
     @Override
     protected void processWindowEvent(WindowEvent e) {
         if (e.getID() == WindowEvent.WINDOW_CLOSING) {
+            /*
             Object[] options = {"Да", "Нет!"};
             int n = JOptionPane.showOptionDialog(e.getWindow(), "Выйти из программы?",
                     "Подтверждение", JOptionPane.YES_NO_OPTION,
@@ -155,6 +155,8 @@ public final class GUI_Main extends GUIFrame {
                 dispose();
                 System.exit(0);
             }
+             */
+            System.exit(0);
         } else {
             super.processWindowEvent(e);
         }
