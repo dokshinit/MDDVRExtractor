@@ -8,6 +8,7 @@ import java.nio.ByteOrder;
 import java.util.Collections;
 
 /**
+ * TODO: Добавить в парсинг EXE - распарсивание конца файла на начальные отступы для первых фреймов камер!
  * Осуществление действий с источником: сканирование, обработка.
  * @author lex
  */
@@ -108,9 +109,9 @@ public class Files {
 
             // Ищем первый кадр.
             long pos = 0;
-            while (pos < in.getSize() - f.getSize()) {
+            while (pos < in.getSize() - f.getHeaderSize()) {
                 in.seek(pos);
-                in.read(baFrame, f.getSize());
+                in.read(baFrame, f.getHeaderSize());
                 if (info.frameFirst.parseHeader(bbF, 0) == 0) {
                     // Если номер камеры указан и это не он - пропускаем разбор.
                     if (cam > 0 && info.frameFirst.camNumber != cam) {
@@ -129,10 +130,10 @@ public class Files {
                 return null;
             }
             // Ищем последний кадр.
-            pos = in.getSize() - f.getSize();
+            pos = in.getSize() - f.getHeaderSize();
             while (pos >= 0) {
                 in.seek(pos);
-                in.read(baFrame, f.getSize());
+                in.read(baFrame, f.getHeaderSize());
                 if (info.frameLast.parseHeader(bbF, 0) == 0) {
                     info.frameLast.pos = pos;
                     break;
@@ -177,12 +178,12 @@ public class Files {
             // Ищем первый кадр (от начала к концу).
             long pos = 0;
             long ost = in.getSize();
-            while (pos < in.getSize() - f.getSize()) {
+            while (pos < in.getSize() - f.getHeaderSize()) {
                 in.seek(pos);
                 int len = (int) Math.min(baFrame.length, ost);
                 in.read(baFrame, (int) len);
 
-                for (int i = 0; i < len - f.getSize(); i++) {
+                for (int i = 0; i < len - f.getHeaderSize(); i++) {
                     if (f.parseHeader(bbF, i) == 0) {
                         // Если номер камеры указан и это не он - пропускаем разбор.
                         if (cam > 0 && f.camNumber != cam) {
@@ -198,8 +199,8 @@ public class Files {
                 if (f.isParsed) {
                     break;
                 } else {
-                    pos += len - f.getSize();
-                    ost -= len - f.getSize();
+                    pos += len - f.getHeaderSize();
+                    ost -= len - f.getHeaderSize();
                 }
             }
             if (!f.isParsed) {
@@ -217,7 +218,7 @@ public class Files {
                 pos -= len;
                 in.seek(pos);
                 in.read(baFrame, (int) len);
-                for (int i = len - f.getSize(); i >= 0; i--) {
+                for (int i = len - f.getHeaderSize(); i >= 0; i--) {
                     if (f.parseHeader(bbF, i) == 0) {
                         f.pos = pos + i;
                         info.frameLast = f;
@@ -227,7 +228,7 @@ public class Files {
                 if (f.isParsed) {
                     break;
                 } else {
-                    ost -= len - f.getSize();
+                    ost -= len - f.getHeaderSize();
                 }
             }
             if (!f.isParsed) {
@@ -268,12 +269,13 @@ public class Files {
             FileInfo info = new FileInfo();
             info.fileName = fileName;
             info.fileSize = in.getSize();
+            info.fileType = type;
 
             Frame f = new Frame(type);
             long pos = 0; // Позиция поиска.
             long ost = in.getSize(); // Остаток данных.
             long size = in.getSize(); // Размер данных (конечная позиция).
-            int frameSize = f.getSize();
+            int frameSize = f.getHeaderSize();
 
             // Если это EXE - делаем разбор инфы в конце файла.
             if (type == FileType.EXE) {

@@ -42,6 +42,8 @@ public class GUIImagePanel extends JPanel {
      */
     public void setImage(Image image) {
         this.image = image;
+        validate();
+        repaint();
     }
 
     /**

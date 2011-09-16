@@ -31,8 +31,7 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
     JExtComboBox comboCam;
     //
     GUIFilesPanel filesPanel;
-    GUIImagePanel imagePanel;
-    JPanel panelInfo;
+    GUIFileInfoPanel infoPanel;
 
     public GUI_TabSource() {
         init();
@@ -62,27 +61,17 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
 
         //JPanel panel = new JPanel(new MigLayout("debug, fill, ins 0", "[100:300:]5[352:352:704]", "[288:288:576]5[]"));
         JPanel panel = new JPanel(new BorderLayout());
-        //panel.setBackground(Color.red);
         add(panel, "span, grow");
 
         // Панель отображения файлов источника.
         filesPanel = new GUIFilesPanel();
         filesPanel.setBackground(Color.blue);
         filesPanel.setMinimumSize(new Dimension(300, 200));
-        //panel.add(panelFiles, "spany 2, top");
-        // Панель отображения первого базового кадра файла.
-        imagePanel = new GUIImagePanel();
-        imagePanel.setBackground(Color.green);
-        imagePanel.setMinimumSize(new Dimension(352, 288));
-        imagePanel.setPreferredSize(new Dimension(352, 288));
-        imagePanel.setMaximumSize(new Dimension(352, 288));
-        //panel.add(panelImage, "wrap");
         // Панель отображения информации о файле.
-        panelInfo = new JPanel(new MigLayout("fill, ins 5"));
-        panelInfo.setBackground(Color.cyan);
-        panelInfo.add(imagePanel, "spany, growx, left, top");
-        //panel.add(panelInfo, "");
-        JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, filesPanel, panelInfo);
+        infoPanel = new GUIFileInfoPanel();
+        infoPanel.setBackground(Color.cyan);
+        //
+        JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, filesPanel, infoPanel);
         sp.setDividerSize(8);
         panel.add(sp, BorderLayout.CENTER);
     }

@@ -1,6 +1,5 @@
 package dvrextract;
 
-import dvrextract.gui.FormattedDateValue;
 import dvrextract.gui.JDirectory;
 import dvrextract.gui.TableColumnModel;
 import java.awt.BorderLayout;
@@ -16,11 +15,11 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
-import org.jdesktop.swingx.renderer.DefaultTableRenderer;
+import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.table.TableColumnExt;
 
 /**
- * Графический список файлов.
+ * Панель со списком файлов-источников.
  * @author lex
  */
 public final class GUIFilesPanel extends JPanel {
@@ -33,7 +32,6 @@ public final class GUIFilesPanel extends JPanel {
         camNumber = 0;
         init();
     }
-
     // Форматтер представления дат.
     static DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
     // Рендер ячеек.
@@ -72,13 +70,15 @@ public final class GUIFilesPanel extends JPanel {
 
         TableColumnModel cm = new TableColumnModel();
         TableColumnExt c;
-        cm.add(m.getColumnName(0), "Имя", -1, 300, -1);
-        c = cm.add(ID_TYPE = m.getColumnName(1), "Тип", 100, 100, 100);
+        c = cm.add(m.getColumnName(0), "", 0, 0, 0);
+        c.setVisible(false);
+        cm.add(m.getColumnName(1), "Имя", -1, 300, -1);
+        c = cm.add(ID_TYPE = m.getColumnName(2), "Тип", 100, 100, 100);
         c.setCellRenderer(cr);
-        cm.add(m.getColumnName(2), "Размер", 120, 120, 120);
-        c = cm.add(ID_START = m.getColumnName(3), "Начало", 150, 150, 150);
+        cm.add(m.getColumnName(3), "Размер", 120, 120, 120);
+        c = cm.add(ID_START = m.getColumnName(4), "Начало", 150, 150, 150);
         c.setCellRenderer(cr);
-        c = cm.add(ID_END = m.getColumnName(4), "Конец", 150, 150, 150);
+        c = cm.add(ID_END = m.getColumnName(5), "Конец", 150, 150, 150);
         c.setCellRenderer(cr);
 
         dir = new JDirectory(m, cm) {
@@ -90,9 +90,19 @@ public final class GUIFilesPanel extends JPanel {
 
             @Override
             protected void fireSelect(ListSelectionEvent e, ListSelectionModel l) {
-                App.log("Select! row="+l.getMinSelectionIndex());
+                int n = l.getMinSelectionIndex();
+                App.log("Select! row=" + n);
+                if (n >= 0) {
+                    JXTable table = dir.getTable();
+                    int indexId = table.getColumnModel().getColumnIndex("ID");
+                    FileInfo info = (FileInfo) table.getValueAt(table.getSelectedRow(), indexId);
+                    App.log("N=" + n + " name=" + info.fileName);
+                    App.mainFrame.tabSource.infoPanel.displayInfo(info);
+                } else {
+                    App.mainFrame.tabSource.infoPanel.displayInfo(null);
+                }
+                //
             }
-            
         };
 
         add(dir, BorderLayout.CENTER);

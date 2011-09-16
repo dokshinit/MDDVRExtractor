@@ -57,7 +57,7 @@ public class Frame {
         this.type = type;
     }
 
-    public int getSize() {
+    public int getHeaderSize() {
         switch (type) {
             case EXE:
                 return EXE_HSIZE;

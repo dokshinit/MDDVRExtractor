@@ -6,15 +6,16 @@ import javax.swing.table.AbstractTableModel;
 
 /**
  * Модель табличных данных для списка файлов.
- *
+ * Подразумевается, что первый столбец невидимый и используется для системных нужд.
+ * 
  * @author Докшин_А_Н
  */
 public class FileListModel extends AbstractTableModel {
 
     // Типы столбцов.
-    static Class[] colTypes = {String.class, String.class, Long.class, Date.class, Date.class};
+    static Class[] colTypes = {FileInfo.class, String.class, String.class, Long.class, Date.class, Date.class};
     // Имена столбцов.
-    static String[] colNames = {"name", "type", "size", "start", "end"};
+    static String[] colNames = {"ID", "name", "type", "size", "start", "end"};
     // Строки.
     private final ArrayList<FileInfo> files;
 
@@ -71,14 +72,16 @@ public class FileListModel extends AbstractTableModel {
         synchronized (files) {
             switch (column) {
                 case 0:
-                    return files.get(row).fileName;
+                    return files.get(row); // Невидимый!
                 case 1:
-                    return files.get(row).fileType.title;
+                    return files.get(row).fileName;
                 case 2:
-                    return files.get(row).fileSize;
+                    return files.get(row).fileType.title;
                 case 3:
-                    return files.get(row).frameFirst.time;
+                    return files.get(row).fileSize;
                 case 4:
+                    return files.get(row).frameFirst.time;
+                case 5:
                     return files.get(row).frameLast.time;
                 default:
                     return "";

@@ -89,6 +89,21 @@ public final class FileInfo {
         return comparator;
     }
 
+    /**
+     * Возвращает список номеров камер как строку с их перечислением через запятую.
+     * @return Строка со списком номеров камер.
+     */
+    public String getCamsToString() {
+        StringBuilder sb = new StringBuilder();
+        for (Integer i : camNumbers) {
+            if (sb.length() != 0) {
+                sb.append(", ");
+            }
+            sb.append(i);
+        }
+        return sb.toString();
+    }
+
     ////////////////////////////////////////////////////////////////////////////
     // Дочерние классы.
     ////////////////////////////////////////////////////////////////////////////
