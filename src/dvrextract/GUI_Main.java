@@ -58,7 +58,7 @@ public final class GUI_Main extends GUIFrame {
     private void init() {
         setLayout(new BorderLayout());
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setPreferredSize(new Dimension(800, 600));
+        setPreferredSize(new Dimension(900, 600));
 
         GUITabPane tabPane = new GUITabPane();
 
@@ -85,36 +85,6 @@ public final class GUI_Main extends GUIFrame {
         JPanel panelTab4 = new JPanel(new MigLayout());
         tabPane.addTab("Лог", panelTab4);
 
-
-        GUIImagePanel p = new GUIImagePanel();
-        p.setPreferredSize(new Dimension(352, 288));
-        p.setMinimumSize(new Dimension(352, 288));
-        p.setMaximumSize(new Dimension(352, 288));
-        try {
-            //p.setImage(ImageIO.read(new File("1.jpeg")));
-            Process pr = Runtime.getRuntime().exec("ffmpeg -i ./2.frame -r 1 -s 352x288 -f image2 -");
-            InputStream is = pr.getInputStream();
-            FileOutputStream os = new FileOutputStream("2jpg.out");
-            /*
-            byte[] bb = new byte[100000];
-            while (true) {
-            int n = is.read(bb);
-            if (n < 0) {
-            break;
-            }
-            os.write(bb, 0, n);
-            }
-            os.close();
-             * 
-             */
-            BufferedImage image = ImageIO.read(is);
-            p.setImage(image);
-            //tabSource.panelImage.add(p, "span, growx");
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         //textInput = new JTextField(50);
         //buttonInput = new JButton("Выбор");
 
@@ -137,7 +107,7 @@ public final class GUI_Main extends GUIFrame {
         panelButton.add(buttonProcess, "spany 2, growy, wrap");
         panelButton.add(progressBar);
         add(panelButton, BorderLayout.SOUTH);
-        panelButton.setBackground(Color.red);
+        //panelButton.setBackground(Color.red);
 
         pack();
     }

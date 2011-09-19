@@ -21,18 +21,18 @@ import net.miginfocom.swing.MigLayout;
 public final class GUI_SourceSelect extends GUIDialog implements ActionListener {
 
     // Отображение пути и имени файла.
-    JTextField textSource;
+    private JTextField textSource;
     // Кнопка выбора источника.
-    JButton buttonSelect;
+    private JButton buttonSelect;
     // Отображение типа источника.
-    JTextField textType;
+    private JTextField textType;
     // Отображение списка камер для ограничения сканирования.
-    JExtComboBox comboCam;
+    private JExtComboBox comboCam;
     // Кнопка сканирования источника - подтверждение выбора.
-    JButton buttonScan;
+    private JButton buttonScan;
     //
     // Тип выбранного файла.
-    FileType type; 
+    private FileType type; 
 
     /**
      * Конструктор.

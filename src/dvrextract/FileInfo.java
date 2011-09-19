@@ -9,7 +9,7 @@ import java.util.Comparator;
  * @author lex
  */
 public final class FileInfo {
-
+    
     ////////////////////////////////////////////////////////////////////////////
     // Информация о файле при сканировании.
     ////////////////////////////////////////////////////////////////////////////
@@ -19,13 +19,17 @@ public final class FileInfo {
     public long fileSize;
     // Тип файла (1-exe, 2-hdd).
     public FileType fileType;
-    // Номера камер содержащиеся в файле
+    // Информация о камерах содержащаяся в файле
     // (для EXE - из инфы файла, для HDD - из первого фрейма).
-    public ArrayList<Integer> camNumbers;
-    // Распознанный первый кадр.
+    public ArrayList<CamInfo> camInfo;
+    // Распознанный первый кадр файла (не камеры!).
     public Frame frameFirst;
-    // Распознанный последний кадр.
+    // Распознанный последний кадр файла (не камеры!).
     public Frame frameLast;
+    // Начало видеоданных в файле.
+    public long startDataPos;
+    // Конец видеоданных в файле.
+    public long endDataPos;
     ////////////////////////////////////////////////////////////////////////////
     // Заполняются при обработке:
     ////////////////////////////////////////////////////////////////////////////
@@ -66,10 +70,12 @@ public final class FileInfo {
         fileName = null;
         fileSize = 0;
         fileType = FileType.NO;
-        camNumbers = new ArrayList<Integer>();
+        camInfo = new ArrayList<CamInfo>();
         frameFirst = null;
         frameLast = null;
-
+        startDataPos = 0;
+        endDataPos = 0;
+        
         p_ParsedCount = 0;
         p_Count = 0;
         p_Size = 0;
@@ -79,6 +85,21 @@ public final class FileInfo {
         p_MaxTime = 0;
         p_Skip = new ArrayList<Skip>();
         p_Error = new ArrayList<Error>();
+    }
+    
+    public CamInfo addCamInfo(int num, long offs, Frame f) {
+        CamInfo i = new CamInfo(num, offs, f);
+        camInfo.add(i);
+        return i;
+    }
+    
+    public CamInfo getCamInfo(int num) {
+        for (CamInfo i : camInfo) {
+            if (i.camNumber == num) {
+                return i;
+            }
+        }
+        return null;
     }
 
     /**
@@ -95,11 +116,11 @@ public final class FileInfo {
      */
     public String getCamsToString() {
         StringBuilder sb = new StringBuilder();
-        for (Integer i : camNumbers) {
+        for (CamInfo i : camInfo) {
             if (sb.length() != 0) {
                 sb.append(", ");
             }
-            sb.append(i);
+            sb.append(i.camNumber);
         }
         return sb.toString();
     }
@@ -108,12 +129,28 @@ public final class FileInfo {
     // Дочерние классы.
     ////////////////////////////////////////////////////////////////////////////
     /**
+     * Для хранения отступов первых фреймов (на всякий случай)
+     */
+    public class CamInfo {
+        public int camNumber; // Номер камеры.
+        public long mainFrameOffset; // Отступ в файле до первого ключевого кадра камеры.
+        // Первый базовый кадр камеры (если=null - значит еще не распознан).
+        public Frame mainFrame;
+        
+        public CamInfo(int num, long offs, Frame f) {
+            camNumber = num;
+            mainFrameOffset = offs;
+            mainFrame = f;
+        }
+    }
+ 
+    /**
      * Для учёта пропущенных кадров.
      */
     public class Skip {
 
-        long time; // Время пропущенного кадра.
-        long count; // Кол-во пропущенных кадров.
+        public long time; // Время пропущенного кадра.
+        public long count; // Кол-во пропущенных кадров.
     }
 
     /**
@@ -121,7 +158,7 @@ public final class FileInfo {
      */
     public class Error {
 
-        long pos; // Позиция возникновения ошибки.
-        long count; // Кол-во пропущенных байт.
+        public long pos; // Позиция возникновения ошибки.
+        public long count; // Кол-во пропущенных байт.
     }
 }

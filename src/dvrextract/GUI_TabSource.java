@@ -5,7 +5,6 @@
 package dvrextract;
 
 import dvrextract.gui.GUI;
-import dvrextract.gui.GUIImagePanel;
 import dvrextract.gui.JExtComboBox;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -14,6 +13,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
@@ -25,13 +25,13 @@ import net.miginfocom.swing.MigLayout;
  */
 public final class GUI_TabSource extends JPanel implements ActionListener {
 
-    JTextField textSource;
-    JButton buttonSource;
-    JTextField textType;
-    JExtComboBox comboCam;
+    private JTextField textSource;
+    private JButton buttonSource;
+    private JTextField textType;
+    private JExtComboBox comboCam;
     //
-    GUIFilesPanel filesPanel;
-    GUIFileInfoPanel infoPanel;
+    private GUIFilesPanel filesPanel;
+    private GUIFileInfoPanel infoPanel;
 
     public GUI_TabSource() {
         init();
@@ -41,7 +41,7 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
         setLayout(new MigLayout("", "", "[]2[][fill, grow]"));
 
         add(GUI.createLabel("Источник"));
-        add(textSource = GUI.createText(100), "growx, span, split 2");
+        add(textSource = GUI.createText(300), "growx, span, split 2");
         textSource.setEditable(false);
         add(buttonSource = GUI.createButton("Выбор"), "wrap");
         buttonSource.addActionListener(this);
@@ -66,7 +66,7 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
         // Панель отображения файлов источника.
         filesPanel = new GUIFilesPanel();
         filesPanel.setBackground(Color.blue);
-        filesPanel.setMinimumSize(new Dimension(300, 200));
+        filesPanel.setMinimumSize(new Dimension(200, 100));
         // Панель отображения информации о файле.
         infoPanel = new GUIFileInfoPanel();
         infoPanel.setBackground(Color.cyan);
@@ -85,13 +85,7 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
         }
     }
 
-    public void displaySource(String src, FileType type) {
-        textSource.setText(src);
-        textType.setText(type.title);
-    }
-
-    public void displayCams(ArrayList<Integer> cams) {
-        int id = comboCam.getSelectedItem().id;
+    public void do_SetDisplayCams(ArrayList<Integer> cams) {
         comboCam.removeItems();
         if (cams != null) {
             if (cams.isEmpty()) {
@@ -102,27 +96,26 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
             }
         }
         comboCam.showData();
-        int newid = comboCam.getSelectedItem().id;
-        if (id != newid) {
-            // Применяем выбор.
-            filesPanel.selectCamModel(newid);
-        }
+        do_CamSelect();
     }
 
-    public void displayCams(int cam) {
+    public void do_SetDisplayCams(int cam) {
         ArrayList<Integer> list = new ArrayList<Integer>();
         list.add(cam);
-        displayCams(list);
+        do_SetDisplayCams(list);
     }
 
     private void do_SourceSelect() {
         GUI_SourceSelect dlg = new GUI_SourceSelect();
         dlg.center();
         dlg.setVisible(true);
+        //
+        textSource.setText(App.srcName);
+        textType.setText(App.srcType.title);
     }
 
     public void do_CamSelect() {
-        int newid = comboCam.getSelectedItem().id;
-        filesPanel.selectCamModel(newid);
+        App.srcCamSelect = comboCam.getSelectedItem().id;
+        filesPanel.selectCamModel(App.srcCamSelect);
     }
 }

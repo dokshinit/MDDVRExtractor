@@ -85,23 +85,20 @@ public final class GUIFilesPanel extends JPanel {
 
             @Override
             protected void fireEdit(ActionEvent e) {
-                App.log("Edit!");
+                //App.log("Edit!");
             }
 
             @Override
             protected void fireSelect(ListSelectionEvent e, ListSelectionModel l) {
-                int n = l.getMinSelectionIndex();
-                App.log("Select! row=" + n);
+                int n = table.getSelectedRow();
                 if (n >= 0) {
                     JXTable table = dir.getTable();
                     int indexId = table.getColumnModel().getColumnIndex("ID");
                     FileInfo info = (FileInfo) table.getValueAt(table.getSelectedRow(), indexId);
-                    App.log("N=" + n + " name=" + info.fileName);
-                    App.mainFrame.tabSource.infoPanel.displayInfo(info);
+                    fireFileSelect(n, info);
                 } else {
-                    App.mainFrame.tabSource.infoPanel.displayInfo(null);
+                    fireFileSelect(n, null);
                 }
-                //
             }
         };
 
@@ -113,5 +110,12 @@ public final class GUIFilesPanel extends JPanel {
             camNumber = cam;
             dir.setTableModel(new FileListModel(camNumber));
         }
+    }
+
+    public void fireFileSelect(int row, FileInfo info) {
+        //App.log("Select! row=" + n);
+        //App.log("N=" + n + " name=" + info.fileName);
+        //App.mainFrame.tabSource.infoPanel.displayInfo(info);
+        //App.mainFrame.tabSource.infoPanel.displayInfo(null);
     }
 }

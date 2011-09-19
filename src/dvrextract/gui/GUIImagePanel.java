@@ -1,8 +1,11 @@
 package dvrextract.gui;
 
+import java.awt.BorderLayout;
 import java.awt.Graphics;
 import java.awt.Image;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import net.miginfocom.swing.MigLayout;
 
 /**
  * Панель содержащая изображение.
@@ -12,12 +15,28 @@ public class GUIImagePanel extends JPanel {
 
     // Изображение.
     private Image image;
+    private JLabel label;
 
     /**
      * Конструктор.
      */
     public GUIImagePanel() {
-        this.image = null;
+        image = null;
+        setLayout(new MigLayout("fill","[center]","[center]"));
+        add(label = new JLabel());
+    }
+    
+    public GUIImagePanel(String title) {
+        this();
+        setLabelText(title);
+    }
+    
+    public final void setLabelText(String title) {
+        label.setText(title);
+    }
+    
+    public final JLabel getLabel() {
+        return label;
     }
     
     /**

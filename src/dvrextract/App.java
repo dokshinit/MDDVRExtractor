@@ -18,7 +18,7 @@ public class App {
     // Константы.
     ////////////////////////////////////////////////////////////////////////////
     // Максимальное кол-во обрабатываемых камер.
-    public static final int MAXCAMS = 8; 
+    public static final int MAXCAMS = 16;
     ////////////////////////////////////////////////////////////////////////////
     // Глобальные переменные.
     ////////////////////////////////////////////////////////////////////////////
@@ -93,13 +93,16 @@ public class App {
             App.log("Ошибка включения L&F (" + laf + ")!" + e);
         }
     }
+    static final Integer workSync = new Integer(0); // Для синхронизации доступа к обработке.
     // Указатель на процесс сканирования (если запущен).
     static Thread scanTask = null;
     // Указатель на процесс обработки (если запущена).
     static Thread processTask = null;
 
-    public static boolean isTaskRunning() {
-        return (scanTask != null || processTask != null) ? true : false;
+    public static boolean isTaskRun() {
+        synchronized (workSync) {
+            return (scanTask != null || processTask != null) ? true : false;
+        }
     }
     // Информация о источнике:
     // Подразумевается, что источником может быть или одиночный файл или
@@ -109,9 +112,11 @@ public class App {
     // Каталог или файл.
     public static String srcName = "/home/work/files/";
     // Тип источника: 0-EXE, 1-HDD
-    public static FileType srcType;
+    public static FileType srcType = FileType.NO;
     // Ограничение одной камерой (если = 0 - без ограничений).
-    public static int srcCamNumber;
+    public static int srcCamLimit = 0;
+    // Текущая выбранная камера для которой отображаются файлы.
+    public static int srcCamSelect = 0;
     // Массив разделения источников по камерам.
     public static CamInfo[] srcCams = new CamInfo[MAXCAMS];
 
@@ -123,15 +128,15 @@ public class App {
      * (если = 0 - для всех камер).
      */
     public static void scanTask(String src, FileType type, int cam) {
-        if (isTaskRunning()) {
+        if (isTaskRun()) {
             return;
         }
         srcName = src;
         srcType = type;
-        srcCamNumber = cam;
+        srcCamLimit = cam;
 
         mainFrame.tabSource.displaySource(src, type);
-        mainFrame.tabSource.displayCams(cam);
+        mainFrame.tabSource.do_SetDisplayCams(cam);
         mainFrame.setInfo("Сканирование файлов...", 0);
 
         scanTask = new Thread(new Runnable() {
@@ -140,13 +145,13 @@ public class App {
             public void run() {
                 // Сканирование источника.
                 Files f = new Files();
-                f.scan(srcName, srcCamNumber);
+                f.scan(srcName, srcCamLimit);
                 log("SCAN END");
 
                 ArrayList<Integer> c = new ArrayList<Integer>();
                 for (int i = 0; i < MAXCAMS; i++) {
                     if (srcCams[i].isExists) {
-                        c.add(i+1);
+                        c.add(i + 1);
                     }
                 }
                 mainFrame.tabSource.displayCams(c);

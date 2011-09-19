@@ -9,12 +9,14 @@ import dvrextract.gui.GUIImagePanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import javax.imageio.ImageIO;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -29,25 +31,26 @@ import util.NumberTools;
 public final class GUIFileInfoPanel extends JPanel {
 
     // Скролл для всей инфо-панели.
-    JScrollPane scrollPane;
-    JPanel panelInfo;
-    GUIImagePanel panelImage;
+    private JScrollPane scrollPane;
+    private JPanel panelInfo;
+    private GUIImagePanel panelImage;
     // Поля для отображения информации о файле
-    JTextField textName;
-    JTextField textSize;
-    JTextField textType;
-    JTextField textCams;
-    JTextField textFirstTime;
-    JTextField textLastTime;
-    JTextField textAmountTime;
+    private JTextField textName;
+    private JTextField textSize;
+    private JTextField textType;
+    private JTextField textCams;
+    private JTextField textFirstTime;
+    private JTextField textLastTime;
+    private JTextField textAmountTime;
     //
-    FileInfo curInfo;
+    private FileInfo curInfo;
+    private static SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     public GUIFileInfoPanel() {
         init();
     }
 
-    JTextField createInfo(String title, int size, String add) {
+    private JTextField createInfo(String title, int size, String add) {
         JTextField tf = GUI.createText(size);
         panelInfo.add(GUI.createLabel(title));
         panelInfo.add(tf, add != null ? add + ",wrap" : "wrap");
@@ -58,8 +61,11 @@ public final class GUIFileInfoPanel extends JPanel {
     public void init() {
         setLayout(new BorderLayout());
         //
-        panelImage = new GUIImagePanel();
-        panelImage.setBackground(Color.red);
+        panelImage = new GUIImagePanel("НЕТ");
+        JLabel l = panelImage.getLabel();
+        l.setFont(new Font(l.getFont().getName(), Font.BOLD, 100));
+        l.setForeground(Color.WHITE);
+        panelImage.setBackground(new Color(0x8080FF));
         Dimension d = new Dimension(352, 288);
         panelImage.setPreferredSize(d);
         panelImage.setMinimumSize(d);
@@ -79,7 +85,6 @@ public final class GUIFileInfoPanel extends JPanel {
         scrollPane = new JScrollPane(panelInfo);
         add(scrollPane, BorderLayout.CENTER);
     }
-    static SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     public void displayInfo(FileInfo info) {
         if (info == null) {
@@ -90,6 +95,7 @@ public final class GUIFileInfoPanel extends JPanel {
             textFirstTime.setText("");
             textLastTime.setText("");
             textAmountTime.setText("");
+            panelImage.setImage(null);
         } else {
             if (curInfo != info) {
                 textName.setText(info.fileName);
@@ -111,25 +117,27 @@ public final class GUIFileInfoPanel extends JPanel {
                 } else {
                     textAmountTime.setText("");
                 }
-                if (info.frameFirst != null && info.frameFirst.isParsed && info.frameFirst.isMainFrame) {
-                    
-                    try {
+                Frame f = Files.getFirstMainFrame(info, App.srcCamSelect);
+                try {
+                    if (f != null) {
                         InputData in = new InputData(info.fileName);
-                        in.seek(info.frameFirst.pos + info.frameFirst.getHeaderSize());
-                        byte[] ba = new byte[info.frameFirst.videoSize+1];
-                        in.read(ba, info.frameFirst.videoSize);
-                        
+                        in.seek(f.pos + f.getHeaderSize());
+                        byte[] ba = new byte[f.videoSize];
+                        in.read(ba, f.videoSize);
+
                         Process pr = Runtime.getRuntime().exec("ffmpeg -i - -r 1 -s 352x288 -f image2 -");
                         InputStream is = pr.getInputStream();
                         OutputStream os = pr.getOutputStream();
-                        os.write(ba, 0, ba.length-1);
+                        os.write(ba, 0, ba.length);
                         os.close();
                         BufferedImage image = ImageIO.read(is);
                         panelImage.setImage(image);
                         pr.destroy();
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    } else {
+                        panelImage.setImage(null);
                     }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
 
             }
