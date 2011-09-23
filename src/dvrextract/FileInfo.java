@@ -21,7 +21,7 @@ public final class FileInfo {
     public FileType fileType;
     // Информация о камерах содержащаяся в файле
     // (для EXE - из инфы файла, для HDD - из первого фрейма).
-    public ArrayList<CamInfo> camInfo;
+    public ArrayList<CamData> camInfo;
     // Распознанный первый кадр файла (не камеры!).
     public Frame frameFirst;
     // Распознанный последний кадр файла (не камеры!).
@@ -53,15 +53,7 @@ public final class FileInfo {
     // Для интерфейса.
     ////////////////////////////////////////////////////////////////////////////
     // Компаратор для сортировки списка файлов.
-    private static final Comparator<FileInfo> comparator = new Comparator<FileInfo>() {
-
-        @Override
-        public int compare(FileInfo o1, FileInfo o2) {
-            long t1 = o1.frameFirst.time.getTime();
-            long t2 = o2.frameFirst.time.getTime();
-            return t1 == t2 ? 0 : (t1 < t2 ? -1 : 1);
-        }
-    };
+    private static final Comparator<FileInfo> comparator = new FileInfoComparator();
 
     /**
      * Конструктор.
@@ -70,7 +62,7 @@ public final class FileInfo {
         fileName = null;
         fileSize = 0;
         fileType = FileType.NO;
-        camInfo = new ArrayList<CamInfo>();
+        camInfo = new ArrayList<CamData>();
         frameFirst = null;
         frameLast = null;
         startDataPos = 0;
@@ -87,14 +79,26 @@ public final class FileInfo {
         p_Error = new ArrayList<Error>();
     }
     
-    public CamInfo addCamInfo(int num, long offs, Frame f) {
-        CamInfo i = new CamInfo(num, offs, f);
+    /**
+     * Добавляет инфу о камере в список камер файла.
+     * @param num Номер камеры.
+     * @param offs Отступ первого фрейма.
+     * @param f Фрейм (если распознан).
+     * @return Инфа по камере.
+     */
+    public CamData addCamData(int num, long offs, Frame f) {
+        CamData i = new CamData(num, offs, f);
         camInfo.add(i);
         return i;
     }
     
-    public CamInfo getCamInfo(int num) {
-        for (CamInfo i : camInfo) {
+    /**
+     * Возвращает инфу по камере файла.
+     * @param num Номер камеры.
+     * @return Инфа по камере (если нет = null).
+     */
+    public CamData getCamData(int num) {
+        for (CamData i : camInfo) {
             if (i.camNumber == num) {
                 return i;
             }
@@ -116,7 +120,7 @@ public final class FileInfo {
      */
     public String getCamsToString() {
         StringBuilder sb = new StringBuilder();
-        for (CamInfo i : camInfo) {
+        for (CamData i : camInfo) {
             if (sb.length() != 0) {
                 sb.append(", ");
             }
@@ -129,15 +133,17 @@ public final class FileInfo {
     // Дочерние классы.
     ////////////////////////////////////////////////////////////////////////////
     /**
-     * Для хранения отступов первых фреймов (на всякий случай)
+     * Для хранения отступов первых фреймов.
      */
-    public class CamInfo {
-        public int camNumber; // Номер камеры.
-        public long mainFrameOffset; // Отступ в файле до первого ключевого кадра камеры.
+    public class CamData {
+        // Номер камеры.
+        public int camNumber;
+        // Отступ в файле до первого ключевого кадра камеры.
+        public long mainFrameOffset; 
         // Первый базовый кадр камеры (если=null - значит еще не распознан).
         public Frame mainFrame;
         
-        public CamInfo(int num, long offs, Frame f) {
+        public CamData(int num, long offs, Frame f) {
             camNumber = num;
             mainFrameOffset = offs;
             mainFrame = f;
@@ -160,5 +166,18 @@ public final class FileInfo {
 
         public long pos; // Позиция возникновения ошибки.
         public long count; // Кол-во пропущенных байт.
+    }
+
+    /**
+     * Реализация компаратора для инфы файла.
+     */
+    private static class FileInfoComparator implements Comparator<FileInfo> {
+
+        @Override
+        public int compare(FileInfo o1, FileInfo o2) {
+            long t1 = o1.frameFirst.time.getTime();
+            long t2 = o2.frameFirst.time.getTime();
+            return t1 == t2 ? 0 : (t1 < t2 ? -1 : 1);
+        }
     }
 }

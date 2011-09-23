@@ -13,9 +13,9 @@ import javax.swing.table.AbstractTableModel;
 public class FileListModel extends AbstractTableModel {
 
     // Типы столбцов.
-    static Class[] colTypes = {FileInfo.class, String.class, String.class, Long.class, Date.class, Date.class};
+    private static Class[] colTypes = {FileInfo.class, String.class, String.class, Long.class, Date.class, Date.class};
     // Имена столбцов.
-    static String[] colNames = {"ID", "name", "type", "size", "start", "end"};
+    private static String[] colNames = {"ID", "name", "type", "size", "start", "end"};
     // Строки.
     private final ArrayList<FileInfo> files;
 
@@ -60,13 +60,22 @@ public class FileListModel extends AbstractTableModel {
         return (column >= 0 && column < colTypes.length) ? colTypes[column] : String.class;
     }
 
-    // название столбца
+    /**
+     * Название столбца.
+     * @param column Столбец.
+     * @return Название.
+     */
     @Override
     public String getColumnName(int column) {
         return (column >= 0 && column < colNames.length) ? colNames[column] : "";
     }
 
-    // данные в ячейке
+    /**
+     * Данные в ячейке.
+     * @param row Строка.
+     * @param column Столбец.
+     * @return Значение.
+     */
     @Override
     public Object getValueAt(int row, int column) {
         synchronized (files) {
@@ -89,14 +98,24 @@ public class FileListModel extends AbstractTableModel {
         }
     }
 
+    /**
+     * Установка значения в ячейку.
+     * @param value Значение.
+     * @param row Строка.
+     * @param column Столбец.
+     */
     @Override
     public void setValueAt(Object value, int row, int column) {
     }
 
+    /**
+     * Статус редактируемости для ячейки.
+     * @param rowIndex Строка.
+     * @param columnIndex Столбец.
+     * @return Статус (у нас всегда false - нельзя).
+     */
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return false;
     }
-    
-    
 }

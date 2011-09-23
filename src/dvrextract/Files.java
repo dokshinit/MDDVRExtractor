@@ -7,14 +7,14 @@ import java.nio.ByteOrder;
 import java.util.Collections;
 
 /**
- * TODO: Добавить в парсинг EXE - распарсивание конца файла на начальные отступы для первых фреймов камер!
  * Осуществление действий с источником: сканирование, обработка.
  * @author lex
  */
 public class Files {
 
     // Размер инфоблока в конце EXE файла.
-    static final int exeInfoSize = 4 + 4 + 4 * 16 + 8 * 16 * 101 + 4 * 16 * 101
+    private static final int exeInfoSize =
+            4 + 4 + 4 * 16 + 8 * 16 * 101 + 4 * 16 * 101
             + 4 + 16 * 4 + 8 + 15 * 8 + 8 + 15 * 8 + 16 * 8;
 
     /**
@@ -71,7 +71,7 @@ public class Files {
                 FileInfo info = parseFileBuffered(fa[i].getPath(), type, cam);
                 if (info != null) {
                     // Обрабатываем инфу - добавляем файл ко всем камерам, какие в нём перечислены.
-                    for (FileInfo.CamInfo n : info.camInfo) {
+                    for (FileInfo.CamData n : info.camInfo) {
                         App.srcCams[n.camNumber - 1].addFile(info);
                         App.log((info.frameFirst.pos > 0
                                 ? "Pos=" + info.frameFirst.pos + " " : "")
@@ -96,7 +96,7 @@ public class Files {
      * @param cam Ограничение по камере (0-по всем, иначе только для данной камеры).
      * @return 
      */
-    public static FileInfo parseFileBuffered(String fileName, FileType type, int cam) {
+    private static FileInfo parseFileBuffered(String fileName, FileType type, int cam) {
         try {
             // Буфер чтения и парсинга данных.
             final byte[] baFrame = new byte[100000];
@@ -131,7 +131,7 @@ public class Files {
                     }
                     // Смещение первого фрейма.
                     long frameOffs = bbF.getLong(72 + (808 * n));
-                    info.addCamInfo(n + 1, frameOffs, null);
+                    info.addCamData(n + 1, frameOffs, null);
                     App.log("CAM" + (n + 1) + " данные в наличии!");
                 }
                 // Позиции начала и конца данных в файле.
@@ -159,7 +159,7 @@ public class Files {
                         f.pos = pos + i;
                         if (info.camInfo.isEmpty()) {
                             // Для HDD инфа заполняется из первого кадра.
-                            info.addCamInfo(f.camNumber, f.pos, f.isMainFrame ? f : null);
+                            info.addCamData(f.camNumber, f.pos, f.isMain ? f : null);
                         }
                         info.frameFirst = f;
                         break;
@@ -218,16 +218,19 @@ public class Files {
     }
 
     /**
-     * Сканирование файла-источника. Если это EXE - чтение инфы. Распознавание 
-     * начального и конечного кадров файла.
-     * @param fileName Имя файла-источника.
-     * @param type Тип файла-источника.
-     * @param cam Ограничение по камере (0-по всем, иначе только для данной камеры).
-     * @return 
+     * Получение первого ключевого кадра из файла для заданной камеры.
+     * Если данный кадр не распознан - производится поиск и сохранение в инфе,
+     * при повторном обращении - возвращает из инфы.
+     * @param info Инфа о файле.
+     * @param cam Номер камеры.
+     * @return Фрейм.
      */
     public static Frame getFirstMainFrame(FileInfo info, int cam) {
         try {
-            FileInfo.CamInfo ci = info.getCamInfo(cam);
+            if (cam < 1 || cam > App.MAXCAMS || info == null) {
+                return null;
+            }
+            FileInfo.CamData ci = info.getCamData(cam);
             // Если такой инфы нет - выход.
             if (ci == null) {
                 return null;
@@ -260,21 +263,20 @@ public class Files {
                 in.seek(pos);
                 int len = (int) Math.min(baFrame.length, ost);
                 in.read(baFrame, (int) len);
-
-                for (int i = 0; i < len - frameSize; i++) {
+                int i = 0;
+                for (; i < len - frameSize; i++) {
                     if (f.parseHeader(bbF, i) == 0) {
                         // Если номер камеры указан и это не он - пропускаем разбор.
-                        if (cam > 0 && f.camNumber != cam) {
-                            in.close();
-                            return null;
+                        if (f.camNumber == cam && f.isMain) {
+                            f.pos = pos + i;
+                            ci.mainFrame = f;
+                            return f; // При успехе возвращаем фрейм.
                         }
-                        f.pos = pos + i;
-                        ci.mainFrame = f;
-                        return f; // При успехе возвращаем фрейм.
+                        i += f.getHeaderSize() + f.videoSize + f.audioSize;
                     }
                 }
-                pos += len - frameSize;
-                ost -= len - frameSize;
+                pos += i;
+                ost -= i;
             }
             // Разбор не получился.
             in.close();

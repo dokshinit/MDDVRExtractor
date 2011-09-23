@@ -8,6 +8,9 @@ import javax.swing.UIManager;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
 
+// TODO: Зависает обновление таблицы после долгого скролла.
+// TODO: Хранить изображения?
+// TODO: При выборе конкретной камеры при скане - не выводит список!
 /**
  *
  * @author lex
@@ -93,16 +96,23 @@ public class App {
             App.log("Ошибка включения L&F (" + laf + ")!" + e);
         }
     }
-    static final Integer workSync = new Integer(0); // Для синхронизации доступа к обработке.
-    // Указатель на процесс сканирования (если запущен).
-    static Thread scanTask = null;
-    // Указатель на процесс обработки (если запущена).
-    static Thread processTask = null;
+    // Для синхронизации доступа к задаче.
+    static final Object taskSync = new Object();
+    // Указатель на процесс запущенной задачи (если ничего не запущено = null).
+    static Thread task = null;
 
-    public static boolean isTaskRun() {
-        synchronized (workSync) {
-            return (scanTask != null || processTask != null) ? true : false;
+    public static boolean startTask(Thread t) {
+        if (t == null) {
+            return false;
         }
+        synchronized (taskSync) {
+            if (task != null && task.isAlive()) {
+                return false;
+            }
+            task = t;
+        }
+        task.start();
+        return true;
     }
     // Информация о источнике:
     // Подразумевается, что источником может быть или одиночный файл или
@@ -119,47 +129,6 @@ public class App {
     public static int srcCamSelect = 0;
     // Массив разделения источников по камерам.
     public static CamInfo[] srcCams = new CamInfo[MAXCAMS];
-
-    /**
-     * Стартует сканирование источника. Можно запускать только при отсутсвии 
-     * текущего процесса сканирования \ обработки.
-     * @param src Каталог-источник HDD или конкретный файл-источник EXE.
-     * @param cam Номер камеры для ограничения сканирования только по ней 
-     * (если = 0 - для всех камер).
-     */
-    public static void scanTask(String src, FileType type, int cam) {
-        if (isTaskRun()) {
-            return;
-        }
-        srcName = src;
-        srcType = type;
-        srcCamLimit = cam;
-
-        mainFrame.tabSource.displaySource(src, type);
-        mainFrame.tabSource.do_SetDisplayCams(cam);
-        mainFrame.setInfo("Сканирование файлов...", 0);
-
-        scanTask = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                // Сканирование источника.
-                Files f = new Files();
-                f.scan(srcName, srcCamLimit);
-                log("SCAN END");
-
-                ArrayList<Integer> c = new ArrayList<Integer>();
-                for (int i = 0; i < MAXCAMS; i++) {
-                    if (srcCams[i].isExists) {
-                        c.add(i + 1);
-                    }
-                }
-                mainFrame.tabSource.displayCams(c);
-                scanTask = null;
-            }
-        });
-        scanTask.start();
-    }
 
     /**
      * Точка запуска приложения.

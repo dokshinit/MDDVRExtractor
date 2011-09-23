@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dvrextract;
 
 import dvrextract.gui.GUI;
@@ -21,7 +17,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import net.miginfocom.swing.MigLayout;
-import util.DateTools;
 import util.NumberTools;
 
 /**
@@ -30,11 +25,13 @@ import util.NumberTools;
  */
 public final class GUIFileInfoPanel extends JPanel {
 
-    // Скролл для всей инфо-панели.
+    // Скролл для всей инфо-панели (добавляется в панель - единственный компонет в ней).
     private JScrollPane scrollPane;
+    // Панель со всей информацией (добавляется в скролл).
     private JPanel panelInfo;
+    // Панель изображения с камеры.
     private GUIImagePanel panelImage;
-    // Поля для отображения информации о файле
+    // Поля для отображения информации о файле.
     private JTextField textName;
     private JTextField textSize;
     private JTextField textType;
@@ -42,14 +39,25 @@ public final class GUIFileInfoPanel extends JPanel {
     private JTextField textFirstTime;
     private JTextField textLastTime;
     private JTextField textAmountTime;
-    //
+    // Текущая отображаемая информация о файле.
     private FileInfo curInfo;
+    // Форматер для времени выводимого в инфе.
     private static SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
+    /**
+     * Конструктор.
+     */
     public GUIFileInfoPanel() {
         init();
     }
 
+    /**
+     * Воспомогательный метод для создания добавление метки+поля в инфу.
+     * @param title Наименование в метке.
+     * @param size Размер поля.
+     * @param add Строка для MigLayout или null - если стандартно.
+     * @return Сформированное поле.
+     */
     private JTextField createInfo(String title, int size, String add) {
         JTextField tf = GUI.createText(size);
         panelInfo.add(GUI.createLabel(title));
@@ -58,7 +66,10 @@ public final class GUIFileInfoPanel extends JPanel {
         return tf;
     }
 
-    public void init() {
+    /**
+     * Инициализация графических компонентов.
+     */
+    private void init() {
         setLayout(new BorderLayout());
         //
         panelImage = new GUIImagePanel("НЕТ");
@@ -86,6 +97,10 @@ public final class GUIFileInfoPanel extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
     }
 
+    /**
+     * Отображение инфы заданного файла.
+     * @param info Инфа о файле.
+     */
     public void displayInfo(FileInfo info) {
         if (info == null) {
             textName.setText("");
@@ -139,13 +154,17 @@ public final class GUIFileInfoPanel extends JPanel {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
             }
         }
         curInfo = info;
     }
 
-    public String timeToString(long period) {
+    /**
+     * Конвертирует время (считая, что это длительность в мсек) в строку.
+     * @param period Длительность в мсек.
+     * @return Строка вида: * час. * мин. * сек. * мсек.
+     */
+    private String timeToString(long period) {
         long h = (period) / (3600 * 1000);
         long m = (period - h * 3600 * 1000) / (60 * 1000);
         long s = (period - h * 3600 * 1000 - m * 60 * 1000) / (1000);

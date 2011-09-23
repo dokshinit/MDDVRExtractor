@@ -1,22 +1,11 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dvrextract;
 
-import dvrextract.gui.GUIImagePanel;
 import dvrextract.gui.GUI;
 import dvrextract.gui.GUITabPane;
 import dvrextract.gui.GUIFrame;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.WindowEvent;
-import java.awt.image.BufferedImage;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import javax.imageio.ImageIO;
 import javax.swing.*;
 import net.miginfocom.swing.MigLayout;
 
@@ -51,10 +40,16 @@ public final class GUI_Main extends GUIFrame {
     JButton buttonProcess; // Запуск\остановка обработки.
     JProgressBar progressBar; // Прогрес выполнения операции.
 
+    /**
+     * Конструктор.
+     */
     public GUI_Main() {
         init();
     }
 
+    /**
+     * Инициализация графических компонентов.
+     */
     private void init() {
         setLayout(new BorderLayout());
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
@@ -130,71 +125,5 @@ public final class GUI_Main extends GUIFrame {
         } else {
             super.processWindowEvent(e);
         }
-    }
-
-    /*
-    protected void fireVetoableChange(String propertyName, Object oldValue, Object newValue) throws PropertyVetoException {
-    //System.out.println("VETO: " + propertyName + "=" + newValue + " /" + lockFrame);
-    // Если этот фрейм залочен другим, то проверяем...
-    if (lockFrame != null) {
-    PropertyChangeEvent evt =
-    new PropertyChangeEvent(this, propertyName, oldValue, newValue);
-    if (propertyName.equals(IS_SELECTED_PROPERTY)) {
-    if (newValue.equals(Boolean.TRUE)) {
-    // При попытке перехода на этот фрейм - делаем переход на
-    // блокирующий фрейм.
-    if (lockFrame.isVisible()) {
-    lockFrame.setSelected(true);
-    throw new PropertyVetoException("locked", evt);
-    }
-    }
-    // Пропускаем только потерю фокуса (selected=false).
-    } else {
-    // Блокируем все остальные события.
-    if (lockFrame.isVisible()) {
-    throw new PropertyVetoException("locked", evt);
-    }
-    }
-    }
-    
-    // Если фрейм не залочен, то обрабатываем закрытие фрейма...
-    if (propertyName.equals(IS_CLOSED_PROPERTY)) {
-    if (newValue.equals(Boolean.TRUE)) {
-    // При закрытии если является блокирующим - освобождает
-    // залоченный фрейм.
-    if (lockedOwnerFrame != null) {
-    lockedOwnerFrame.unlock();
-    }
-    // При закрытии также убираем слушателя глобальных клавиш.
-    removeGKeyListener();
-    
-    // Чтобы ссылки на фрейм не оставались в desktopPane, делаем фрейм
-    // невыбранным (иначе хоть фрейм и удаляется из фреймов десктопа, но
-    // остается в ссылке на выбранный фрейм десктопа).
-    try {
-    setSelected(false);
-    } catch (PropertyVetoException ex) {
-    }
-    
-    fireClose();
-    }
-    } else if (propertyName.equals(IS_SELECTED_PROPERTY)) {
-    // Обрабатываем выбор фрейма
-    if (newValue.equals(Boolean.TRUE)) {
-    if (App.appFrame.windowBar != null) {
-    App.appFrame.windowBar.selectWindow(this, true);
-    }
-    } else {
-    if (App.appFrame.windowBar != null) {
-    App.appFrame.windowBar.selectWindow(this, false);
-    }
-    }
-    }
-    }
-     * 
-     */
-
-    void setInfo(String string, int i) {
-        
     }
 }

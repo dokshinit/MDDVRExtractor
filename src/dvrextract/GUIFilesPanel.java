@@ -4,7 +4,6 @@ import dvrextract.gui.JDirectory;
 import dvrextract.gui.TableColumnModel;
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.event.ActionEvent;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -13,6 +12,7 @@ import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import org.jdesktop.swingx.JXTable;
@@ -24,18 +24,106 @@ import org.jdesktop.swingx.table.TableColumnExt;
  */
 public final class GUIFilesPanel extends JPanel {
 
-    JDirectory dir;
+    // Панель - каталог.
+    private JFilesDirectory dir;
     // Номер камеры отображаемых файлов.
-    int camNumber;
-
-    public GUIFilesPanel() {
+    private int camNumber;
+    // ID полей.
+    private static String ID_TYPE, ID_START, ID_END;
+    // Форматтер представления дат.
+    private static DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+    // Рендер ячеек.
+    private static TableCellRenderer cr = new FilesTableCellRenderer();
+    // Связь на панель отображения инфы выбранного файла.
+    private GUIFileInfoPanel infoPanel;
+    
+    /**
+     * Конструктор.
+     */
+    public GUIFilesPanel(GUIFileInfoPanel info) {
         camNumber = 0;
+        infoPanel = info;
         init();
     }
-    // Форматтер представления дат.
-    static DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-    // Рендер ячеек.
-    static TableCellRenderer cr = new DefaultTableCellRenderer() {
+
+    /**
+     * Инициализация графических компонентов.
+     * Построение модели для текущей камеры (если camNumber=0 - пустой список).
+     */
+    private void init() {
+        setLayout(new BorderLayout());
+
+        FileListModel m = new FileListModel(camNumber);
+
+        TableColumnModel cm = new TableColumnModel();
+        TableColumnExt c;
+        c = cm.add(m.getColumnName(0), "", 0, 0, 0);
+        c.setVisible(false);
+        cm.add(m.getColumnName(1), "Имя", -1, 300, -1);
+        c = cm.add(ID_TYPE = m.getColumnName(2), "Тип", 100, 100, 100);
+        c.setCellRenderer(cr);
+        cm.add(m.getColumnName(3), "Размер", 120, 120, 120);
+        c = cm.add(ID_START = m.getColumnName(4), "Начало", 150, 150, 150);
+        c.setCellRenderer(cr);
+        c = cm.add(ID_END = m.getColumnName(5), "Конец", 150, 150, 150);
+        c.setCellRenderer(cr);
+
+        dir = new JFilesDirectory(m, cm);
+        add(dir, BorderLayout.CENTER);
+    }
+
+    /**
+     * Построение модели для указанного номера камеры
+     * (если номер камеры соответствует текущему - построения не происходит).
+     * @param cam Номер камеры.
+     */
+    public void setModel(int cam) {
+        if (cam != camNumber) {
+            camNumber = cam;
+            dir.setTableModel(new FileListModel(camNumber));
+        }
+    }
+
+    /**
+     * Обработка выбора файла в таблице файлов.
+     * @param row Строка (0-N - строка, -1-потеря выбора).
+     * @param info Инфо о файле (при потере выбора = null).
+     */
+    public void fireSelect(int row, FileInfo info) {
+//            App.log("Select! row=" + row);
+//            if (row >= 0) {
+//                App.log("N=" + row + " name=" + info.fileName);
+//            }
+        infoPanel.displayInfo(info);
+    }
+
+    /**
+     * Реализация директории для справочника файлов.
+     */
+    private class JFilesDirectory extends JDirectory {
+
+        public JFilesDirectory(AbstractTableModel m, TableColumnModel tm) {
+            super(m, tm);
+        }
+
+        @Override
+        protected void fireSelect(ListSelectionEvent e, ListSelectionModel l) {
+            int n = table.getSelectedRow();
+            if (n >= 0) {
+                JXTable tab = dir.getTable();
+                int indexId = tab.getColumnModel().getColumnIndex("ID");
+                FileInfo info = (FileInfo) tab.getValueAt(tab.getSelectedRow(), indexId);
+                GUIFilesPanel.this.fireSelect(n, info);
+            } else {
+                GUIFilesPanel.this.fireSelect(n, null);
+            }
+        }
+    }
+
+    /**
+     * Реализация рендера ячеек таблицы для справочника файлов.
+     */
+    private static class FilesTableCellRenderer extends DefaultTableCellRenderer {
 
         @Override
         public Component getTableCellRendererComponent(JTable table, Object value,
@@ -56,66 +144,5 @@ public final class GUIFilesPanel extends JPanel {
             }
             return com;
         }
-    };
-    static String ID_TYPE, ID_START, ID_END;
-
-    /**
-     * Инициализация списка для указанной камеры (если cam=0 - пустой список).
-     * @param cam Номер камеры или ноль.
-     */
-    public void init() {
-        setLayout(new BorderLayout());
-
-        FileListModel m = new FileListModel(camNumber);
-
-        TableColumnModel cm = new TableColumnModel();
-        TableColumnExt c;
-        c = cm.add(m.getColumnName(0), "", 0, 0, 0);
-        c.setVisible(false);
-        cm.add(m.getColumnName(1), "Имя", -1, 300, -1);
-        c = cm.add(ID_TYPE = m.getColumnName(2), "Тип", 100, 100, 100);
-        c.setCellRenderer(cr);
-        cm.add(m.getColumnName(3), "Размер", 120, 120, 120);
-        c = cm.add(ID_START = m.getColumnName(4), "Начало", 150, 150, 150);
-        c.setCellRenderer(cr);
-        c = cm.add(ID_END = m.getColumnName(5), "Конец", 150, 150, 150);
-        c.setCellRenderer(cr);
-
-        dir = new JDirectory(m, cm) {
-
-            @Override
-            protected void fireEdit(ActionEvent e) {
-                //App.log("Edit!");
-            }
-
-            @Override
-            protected void fireSelect(ListSelectionEvent e, ListSelectionModel l) {
-                int n = table.getSelectedRow();
-                if (n >= 0) {
-                    JXTable table = dir.getTable();
-                    int indexId = table.getColumnModel().getColumnIndex("ID");
-                    FileInfo info = (FileInfo) table.getValueAt(table.getSelectedRow(), indexId);
-                    fireFileSelect(n, info);
-                } else {
-                    fireFileSelect(n, null);
-                }
-            }
-        };
-
-        add(dir, BorderLayout.CENTER);
-    }
-
-    public void selectCamModel(int cam) {
-        if (cam != camNumber) {
-            camNumber = cam;
-            dir.setTableModel(new FileListModel(camNumber));
-        }
-    }
-
-    public void fireFileSelect(int row, FileInfo info) {
-        //App.log("Select! row=" + n);
-        //App.log("N=" + n + " name=" + info.fileName);
-        //App.mainFrame.tabSource.infoPanel.displayInfo(info);
-        //App.mainFrame.tabSource.infoPanel.displayInfo(null);
     }
 }

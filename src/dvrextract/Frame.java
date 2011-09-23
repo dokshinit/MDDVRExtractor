@@ -6,16 +6,13 @@ import java.util.TimeZone;
 
 /**
  * Работа с кадрами источника.
+ * TODO: Скрыть поля и сделать методы только на чтение? (кроме pos...)
  * @author lex
  */
 public class Frame {
 
-    // Размер заголовка фрейма в архивных файлах выгрузки.
-    public static final int EXE_HSIZE = 93;
-    // Размер заголовка фрейма в файлах на HDD.
-    public static final int HDD_HSIZE = 77;
     // Смещение времени по зонам.
-    public static long timeZone = TimeZone.getDefault().getRawOffset() + 3600000;
+    private static long timeZone = TimeZone.getDefault().getRawOffset() + 3600000;
     //
     // Поля:
     // Дата-время (смещение в секундах от 1970 г.)
@@ -25,7 +22,7 @@ public class Frame {
     // Частота кадров в секунду.
     public int fps;
     // Базовый кадр.
-    public boolean isMainFrame;
+    public boolean isMain;
     // Размер кадра видеоданных.
     public int videoSize;
     // Размер кадра аудиоданных.
@@ -47,7 +44,7 @@ public class Frame {
         time = null;
         camNumber = 0;
         fps = 0;
-        isMainFrame = false;
+        isMain = false;
         videoSize = -1;
         audioSize = -1;
         number = -1;
@@ -60,9 +57,11 @@ public class Frame {
     public int getHeaderSize() {
         switch (type) {
             case EXE:
-                return EXE_HSIZE;
+                // Размер заголовка фрейма в архивных файлах выгрузки.
+                return 93;
             case HDD:
-                return HDD_HSIZE;
+                // Размер заголовка фрейма в файлах на HDD.
+                return 77;
             default:
                 return 0;
         }
@@ -89,7 +88,7 @@ public class Frame {
      * Дата хранится в формате int - кол-во секунд от 01.01.1970.
      * @return Дата и время в формате джавы.
      */
-    public static Date getDate(int bdate) {
+    public static Date dateFromRAW(int bdate) {
         // Часовой пояс для вычисления коррекции к мировому времени.
         // Приведение к дате в счислении Java: кол-во мс от 01.01.1970.
         // отнимаем 60 минут чтобы компенсировать ленее время - ПРОКОНТРОЛИРОВАТЬ НА СТЫКЕ!
@@ -105,7 +104,7 @@ public class Frame {
      * @param date Дата.
      * @return Время в формате DVR.
      */
-    public static int getDate(Date date) {
+    public static int dateToRAW(Date date) {
         return (int) ((date.getTime() + timeZone) / 1000);
     }
 
@@ -115,7 +114,7 @@ public class Frame {
      */
     public int parseHeader(ByteBuffer bb, int offset) {
         isParsed = false;
-        
+
         int nameofs = 0;
         switch (type) {
             case EXE:
@@ -127,7 +126,7 @@ public class Frame {
             default:
                 return 100;
         }
-        
+
         int b1 = bb.get(offset + nameofs);
         int b2 = bb.get(offset + nameofs + 1);
         int b3 = bb.get(offset + nameofs + 2);
@@ -163,11 +162,11 @@ public class Frame {
             return 7;
         }
         // Дата-время (смещение в секундах от 1970 г.)
-        time = getDate(tb);
+        time = dateFromRAW(tb);
         // Номер кадра.
         number = bb.getInt(offset + 0x2D);
         // Базовый кадр.
-        isMainFrame = (mf == 0) ? true : false;
+        isMain = (mf == 0) ? true : false;
         // Позиция вычисляется позже.
         pos = -1;
         isParsed = true;

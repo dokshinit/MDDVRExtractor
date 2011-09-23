@@ -27,7 +27,7 @@ public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
      * @param ptrn Регулярное выражение для фильтрации.
      * @param desc Описание фильтра.
      */
-    public SourceFileFilter(String ptrn, String desc) {
+    private SourceFileFilter(String ptrn, String desc) {
         pattern = Pattern.compile(ptrn, Pattern.UNICODE_CASE | Pattern.CASE_INSENSITIVE);
         description = desc;
     }

@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package dvrextract;
 
 import dvrextract.gui.GUI;
@@ -13,7 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import javax.swing.JButton;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
@@ -25,19 +20,30 @@ import net.miginfocom.swing.MigLayout;
  */
 public final class GUI_TabSource extends JPanel implements ActionListener {
 
+    // Путь к источнику.
     private JTextField textSource;
+    // Кнопка вызова диалога выбора источника.
     private JButton buttonSource;
+    // Тип источника.
     private JTextField textType;
+    // Список камер для выбора.
     private JExtComboBox comboCam;
-    //
+    // Панель списка файлов-источников.
     private GUIFilesPanel filesPanel;
+    // Панель отображения информации о файле-источнике.
     private GUIFileInfoPanel infoPanel;
 
+    /**
+     * Конструктор.
+     */
     public GUI_TabSource() {
         init();
     }
 
-    public void init() {
+    /**
+     * Инициализация графических компонент.
+     */
+    private void init() {
         setLayout(new MigLayout("", "", "[]2[][fill, grow]"));
 
         add(GUI.createLabel("Источник"));
@@ -59,17 +65,16 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
         comboCam.addItem(1, "не выбрана");
         comboCam.showData();
 
-        //JPanel panel = new JPanel(new MigLayout("debug, fill, ins 0", "[100:300:]5[352:352:704]", "[288:288:576]5[]"));
         JPanel panel = new JPanel(new BorderLayout());
         add(panel, "span, grow");
 
-        // Панель отображения файлов источника.
-        filesPanel = new GUIFilesPanel();
-        filesPanel.setBackground(Color.blue);
-        filesPanel.setMinimumSize(new Dimension(200, 100));
         // Панель отображения информации о файле.
         infoPanel = new GUIFileInfoPanel();
         infoPanel.setBackground(Color.cyan);
+        // Панель отображения файлов источника.
+        filesPanel = new GUIFilesPanel(infoPanel);
+        filesPanel.setBackground(Color.blue);
+        filesPanel.setMinimumSize(new Dimension(200, 100));
         //
         JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, filesPanel, infoPanel);
         sp.setDividerSize(8);
@@ -79,13 +84,38 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == comboCam) {
-            do_CamSelect();
+            fireCamSelect();
         } else if (e.getSource() == buttonSource) {
-            do_SourceSelect();
+            fireSelectSource();
         }
     }
 
-    public void do_SetDisplayCams(ArrayList<Integer> cams) {
+    /**
+     * Обработка выбора источника (запуск диалога).
+     */
+    private void fireSelectSource() {
+        GUI_SourceSelect dlg = new GUI_SourceSelect();
+        dlg.center();
+        dlg.setVisible(true);
+        // Отображаем новый источник и его тип.
+        textSource.setText(App.srcName);
+        textType.setText(App.srcType.title);
+    }
+
+    /**
+     * Обработка выбора камеры из списка.
+     */
+    private void fireCamSelect() {
+        App.srcCamSelect = comboCam.getSelectedItem().id;
+        filesPanel.setModel(App.srcCamSelect);
+    }
+
+    /**
+     * Установка списка номеров камер. 
+     * При этом происходит выбор первой из списка и обновление списка файлов.
+     * @param cams Список номеров камер (для номера =0 - не выбрана).
+     */
+    public void displayCams(ArrayList<Integer> cams) {
         comboCam.removeItems();
         if (cams != null) {
             if (cams.isEmpty()) {
@@ -96,26 +126,32 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
             }
         }
         comboCam.showData();
-        do_CamSelect();
+        fireCamSelect();
     }
 
-    public void do_SetDisplayCams(int cam) {
+    /**
+     * Установка списка номеров камер - из одного номера. 
+     * При этом происходит выбор этой камеры и обновление списка файлов.
+     * @param cam Номер камеры. (0-не выбрана).
+     */
+    public void displayCams(int cam) {
         ArrayList<Integer> list = new ArrayList<Integer>();
         list.add(cam);
-        do_SetDisplayCams(list);
+        displayCams(list);
     }
 
-    private void do_SourceSelect() {
-        GUI_SourceSelect dlg = new GUI_SourceSelect();
-        dlg.center();
-        dlg.setVisible(true);
-        //
-        textSource.setText(App.srcName);
-        textType.setText(App.srcType.title);
-    }
-
-    public void do_CamSelect() {
-        App.srcCamSelect = comboCam.getSelectedItem().id;
-        filesPanel.selectCamModel(App.srcCamSelect);
+    /**
+     * Установка списка номеров камер исходя из существующих файлов. 
+     * При этом происходит выбор первой из списка и обновление списка файлов.
+     * @param cams Список номеров камер (для номера =0 - не выбрана).
+     */
+    public void displayCams() {
+        ArrayList<Integer> list = new ArrayList<Integer>();
+        for (int i = 0; i < App.MAXCAMS; i++) {
+            if (App.srcCams[i].isExists) {
+                list.add(i + 1);
+            }
+        }
+        displayCams(list);
     }
 }
