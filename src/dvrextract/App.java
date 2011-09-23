@@ -98,9 +98,16 @@ public class App {
     }
     // Для синхронизации доступа к задаче.
     static final Object taskSync = new Object();
+    // Флаг для остановки задачи (юзать только синхронизированно!).
+    static boolean isTaskCancel = false;
     // Указатель на процесс запущенной задачи (если ничего не запущено = null).
     static Thread task = null;
 
+    /**
+     * Запуск задачи к исполнению в отдельном потоке.
+     * @param t Задача.
+     * @return Флаг успешности операции.
+     */
     public static boolean startTask(Thread t) {
         if (t == null) {
             return false;
@@ -113,6 +120,36 @@ public class App {
         }
         task.start();
         return true;
+    }
+
+    /**
+     * Отмена выполнения задачи (помечает флаг - задача его видит и сама останавливается).
+     * @return Флаг успешности операции.
+     */
+    public static boolean cancelTask() {
+        synchronized (taskSync) {
+            if (task != null && task.isAlive()) {
+                isTaskCancel = true;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isTaskCancel() {
+        synchronized (taskSync) {
+            return isTaskCancel;
+        }
+    }
+
+    /**
+     * Вызывается при завершении задачи в обязательном порядке.
+     */
+    public static void fireTaskStop() {
+        synchronized (taskSync) {
+            task = null;
+            isTaskCancel = false;
+        }
     }
     // Информация о источнике:
     // Подразумевается, что источником может быть или одиночный файл или

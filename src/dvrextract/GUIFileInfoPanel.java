@@ -6,6 +6,8 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,6 +18,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.border.LineBorder;
 import net.miginfocom.swing.MigLayout;
 import util.NumberTools;
 
@@ -72,17 +75,16 @@ public final class GUIFileInfoPanel extends JPanel {
     private void init() {
         setLayout(new BorderLayout());
         //
-        panelImage = new GUIImagePanel("НЕТ");
+        panelImage = new GUIImagePanel("<html><center>НЕТ<br></html>");
         JLabel l = panelImage.getLabel();
-        l.setFont(new Font(l.getFont().getName(), Font.BOLD, 100));
-        l.setForeground(Color.WHITE);
-        panelImage.setBackground(new Color(0x8080FF));
-        Dimension d = new Dimension(352, 288);
-        panelImage.setPreferredSize(d);
-        panelImage.setMinimumSize(d);
-        panelImage.setMaximumSize(d);
+        l.setFont(new Font(l.getFont().getName(), Font.BOLD, 50));
+        l.setForeground(new Color(0xA0A0B0));
+        panelImage.setBackground(new Color(0x8080A0));
+        setImageSize(dx, dy);
+        panelImage.setBorder(new LineBorder(Color.red));
+        panelImage.addMouseListener(new ImageMouseAdapter());
         //
-        panelInfo = new JPanel(new MigLayout("", "[]5[right][grow,shrink]"));
+        panelInfo = new JPanel(new MigLayout("", "[]10[right][grow,shrink]"));
         panelInfo.add(panelImage, "spany");
         //
         textName = createInfo("Имя", 30, "growx");
@@ -140,7 +142,7 @@ public final class GUIFileInfoPanel extends JPanel {
                         byte[] ba = new byte[f.videoSize];
                         in.read(ba, f.videoSize);
 
-                        Process pr = Runtime.getRuntime().exec("ffmpeg -i - -r 1 -s 352x288 -f image2 -");
+                        Process pr = Runtime.getRuntime().exec("ffmpeg -i - -r 1 -s 704x576 -f image2 -");
                         InputStream is = pr.getInputStream();
                         OutputStream os = pr.getOutputStream();
                         os.write(ba, 0, ba.length);
@@ -170,5 +172,31 @@ public final class GUIFileInfoPanel extends JPanel {
         long s = (period - h * 3600 * 1000 - m * 60 * 1000) / (1000);
         long ms = (period - h * 3600 * 1000 - m * 60 * 1000 - s * 1000);
         return String.format("%d час. %d мин. %d сек. %d мсек.", h, m, s, ms);
+    }
+    // Размер картинки - 1 - полкадра, 2 - полный кадр.
+    private double zoom = 0.5;
+    // Размер оригинальной картинки.
+    private int dx = 2 * 352, dy = 2 * 288;
+
+    public void setImageSize(int x, int y) {
+        dx = x;
+        dy = y;
+        Dimension d = new Dimension((int) (dx * zoom) + 2, (int) (dy * zoom) + 2);
+        panelImage.setPreferredSize(d);
+        panelImage.setMinimumSize(d);
+        panelImage.setMaximumSize(d);
+        panelImage.setPreferredSize(d);
+        panelImage.revalidate();
+    }
+
+    private class ImageMouseAdapter extends MouseAdapter {
+
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            // Меняем масштаб картинки.
+            //App.log("Click! zoom="+zoom+" dx="+dx+" dy="+dy);
+            zoom = (zoom == 1.0) ? 0.5 : 1.0;
+            setImageSize(dx, dy);
+        }
     }
 }

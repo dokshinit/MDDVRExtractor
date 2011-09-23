@@ -26,6 +26,8 @@ public class Files {
      * @param startpath Источник (файл или каталог).
      */
     public static void scan(String startpath, int cam) {
+        App.mainFrame.setProgressInfo("Сканирование источника.");
+        App.mainFrame.startProgress();
         // Очистка всех данных о предыдущем сканировании.
         for (int i = 0; i < App.MAXCAMS; i++) {
             App.srcCams[i].clear();
@@ -36,6 +38,8 @@ public class Files {
         for (int i = 0; i < App.MAXCAMS; i++) {
             Collections.sort(App.srcCams[i].files, FileInfo.getComparator());
         }
+        App.mainFrame.stopProgress();
+        App.mainFrame.setProgressInfo("Сканирование источника завершено.");
     }
 
     /**
@@ -67,20 +71,23 @@ public class Files {
                     continue;
                 }
                 // Простой файл.
+                if (App.isTaskCancel()) {
+                    return;
+                }
+                App.mainFrame.setProgressInfo("Сканирование источника: "+fa[i].getName());
+                Thread.sleep(100);
                 FileType type = SourceFileFilter.getType(fa[i]);
                 FileInfo info = parseFileBuffered(fa[i].getPath(), type, cam);
                 if (info != null) {
                     // Обрабатываем инфу - добавляем файл ко всем камерам, какие в нём перечислены.
                     for (FileInfo.CamData n : info.camInfo) {
                         App.srcCams[n.camNumber - 1].addFile(info);
-                        App.log((info.frameFirst.pos > 0
-                                ? "Pos=" + info.frameFirst.pos + " " : "")
-                                + "file=" + fa[i].getPath() + " cam=" + n
-                                + " t=" + (info.frameLast.time.getTime()
-                                - info.frameFirst.time.getTime())
-                                + " time1=" + info.frameFirst.time.toString()
-                                + " time2=" + info.frameLast.time.toString());
                     }
+                    App.log((info.frameFirst.pos > 0
+                            ? "Pos=" + info.frameFirst.pos + " " : "")
+                            + "file=" + fa[i].getPath() + " cams=" + info.camInfo.size()
+                            + " [" + info.frameFirst.time.toString()
+                            + " - " + info.frameLast.time.toString() + "]");
                 }
             }
         } catch (Exception ex) {
@@ -272,7 +279,7 @@ public class Files {
                             ci.mainFrame = f;
                             return f; // При успехе возвращаем фрейм.
                         }
-                        i += f.getHeaderSize() + f.videoSize + f.audioSize;
+                        i += f.getHeaderSize() + f.videoSize + f.audioSize - 1; // -1 т.к. автоинкремент.
                     }
                 }
                 pos += i;

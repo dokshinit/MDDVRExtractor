@@ -71,10 +71,11 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
         // Панель отображения информации о файле.
         infoPanel = new GUIFileInfoPanel();
         infoPanel.setBackground(Color.cyan);
+        infoPanel.setMinimumSize(new Dimension(300, 90));
         // Панель отображения файлов источника.
         filesPanel = new GUIFilesPanel(infoPanel);
         filesPanel.setBackground(Color.blue);
-        filesPanel.setMinimumSize(new Dimension(200, 100));
+        filesPanel.setMinimumSize(new Dimension(300, 90));
         //
         JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, filesPanel, infoPanel);
         sp.setDividerSize(8);
@@ -153,5 +154,13 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
             }
         }
         displayCams(list);
+    }
+
+    /**
+     * Разрешение/запрет запуска сканирования.
+     * @param state Статус разрешения.
+     */
+    public void enableScan(boolean state) {
+        buttonSource.setEnabled(state);
     }
 }

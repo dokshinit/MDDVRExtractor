@@ -5,6 +5,8 @@ import dvrextract.gui.GUITabPane;
 import dvrextract.gui.GUIFrame;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import javax.swing.*;
 import net.miginfocom.swing.MigLayout;
@@ -13,7 +15,7 @@ import net.miginfocom.swing.MigLayout;
  * Основное окно приложения.
  * @author lex
  */
-public final class GUI_Main extends GUIFrame {
+public final class GUI_Main extends GUIFrame implements ActionListener {
 
     ////////////////////////////////////////////////////////////////////////////
     // Закладка: Источник
@@ -22,23 +24,24 @@ public final class GUI_Main extends GUIFrame {
     ////////////////////////////////////////////////////////////////////////////
     // Закладка: Обработка
     ////////////////////////////////////////////////////////////////////////////
-    JCheckBox checkRaw; // Создавать сырой файл?
-    JTextField textRaw; // Путь и имя файла.
-    JButton buttonRaw; // Выбор файла.
+    private JCheckBox checkRaw; // Создавать сырой файл?
+    private JTextField textRaw; // Путь и имя файла.
+    private JButton buttonRaw; // Выбор файла.
     //
-    JCheckBox checkVideo; // Создавать видео?
-    JTextField textVideo; // Путь и имя файла.
-    JButton buttonVideo; // Выбор файла.
-    JCheckBox checkSub; // Делать субтитры к видео?
+    private JCheckBox checkVideo; // Создавать видео?
+    private JTextField textVideo; // Путь и имя файла.
+    private JButton buttonVideo; // Выбор файла.
+    private JCheckBox checkSub; // Делать субтитры к видео?
     //
-    JComboBox comboCams; // Выбор камеры из списка.
-    JCheckBox checkAudio; // Обрабатывать аудио поток.
+    private JComboBox comboCams; // Выбор камеры из списка.
+    private JCheckBox checkAudio; // Обрабатывать аудио поток.
     ////////////////////////////////////////////////////////////////////////////
     // На всех вкладках
     ////////////////////////////////////////////////////////////////////////////
-    JLabel labelInfo; // Строка состояния обработки.
-    JButton buttonProcess; // Запуск\остановка обработки.
-    JProgressBar progressBar; // Прогрес выполнения операции.
+    private JLabel labelInfo; // Строка состояния обработки.
+    private JButton buttonProcess; // Запуск\остановка обработки.
+    private JProgressBar progressBar; // Прогрес выполнения операции.
+    private JProgressBar progressBarTask; // Прогрес выполнения задачи.
 
     /**
      * Конструктор.
@@ -91,14 +94,16 @@ public final class GUI_Main extends GUIFrame {
         checkAudio = new JCheckBox("Включать аудиоданные.");
 
         buttonProcess = GUI.createButton("Обработка");
+        buttonProcess.addActionListener(this);
 
         progressBar = new JProgressBar();
+        progressBar.setPreferredSize(new Dimension(100, 20));
 
         add(tabPane, BorderLayout.CENTER);
 
         JPanel panelButton = new JPanel(new MigLayout("", "[grow,fill][10px]"));
-        JLabel lInfo = GUI.createLabel("Инфо:");
-        panelButton.add(lInfo);
+        
+        panelButton.add(labelInfo = GUI.createLabel("Инфо: "));
         panelButton.add(buttonProcess, "spany 2, growy, wrap");
         panelButton.add(progressBar);
         add(panelButton, BorderLayout.SOUTH);
@@ -126,4 +131,67 @@ public final class GUI_Main extends GUIFrame {
             super.processWindowEvent(e);
         }
     }
+    
+    private boolean cancelState = true;
+    
+    /**
+     * Разрешение/запрет запуска обработки.
+     * @param state Статус разрешения.
+     */
+    public void enableProcess(boolean state) {
+        buttonProcess.setEnabled(state);
+    }
+
+    public void enableCancelProcess(boolean state) {
+        buttonProcess.setText(state ? "Прервать" : "Обработка");
+        cancelState = state;
+    }
+
+    public void setProgressInfo(String text) {
+        labelInfo.setText(text);
+    }
+    
+    public void setProgressText(String text) {
+        progressBar.setString(text);
+        if (text == null) {
+            progressBar.setString("");
+        }
+    }
+    
+    public void startProgress(int startpos, int endpos) {
+        progressBar.setIndeterminate(startpos == -1 && endpos == -1);
+        progressBar.setMinimum(startpos);
+        progressBar.setMaximum(endpos);
+        progressBar.setStringPainted(true);
+        progressBar.setValue(startpos);
+        progressBar.setString("");
+    }
+    
+    public void startProgress() {
+        startProgress(-1, -1);
+    }
+    
+    public void setProgress(int pos) {
+        progressBar.setValue(pos);
+    }
+    
+    public void stopProgress() {
+        progressBar.setIndeterminate(false);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == buttonProcess) {
+            if (!cancelState) {
+                // Запуск задачи.
+            } else {
+                // Остановка задачи.
+                App.mainFrame.enableProcess(false);
+                if (!App.cancelTask()) {
+                    App.mainFrame.enableProcess(true);
+                }
+            }
+        }
+    }
+    
 }

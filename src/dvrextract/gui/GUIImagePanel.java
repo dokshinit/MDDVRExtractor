@@ -1,6 +1,5 @@
 package dvrextract.gui;
 
-import java.awt.BorderLayout;
 import java.awt.Graphics;
 import java.awt.Image;
 import javax.swing.JLabel;
@@ -15,36 +14,69 @@ public class GUIImagePanel extends JPanel {
 
     // Изображение.
     private Image image;
+    // Текстовая метка по центру картинки - выводится когда картинки нет.
     private JLabel label;
 
     /**
      * Конструктор.
      */
     public GUIImagePanel() {
-        image = null;
-        setLayout(new MigLayout("fill","[center]","[center]"));
-        add(label = new JLabel());
+        this(null, null);
     }
-    
-    public GUIImagePanel(String title) {
-        this();
-        setLabelText(title);
-    }
-    
-    public final void setLabelText(String title) {
-        label.setText(title);
-    }
-    
-    public final JLabel getLabel() {
-        return label;
-    }
-    
+
     /**
      * Конструктор.
      * @param image Изображение. 
      */
     public GUIImagePanel(Image image) {
+        this(image, null);
+    }
+
+    /**
+     * Конструктор. 
+     * @param title Текстовая ссылка.
+     */
+    public GUIImagePanel(String title) {
+        this(null, title);
+    }
+
+    /**
+     * Конструктор. 
+     * @param image Изображение.
+     * @param title Текстовая ссылка.
+     */
+    public GUIImagePanel(Image image, String title) {
+        setLayout(new MigLayout("fill", "[center]", "[center]"));
+        add(label = new JLabel());
+        setImage(image);
+        setLabelText(title);
+    }
+
+    /**
+     * Устанавливает текст надписи.
+     * @param title Текст надписи.
+     */
+    public final void setLabelText(String title) {
+        label.setText(title);
+    }
+
+    /**
+     * Возвращает граф.элемент текстовой надписи.
+     * @return Лейбл текстововй надписи.
+     */
+    public final JLabel getLabel() {
+        return label;
+    }
+
+    /**
+     * Устанавливает изображение панели.
+     * @param image Изображение.
+     */
+    public final void setImage(Image image) {
         this.image = image;
+        label.setVisible(image == null);
+        validate();
+        repaint();
     }
 
     /**
@@ -56,16 +88,6 @@ public class GUIImagePanel extends JPanel {
     }
 
     /**
-     * Устанавливает изображение панели.
-     * @param image Изображение.
-     */
-    public void setImage(Image image) {
-        this.image = image;
-        validate();
-        repaint();
-    }
-
-    /**
      * Отрисовка компонента.
      * @param g Контекст.
      */
@@ -73,7 +95,7 @@ public class GUIImagePanel extends JPanel {
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
         // Отрисовываем поверх всей панели (маштабируемое) изображение.
-        if(image != null){
+        if (image != null) {
             g.drawImage(image, 0, 0, getWidth(), getHeight(), null);
         }
     }

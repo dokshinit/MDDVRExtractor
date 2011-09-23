@@ -6,7 +6,6 @@ import dvrextract.gui.JExtComboBox;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -170,12 +169,13 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
      * текущего процесса сканирования \ обработки.
      */
     private void fireScan() {
+        // Установка источника.
         App.srcName = textSource.getText();
         App.srcType = type;
         App.srcCamLimit = comboCam.getSelectedItem().id;
-
-        // Очищаем отображаемый список камер источника.
+        // Очистка отображаемого списка камер источника.
         App.mainFrame.tabSource.displayCams(0);
+        // Запуск задачи сканирования.
         App.startTask(new ScanTask());
         dispose();
     }
@@ -185,15 +185,23 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         @Override
         public void run() {
             try {
+                // Запрещаем запуск задач.
+                App.mainFrame.tabSource.enableScan(false);
+                App.mainFrame.enableProcess(true);
+                App.mainFrame.enableCancelProcess(true);
                 // Сканирование источника.
                 Files.scan(App.srcName, App.srcCamLimit);
                 //App.log("SCAN END");
-
+                // Разрешаем запуск задач.
             } catch (Exception ex) {
                 ex.printStackTrace();
             } finally {
+                App.mainFrame.tabSource.enableScan(true);
+                App.mainFrame.enableProcess(true);
+                App.mainFrame.enableCancelProcess(false);
+
                 App.mainFrame.tabSource.displayCams();
-                App.task = null;
+                App.fireTaskStop();
             }
         }
     }
