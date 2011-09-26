@@ -4,6 +4,7 @@ import dvrextract.gui.GUI;
 import dvrextract.gui.GUIImagePanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
@@ -83,9 +84,11 @@ public final class GUIFileInfoPanel extends JPanel {
         setImageSize(dx, dy);
         panelImage.setBorder(new LineBorder(Color.red));
         panelImage.addMouseListener(new ImageMouseAdapter());
+        panelImage.setToolTipText("Первый ключевой кадр.");
+        panelImage.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         //
         panelInfo = new JPanel(new MigLayout("", "[]10[right][grow,shrink]"));
-        panelInfo.add(panelImage, "spany");
+        panelInfo.add(panelImage, "id im1, spany");
         //
         textName = createInfo("Имя", 30, "growx");
         textSize = createInfo("Размер", 15, null);
@@ -94,6 +97,7 @@ public final class GUIFileInfoPanel extends JPanel {
         textFirstTime = createInfo("Начало", 15, null);
         textLastTime = createInfo("Конец", 15, null);
         textAmountTime = createInfo("Длительность", 22, null);
+        panelInfo.add(GUI.createNoteLabel("Изменение масштаба происходит по нажатию кнопки мыши на кадре."), "pos im1.x2+10 im1.y2-pref");
         //
         scrollPane = new JScrollPane(panelInfo);
         add(scrollPane, BorderLayout.CENTER);

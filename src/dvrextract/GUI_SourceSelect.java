@@ -62,7 +62,7 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         textType.setEditable(false);
         textType.setHorizontalAlignment(JTextField.CENTER);
         // Примечание:
-        JLabel l = GUI.createNoteLabel("<html>* Выбор конкретной камеры может существенно<br>уменьшить время сканирования источника при<br>больших объёмах данных!</html>");
+        JLabel l = GUI.createNoteLabel("Выбор конкретной камеры может существенно<br>уменьшить время сканирования источника при<br>больших объёмах данных!");
         add(l, "spany 2, wrap");
         // Выбор камеры:
         add(GUI.createLabel("Камера:"), "right");

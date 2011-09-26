@@ -3,6 +3,7 @@ package dvrextract.gui;
 import java.awt.Color;
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.text.MaskFormatter;
 
 /**
  * Общие настройки граф.интерфейса.
@@ -65,23 +66,59 @@ public class GUI {
     }
     
     // Цвет фона примечаний.
-    //public static Color bgNoteLabel = new Color(0xFFFFF0);
-    public static Color bgNoteLabel = new Color(0xD0C4FF);
+    public static Color bgNoteLabel = new Color(0xF8F8FF);
+    //public static Color bgNoteLabel = new Color(0xD0C4FF);
     // Цвет текста примечаний.
-    //public static Color fgNoteLabel = new Color(0x4060D0);
-    public static Color fgNoteLabel = new Color(0x002080);
+    public static Color fgNoteLabel = new Color(0x6060F0);
+    //public static Color fgNoteLabel = new Color(0x002080);
     // Бордюр примечаний.
     public static CompoundBorder borderNoteLabel = new CompoundBorder(
-            new LineBorder(new Color(0x8080FF)),
-            new EmptyBorder(3, 3, 3, 3));
+            new LineBorder(new Color(0xE0E0F0)),
+            new EmptyBorder(1, 1, 1, 1));
 
     public static JLabel createNoteLabel(String title) {
-        JLabel label = new JLabel(title);
+        StringBuilder sb = new StringBuilder();
+        sb.append("<html><table><td valign='top'><font color=#4040F0>\u2794</font></td><td valign='top'>");
+        sb.append(title);
+        sb.append("</td></table></html>");
+        JLabel label = new JLabel(sb.toString());
         label.setBorder(borderNoteLabel);
         label.setBackground(bgNoteLabel);
         label.setForeground(fgNoteLabel);
         label.setOpaque(true);
         return label;
+    }
+
+    // Цвет фона примечаний.
+    public static Color bgSectionLabel = new Color(0xD8E0F0);
+    //public static Color bgNoteLabel = new Color(0xD0C4FF);
+    // Цвет текста примечаний.
+    public static Color fgSectionLabel = new Color(0x0030F0);
+    //public static Color fgNoteLabel = new Color(0x002080);
+    // Бордюр примечаний.
+    public static CompoundBorder borderSectionLabel = new CompoundBorder(
+            new LineBorder(new Color(0xF0F0F0)),
+            new EmptyBorder(5, 5, 5, 5));
+
+    public static JLabel createSectionLabel(String title) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<html>");
+        sb.append(title);
+        sb.append("</html>");
+        JLabel label = new JLabel(sb.toString());
+        label.setBorder(borderSectionLabel);
+        label.setBackground(bgSectionLabel);
+        label.setForeground(fgSectionLabel);
+        label.setOpaque(true);
+        return label;
+    }
+
+    public static JFormattedTextField createFormattedText(MaskFormatter format) {
+        JFormattedTextField text = new JFormattedTextField(format);
+        text.setBorder(borderTextField);
+        text.setBackground(bgEdit);
+        text.setForeground(fgEdit);
+        return text;
     }
 
     public static JTextField createText(String title, int size) {

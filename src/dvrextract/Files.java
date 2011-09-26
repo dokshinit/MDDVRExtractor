@@ -39,7 +39,8 @@ public class Files {
             Collections.sort(App.srcCams[i].files, FileInfo.getComparator());
         }
         App.mainFrame.stopProgress();
-        App.mainFrame.setProgressInfo("Сканирование источника завершено.");
+        App.mainFrame.setProgressInfo("Сканирование источника завершено"
+                + (App.isTaskCancel() ? " (прервано)." : "."));
     }
 
     /**
@@ -61,6 +62,9 @@ public class Files {
             if (fa == null) {
                 return;
             }
+            if (App.isTaskCancel()) {
+                return;
+            }
 
             for (int i = 0; i < fa.length; i++) {
                 if (fa[i].isDirectory()) { // Каталог.
@@ -74,7 +78,7 @@ public class Files {
                 if (App.isTaskCancel()) {
                     return;
                 }
-                App.mainFrame.setProgressInfo("Сканирование источника: "+fa[i].getName());
+                App.mainFrame.setProgressInfo("Сканирование источника: " + fa[i].getName());
                 Thread.sleep(100);
                 FileType type = SourceFileFilter.getType(fa[i]);
                 FileInfo info = parseFileBuffered(fa[i].getPath(), type, cam);
@@ -127,6 +131,9 @@ public class Files {
 
             // Если это EXE - делаем разбор инфы в конце файла.
             if (type == FileType.EXE) {
+                if (in.getSize() < exeInfoSize + 1024000) {
+                    return null;
+                }
                 in.seek(in.getSize() - exeInfoSize);
                 in.read(baFrame, exeInfoSize);
                 // Инфа по камерам.
@@ -143,7 +150,13 @@ public class Files {
                 }
                 // Позиции начала и конца данных в файле.
                 info.startDataPos = bbF.getLong(19532);
+                if (info.startDataPos < 1024000 || info.startDataPos > in.getSize() - exeInfoSize) {
+                    return null;
+                }
                 info.endDataPos = bbF.getLong(19660);
+                if (info.endDataPos < 1024000 || info.endDataPos > in.getSize() - exeInfoSize) {
+                    return null;
+                }
                 pos = info.startDataPos; // Начало.
                 size = info.endDataPos; // Конец.
                 ost = size - pos;
