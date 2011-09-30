@@ -2,24 +2,16 @@ package dvrextract;
 
 import dvrextract.gui.GUI;
 import dvrextract.gui.JExtComboBox;
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.text.MaskFormatter;
 import net.miginfocom.swing.MigLayout;
-import org.jdesktop.swingx.JXDatePicker;
 
 /**
  * Вкладка "Обработка".
@@ -79,7 +71,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         MaskFormatter formatter = null;
         try {
             formatter = new MaskFormatter("##.##.#### ##:##:##");
-            formatter.setPlaceholderCharacter(' ');
+            formatter.setPlaceholderCharacter('_');
         } catch (ParseException ex) {
         }
 
