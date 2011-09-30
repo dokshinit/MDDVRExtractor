@@ -62,10 +62,10 @@ public class JExtComboBox extends JComboBox {
      * Добавление элемента в список
      * (для отображения необходимо вызвать showData()).
      * @param id Код.
-     * @param title Название.
+     * @param object Объект.
      */
-    public void addItem(int id, String title) {
-        addItem(new ExtItem(id, title));
+    public void addItem(int id, Object object) {
+        addItem(new ExtItem(id, object));
     }
 
     /**
@@ -103,21 +103,22 @@ public class JExtComboBox extends JComboBox {
     /**
      * Класс для формирования данных выпадающего списка
      */
-    public class ExtItem {
+    public static class ExtItem {
 
         // Код.
         public int id;
-        // Название.
-        public String title;
+        // Объект (обязательно должен иметь текстовое представление, которое 
+        // будет отображаться в списке!).
+        public Object object;
 
         /**
          * Конструктор.
          * @param id Код.
-         * @param title Название.
+         * @param object Объект.
          */
-        public ExtItem(int id, String title) {
+        public ExtItem(int id, Object object) {
             this.id = id;
-            this.title = title;
+            this.object = object;
         }
 
         /**
@@ -126,7 +127,7 @@ public class JExtComboBox extends JComboBox {
          */
         @Override
         public String toString() {
-            return title;
+            return object.toString();
         }
     }
 }

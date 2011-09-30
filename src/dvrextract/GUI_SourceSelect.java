@@ -192,10 +192,10 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
                 // Сканирование источника.
                 Files.scan(App.srcName, App.srcCamLimit);
                 //App.log("SCAN END");
-                // Разрешаем запуск задач.
             } catch (Exception ex) {
                 ex.printStackTrace();
             } finally {
+                // Разрешаем запуск задач.
                 App.mainFrame.tabSource.enableScan(true);
                 App.mainFrame.enableProcess(true);
                 App.mainFrame.enableCancelProcess(false);

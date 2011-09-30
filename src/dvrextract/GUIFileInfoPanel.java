@@ -138,28 +138,7 @@ public final class GUIFileInfoPanel extends JPanel {
                 } else {
                     textAmountTime.setText("");
                 }
-                Frame f = Files.getFirstMainFrame(info, App.srcCamSelect);
-                try {
-                    if (f != null) {
-                        InputData in = new InputData(info.fileName);
-                        in.seek(f.pos + f.getHeaderSize());
-                        byte[] ba = new byte[f.videoSize];
-                        in.read(ba, f.videoSize);
-
-                        Process pr = Runtime.getRuntime().exec("ffmpeg -i - -r 1 -s 704x576 -f image2 -");
-                        InputStream is = pr.getInputStream();
-                        OutputStream os = pr.getOutputStream();
-                        os.write(ba, 0, ba.length);
-                        os.close();
-                        BufferedImage image = ImageIO.read(is);
-                        panelImage.setImage(image);
-                        pr.destroy();
-                    } else {
-                        panelImage.setImage(null);
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                panelImage.setImage(FFMpeg.getFirstFrameImage(info, App.srcCamSelect));
             }
         }
         curInfo = info;

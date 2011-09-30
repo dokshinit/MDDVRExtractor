@@ -178,6 +178,7 @@ public class App {
         }
 
         initLAF();
+        FFMpeg.init();
 
         // Старт многооконного приложения
         java.awt.EventQueue.invokeLater(new Runnable() {
