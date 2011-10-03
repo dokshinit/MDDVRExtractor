@@ -31,7 +31,7 @@ import javax.swing.*;
 public class JExtComboBox extends JComboBox {
 
     // Объекты записей списка.
-    protected ArrayList items;
+    protected ArrayList<ExtItem> items;
 
     /**
      * Конструктор.
@@ -98,6 +98,16 @@ public class JExtComboBox extends JComboBox {
     @Override
     public ExtItem getSelectedItem() {
         return (ExtItem) super.getSelectedItem();
+    }
+    
+    public void setSelectedId(int id) {
+        for (ExtItem i : items) {
+            if (i.id == id) {
+                setSelectedItem(i);
+                return;
+            }
+        }
+        setSelectedItem(null);
     }
 
     /**

@@ -3,6 +3,7 @@ package dvrextract;
 import dvrextract.FFMpeg.FFCodec;
 import dvrextract.gui.GUI;
 import dvrextract.gui.JExtComboBox;
+import dvrextract.gui.JExtComboBox.ExtItem;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.ParseException;
@@ -43,10 +44,8 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     private JExtComboBox comboAudioFormat;
     // Ручные настройки для кодирования.
     private JTextField textAudioCustom;
-    // Включить субтитры.
-    private JCheckBox checkSub;
-    // Подробные субтитры.
-    private JCheckBox checkSubDetail;
+    // Список форматов субтитров.
+    private JExtComboBox comboSubFormat;
 
     /**
      * Конструктор.
@@ -92,6 +91,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         addSection("Видео");
         add(GUI.createLabel("Кодек"), "skip");
         add(comboVideoFormat = GUI.createCombo(false), "left, spanx, wrap");
+        comboVideoFormat.addActionListener(this);
         add(GUI.createLabel("Размер"), "skip");
         add(comboVideoSize = GUI.createCombo(false), "left, spanx, split 3");
         add(GUI.createLabel("Кадр/сек"), "gap 20");
@@ -102,15 +102,15 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         addSection("Аудио");
         add(GUI.createLabel("Кодек"), "skip");
         add(comboAudioFormat = GUI.createCombo(false), "left, spanx, wrap");
+        comboAudioFormat.addActionListener(this);
         add(GUI.createLabel("Ручные настройки"), "skip");
         add(textAudioCustom = GUI.createText(300), "left, spanx, wrap");
 
         addSection("Титры");
-        add(checkSub = GUI.createCheck("Создавать титры.", true), "left, skip, spanx, split 2");
-        add(checkSubDetail = GUI.createCheck("Детализированные титры.", false), "wrap");
+        add(GUI.createLabel("Формат"), "skip");
+        add(comboSubFormat = GUI.createCombo(false), "left, skip, spanx, wrap");
 
         ArrayList<FFCodec> list = FFMpeg.getCodecs();
-        comboVideoFormat.removeItems();
         comboVideoFormat.addItem(0, new Item("Без преобразования"));
         int n = 1;
         for (FFCodec i : list) {
@@ -118,13 +118,13 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
                 comboVideoFormat.addItem(n++, new Item(i.title, i.name));
             }
         }
-        comboVideoFormat.addItem(100, new Item("Ручные настройки"));
+        comboVideoFormat.addItem(1000, new Item("Ручные настройки"));
         comboVideoFormat.showData();
 
         comboVideoFPS.addItem(0, new Item("Без преобразования"));
         comboVideoFPS.addItem(1, new Item("12"));
         comboVideoFPS.addItem(2, new Item("25"));
-        comboVideoFPS.addItem(100, new Item("Ручные настройки"));
+        comboVideoFPS.addItem(1000, new Item("Ручные настройки"));
         comboVideoFPS.showData();
 
         comboVideoSize.addItem(0, new Item("Без преобразования"));
@@ -132,7 +132,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         comboVideoSize.addItem(2, new Item("352x576"));
         comboVideoSize.addItem(3, new Item("704x288"));
         comboVideoSize.addItem(4, new Item("704x576"));
-        comboVideoSize.addItem(100, new Item("Ручные настройки"));
+        comboVideoSize.addItem(1000, new Item("Ручные настройки"));
         comboVideoSize.showData();
 
         comboAudioFormat.addItem(-1, "Не сохранять");
@@ -143,9 +143,17 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
                 comboAudioFormat.addItem(n++, new Item(i.title, i.name));
             }
         }
-        comboAudioFormat.addItem(100, "Ручные настройки");
+        comboAudioFormat.addItem(1000, "Ручные настройки");
         comboAudioFormat.showData();
         
+        comboSubFormat.addItem(-1, "Не создавать");
+        comboSubFormat.addItem(0, "Отдельный файл");
+        comboSubFormat.addItem(1, "Внедрённый поток");
+        comboSubFormat.showData();
+
+        comboVideoFormat.setSelectedId(0);
+        comboAudioFormat.setSelectedId(0);
+        comboSubFormat.setSelectedId(0);
         //
         dateStart.setText("01.08.2011 10:00:00");
         dateEnd.setText("01.08.2011 10:59:59");
@@ -158,6 +166,10 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             fireEstimate();
         } else if (e.getSource() == buttonSelect) {
             fireSelectDestination();
+        } else if (e.getSource() == comboVideoFormat) {
+            fireVideoFormatSelect();
+        } else if (e.getSource() == comboAudioFormat) {
+            //fireAudioFormatSelect();
         }
     }
 
@@ -206,6 +218,26 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 //        textType.setText(App.srcType.title);
     }
 
+    /**
+     * Обработка выбора видеоформата.
+     */
+    private void fireVideoFormatSelect() {
+        ExtItem i = comboVideoFormat.getSelectedItem();
+        if (i != null) {
+            if (i.id == 0) {
+                // Без обработки - сбрасываем остальные комбо и лочим.
+                comboVideoSize.setSelectedId(0);
+                comboVideoSize.setEnabled(false);
+                comboVideoFPS.setSelectedId(0);
+                comboVideoFPS.setEnabled(false);
+            } else if (i.id == 1000) {
+                
+            } else {
+                
+            }
+        }
+    }
+    
     /**
      * Воспомогательный класс - для хранения настроек в комбо.
      */

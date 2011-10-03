@@ -109,6 +109,8 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
 
         pack();
     }
+    // TODO: Централизовать локи\анлоки\смены кнопок от задач...
+    //
     // Сосотояние кнопки "Обработка".
     // Если true - "Отмена" (остановка текущей задачи), false - "Обработка" (запуск обработки).
     private boolean cancelState = true;
