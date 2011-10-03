@@ -176,33 +176,17 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         // Очистка отображаемого списка камер источника.
         App.mainFrame.tabSource.displayCams(0);
         // Запуск задачи сканирования.
-        App.startTask(new ScanTask());
+        Task.start(new ScanTask());
         dispose();
     }
 
-    private class ScanTask extends Thread {
+    private class ScanTask extends Task.Thread {
 
         @Override
-        public void run() {
-            try {
-                // Запрещаем запуск задач.
-                App.mainFrame.tabSource.enableScan(false);
-                App.mainFrame.enableProcess(true);
-                App.mainFrame.enableCancelProcess(true);
-                // Сканирование источника.
-                Files.scan(App.srcName, App.srcCamLimit);
-                //App.log("SCAN END");
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            } finally {
-                // Разрешаем запуск задач.
-                App.mainFrame.tabSource.enableScan(true);
-                App.mainFrame.enableProcess(true);
-                App.mainFrame.enableCancelProcess(false);
-
-                App.mainFrame.tabSource.displayCams();
-                App.fireTaskStop();
-            }
+        public void task() {
+            // Сканирование источника.
+            Files.scan(App.srcName, App.srcCamLimit);
+            App.mainFrame.tabSource.displayCams();
         }
     }
 }

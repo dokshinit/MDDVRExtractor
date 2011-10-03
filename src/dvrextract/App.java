@@ -34,19 +34,6 @@ public class App {
     public static void log(String text) {
         System.out.println(text);
     }
-    //
-    static int camNumber = 0;
-    static boolean isAudio = false;
-    static String sInput = null;
-    static String sFile = null;
-    static String sVideo = null;
-    static String sSRT = null;
-    int frameCount = 0;
-    int frameInStepCount = 0;
-    //
-    long startDataPos = 0;
-    long endDataPos = 0;
-    long curPos = 0;
 
     public static void initLAF() {
         String laf = "javax.swing.plaf.metal.MetalLookAndFeel";
@@ -96,61 +83,19 @@ public class App {
             App.log("Ошибка включения L&F (" + laf + ")!" + e);
         }
     }
-    // Для синхронизации доступа к задаче.
-    static final Object taskSync = new Object();
-    // Флаг для остановки задачи (юзать только синхронизированно!).
-    static boolean isTaskCancel = false;
-    // Указатель на процесс запущенной задачи (если ничего не запущено = null).
-    static Thread task = null;
-
-    /**
-     * Запуск задачи к исполнению в отдельном потоке.
-     * @param t Задача.
-     * @return Флаг успешности операции.
-     */
-    public static boolean startTask(Thread t) {
-        if (t == null) {
-            return false;
-        }
-        synchronized (taskSync) {
-            if (task != null && task.isAlive()) {
-                return false;
-            }
-            task = t;
-        }
-        task.start();
-        return true;
-    }
-
-    /**
-     * Отмена выполнения задачи (помечает флаг - задача его видит и сама останавливается).
-     * @return Флаг успешности операции.
-     */
-    public static boolean cancelTask() {
-        synchronized (taskSync) {
-            if (task != null && task.isAlive()) {
-                isTaskCancel = true;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static boolean isTaskCancel() {
-        synchronized (taskSync) {
-            return isTaskCancel;
-        }
-    }
-
-    /**
-     * Вызывается при завершении задачи в обязательном порядке.
-     */
-    public static void fireTaskStop() {
-        synchronized (taskSync) {
-            task = null;
-            isTaskCancel = false;
-        }
-    }
+    //
+    static int camNumber = 0;
+    static boolean isAudio = false;
+    static String sInput = null;
+    static String sFile = null;
+    static String sVideo = null;
+    static String sSRT = null;
+    int frameCount = 0;
+    int frameInStepCount = 0;
+    //
+    long startDataPos = 0;
+    long endDataPos = 0;
+    long curPos = 0;
     // Информация о источнике:
     // Подразумевается, что источником может быть или одиночный файл или
     // каталог. При этом каждый файл распознаётся исходя из имени файла:

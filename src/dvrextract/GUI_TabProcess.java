@@ -9,7 +9,6 @@ import java.awt.event.ActionListener;
 import java.text.ParseException;
 import java.util.ArrayList;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -67,6 +66,8 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         add(GUI.createLabel("Камера"), "skip");
         add(textCam = GUI.createText(10), "spanx, wrap");
         textCam.setEditable(false);
+        textCam.setText("не выбрана");
+
         add(GUI.createLabel("Период c"), "skip");
         MaskFormatter formatter = null;
         try {
@@ -108,7 +109,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
         addSection("Титры");
         add(GUI.createLabel("Формат"), "skip");
-        add(comboSubFormat = GUI.createCombo(false), "left, skip, spanx, wrap");
+        add(comboSubFormat = GUI.createCombo(false), "left, spanx, wrap");
 
         ArrayList<FFCodec> list = FFMpeg.getCodecs();
         comboVideoFormat.addItem(0, new Item("Без преобразования"));
@@ -145,7 +146,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         }
         comboAudioFormat.addItem(1000, "Ручные настройки");
         comboAudioFormat.showData();
-        
+
         comboSubFormat.addItem(-1, "Не создавать");
         comboSubFormat.addItem(0, "Отдельный файл");
         comboSubFormat.addItem(1, "Внедрённый поток");
@@ -160,6 +161,53 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         textDestination.setText("/home/work/files/probe1.avi");
     }
 
+    /**
+     * Отображение выбранной на закладке источника камере.
+     */
+    public void displayCam(String title) {
+        textCam.setText(title);
+    }
+
+    /**
+     * Выставление блокировок элементов согласно текущему состоянию.
+     */
+    public void setLocks() {
+        if (Task.isAlive()) {
+            // Выполняется задача.
+            buttonEstimate.setEnabled(false);
+            buttonSelect.setEnabled(false);
+            comboVideoFormat.setEnabled(false);
+            comboVideoSize.setEnabled(false);
+            comboVideoFPS.setEnabled(false);
+            textVideoCustom.setEnabled(false);
+            comboAudioFormat.setEnabled(false);
+            comboSubFormat.setEnabled(false);
+            textAudioCustom.setEnabled(false);
+        } else {
+            // Задач нет.
+            buttonEstimate.setEnabled(true);
+            buttonSelect.setEnabled(true);
+            comboVideoFormat.setEnabled(true);
+            ExtItem i = comboVideoFormat.getSelectedItem();
+            if (i != null && (i.id == 0 || i.id == 1000)) {
+                // Без обработки/вручную - сбрасываем остальные комбо и лочим.
+                comboVideoSize.setSelectedId(i.id);
+                comboVideoSize.setEnabled(false);
+                comboVideoFPS.setSelectedId(i.id);
+                comboVideoFPS.setEnabled(false);
+                textVideoCustom.setEnabled(i.id == 1000);
+            } else {
+                comboVideoSize.setEnabled(true);
+                comboVideoFPS.setEnabled(true);
+                textVideoCustom.setEnabled(false);
+            }
+            comboAudioFormat.setEnabled(true);
+            i = comboAudioFormat.getSelectedItem();
+            textAudioCustom.setEnabled(i != null && i.id == 1000);
+            comboSubFormat.setEnabled(true);
+        }
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == buttonEstimate) {
@@ -169,7 +217,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         } else if (e.getSource() == comboVideoFormat) {
             fireVideoFormatSelect();
         } else if (e.getSource() == comboAudioFormat) {
-            //fireAudioFormatSelect();
+            fireAudioFormatSelect();
         }
     }
 
@@ -177,34 +225,25 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      * Обработка оценки данных за выбранный период (запуск диалога с инфой).
      */
     private void fireEstimate() {
-        App.startTask(new EstimateTask());
+        Task.start(new EstimateTask());
     }
-    
+
     /**
-     * Задача - подсчёт примерных данных за введенный период.
+     * Задача - подсчёт примерных данных за введённый период.
      */
-    private class EstimateTask extends Thread {
+    private class EstimateTask extends Task.Thread {
 
         @Override
-        public void run() {
-            try {
-                // Запрещаем запуск задач.
-                App.mainFrame.tabSource.enableScan(false);
-                App.mainFrame.enableProcess(true);
-                App.mainFrame.enableCancelProcess(true);
-                // Сканирование источника.
-                //Files.scan(App.srcName, App.srcCamLimit);
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            } finally {
-                // Разрешаем запуск задач.
-                App.mainFrame.tabSource.enableScan(true);
-                App.mainFrame.enableProcess(true);
-                App.mainFrame.enableCancelProcess(false);
-                App.fireTaskStop();
+        public void task() {
+            // Вычисление приблизительных результатов обработки.
+            for (int i=0; i<App.MAXCAMS; i++) {
+                CamInfo ci = App.srcCams[i];
+                for (FileInfo fi : ci.files) {
+                    //fi.
+                }
             }
         }
-    }        
+    }
 
     /**
      * Обработка выбора приёмника (запуск диалога).
@@ -222,26 +261,20 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      * Обработка выбора видеоформата.
      */
     private void fireVideoFormatSelect() {
-        ExtItem i = comboVideoFormat.getSelectedItem();
-        if (i != null) {
-            if (i.id == 0) {
-                // Без обработки - сбрасываем остальные комбо и лочим.
-                comboVideoSize.setSelectedId(0);
-                comboVideoSize.setEnabled(false);
-                comboVideoFPS.setSelectedId(0);
-                comboVideoFPS.setEnabled(false);
-            } else if (i.id == 1000) {
-                
-            } else {
-                
-            }
-        }
+        setLocks();
     }
-    
+
+    /**
+     * Обработка выбора аудиоформата.
+     */
+    private void fireAudioFormatSelect() {
+        setLocks();
+    }
+
     /**
      * Воспомогательный класс - для хранения настроек в комбо.
      */
-    public class Item {
+    public static class Item {
 
         // Отображаемое название.
         public String title;

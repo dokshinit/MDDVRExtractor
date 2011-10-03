@@ -62,7 +62,7 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
         add(GUI.createLabel("Камера:"), "");
         add(comboCam = GUI.createCombo(false), "w 110, wrap");
         comboCam.addActionListener(this);
-        comboCam.addItem(1, "не выбрана");
+        comboCam.addItem(0, "не выбрана");
         comboCam.showData();
 
         JPanel panel = new JPanel(new BorderLayout());
@@ -80,35 +80,6 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
         JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, filesPanel, infoPanel);
         sp.setDividerSize(8);
         panel.add(sp, BorderLayout.CENTER);
-    }
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == comboCam) {
-            fireCamSelect();
-        } else if (e.getSource() == buttonSource) {
-            fireSelectSource();
-        }
-    }
-
-    /**
-     * Обработка выбора источника (запуск диалога).
-     */
-    private void fireSelectSource() {
-        GUI_SourceSelect dlg = new GUI_SourceSelect();
-        dlg.center();
-        dlg.setVisible(true);
-        // Отображаем новый источник и его тип.
-        textSource.setText(App.srcName);
-        textType.setText(App.srcType.title);
-    }
-
-    /**
-     * Обработка выбора камеры из списка.
-     */
-    private void fireCamSelect() {
-        App.srcCamSelect = comboCam.getSelectedItem().id;
-        filesPanel.setModel(App.srcCamSelect);
     }
 
     /**
@@ -157,10 +128,45 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
     }
 
     /**
-     * Разрешение/запрет запуска сканирования.
-     * @param state Статус разрешения.
+     * Выставление блокировок элементов согласно текущему состоянию.
      */
-    public void enableScan(boolean state) {
-        buttonSource.setEnabled(state);
+    public void setLocks() {
+        if (Task.isAlive()) {
+            // Выполняется задача.
+            buttonSource.setEnabled(false);
+        } else {
+            // Задач нет.
+            buttonSource.setEnabled(true);
+        }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == comboCam) {
+            fireCamSelect();
+        } else if (e.getSource() == buttonSource) {
+            fireSelectSource();
+        }
+    }
+
+    /**
+     * Обработка выбора источника (запуск диалога).
+     */
+    private void fireSelectSource() {
+        GUI_SourceSelect dlg = new GUI_SourceSelect();
+        dlg.center();
+        dlg.setVisible(true);
+        // Отображаем новый источник и его тип.
+        textSource.setText(App.srcName);
+        textType.setText(App.srcType.title);
+    }
+
+    /**
+     * Обработка выбора камеры из списка.
+     */
+    private void fireCamSelect() {
+        App.srcCamSelect = comboCam.getSelectedItem().id;
+        filesPanel.setModel(App.srcCamSelect);
+        App.mainFrame.tabProcess.displayCam(comboCam.getSelectedItem().object.toString());
     }
 }

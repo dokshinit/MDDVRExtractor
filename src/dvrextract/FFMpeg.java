@@ -1,6 +1,5 @@
 package dvrextract;
 
-import dvrextract.gui.JExtComboBox.ExtItem;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -179,8 +178,8 @@ public final class FFMpeg {
      * Класс для храрнения инфы о кодеках FFMpeg.
      */
     public static class FFCodec {
-        // Имя кодека.
 
+        // Имя кодека.
         public String name;
         // Название кодека.
         public String title;

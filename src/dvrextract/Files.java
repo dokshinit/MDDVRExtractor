@@ -40,7 +40,7 @@ public class Files {
         }
         App.mainFrame.stopProgress();
         App.mainFrame.setProgressInfo("Сканирование источника завершено"
-                + (App.isTaskCancel() ? " (прервано)." : "."));
+                + (Task.isTerminate() ? " (прервано)." : "."));
     }
 
     /**
@@ -62,7 +62,7 @@ public class Files {
             if (fa == null) {
                 return;
             }
-            if (App.isTaskCancel()) {
+            if (Task.isTerminate()) {
                 return;
             }
 
@@ -75,7 +75,7 @@ public class Files {
                     continue;
                 }
                 // Простой файл.
-                if (App.isTaskCancel()) {
+                if (Task.isTerminate()) {
                     return;
                 }
                 App.mainFrame.setProgressInfo("Сканирование источника: " + fa[i].getName());

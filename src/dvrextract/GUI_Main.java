@@ -109,29 +109,29 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
 
         pack();
     }
-    // TODO: Централизовать локи\анлоки\смены кнопок от задач...
-    //
     // Сосотояние кнопки "Обработка".
     // Если true - "Отмена" (остановка текущей задачи), false - "Обработка" (запуск обработки).
     private boolean cancelState = true;
-
+    
     /**
-     * Разрешение/запрет запуска обработки.
-     * @param state Статус разрешения.
+     * Выставление блокировок элементов согласно текущему состоянию.
      */
-    public void enableProcess(boolean state) {
-        buttonProcess.setEnabled(state);
+    public void setLocks() {
+        if (Task.isAlive()) {
+            // Выполняется задача.
+            buttonProcess.setEnabled(true);
+            buttonProcess.setText("Прервать");
+            cancelState = true;
+        } else {
+            // Задач нет.
+            buttonProcess.setEnabled(true);
+            buttonProcess.setText("Обработка");
+            cancelState = false;
+        }
+        tabSource.setLocks();
+        tabProcess.setLocks();
     }
-
-    /**
-     * Установка режима срабатывания кнопки "Обработка".
-     * @param state true - "Отмена", false - "Обработка".
-     */
-    public void enableCancelProcess(boolean state) {
-        buttonProcess.setText(state ? "Прервать" : "Обработка");
-        cancelState = state;
-    }
-
+    
     /**
      * Установка текстового сообщения в статусной строке.
      * @param text Сообщение.
@@ -211,14 +211,11 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == buttonProcess) {
-            if (!cancelState) {
+            if (!Task.isAlive()) {
                 // Запуск задачи.
             } else {
                 // Остановка задачи.
-                App.mainFrame.enableProcess(false);
-                if (!App.cancelTask()) {
-                    App.mainFrame.enableProcess(true);
-                }
+                Task.terminate();
             }
         }
     }
