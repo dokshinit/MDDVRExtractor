@@ -121,6 +121,14 @@ public class GUI {
         return text;
     }
 
+    public static JDateTimeField createDTText() {
+        JDateTimeField text = new JDateTimeField();
+        text.setBorder(borderTextField);
+        text.setBackground(bgEdit);
+        text.setForeground(fgEdit);
+        return text;
+    }
+
     public static JTextField createText(String title, int size) {
         JTextField text = new JTextField(title, size);
         text.setBorder(borderTextField);

@@ -2,6 +2,7 @@ package dvrextract;
 
 import dvrextract.FFMpeg.FFCodec;
 import dvrextract.gui.GUI;
+import dvrextract.gui.JDateTimeField;
 import dvrextract.gui.JExtComboBox;
 import dvrextract.gui.JExtComboBox.ExtItem;
 import java.awt.event.ActionEvent;
@@ -24,7 +25,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     // Выбранная камера.
     private JTextField textCam;
     // Период
-    private JFormattedTextField dateStart, dateEnd;
+    private JDateTimeField dateStart, dateEnd;
     // Кнопка оценки объёмов.
     private JButton buttonEstimate;
     // Путь к файлу-приёмнику.
@@ -69,16 +70,10 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         textCam.setText("не выбрана");
 
         add(GUI.createLabel("Период c"), "skip");
-        MaskFormatter formatter = null;
-        try {
-            formatter = new MaskFormatter("##.##.#### ##:##:##");
-            formatter.setPlaceholderCharacter('_');
-        } catch (ParseException ex) {
-        }
 
-        add(dateStart = GUI.createFormattedText(formatter), "w 150, spanx, split 4");
+        add(dateStart = GUI.createDTText(), "w 150, spanx, split 4");
         add(GUI.createLabel("по"), "");
-        add(dateEnd = GUI.createFormattedText(formatter), "w 150");
+        add(dateEnd = GUI.createDTText(), "w 150");
         add(buttonEstimate = GUI.createButton("Оценка"), "wrap");
         buttonEstimate.addActionListener(this);
 
@@ -156,8 +151,8 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         comboAudioFormat.setSelectedId(0);
         comboSubFormat.setSelectedId(0);
         //
-        dateStart.setText("01.08.2011 10:00:00");
-        dateEnd.setText("01.08.2011 10:59:59");
+        //dateStart.setText("01.08.2011 10:00:00");
+        //dateEnd.setText("01.08.2011 10:59:59");
         textDestination.setText("/home/work/files/probe1.avi");
     }
 
