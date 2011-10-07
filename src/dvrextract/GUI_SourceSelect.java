@@ -7,11 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-import javax.swing.UIManager;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -107,60 +104,8 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
      * Вызывается диалог выбора файла/каталога.
      */
     private void fireSelect() {
-        UIManager.put("FileChooser.readOnly", true);
-
-        UIManager.put("FileChooser.cancelButtonText", "Отмена");
-        UIManager.put("FileChooser.cancelButtonToolTipText", "Отмена выбора");
-        UIManager.put("FileChooser.detailsViewButtonToolTipText", "Детальный вид");
-        UIManager.put("FileChooser.listViewButtonToolTipText", "В виде списка");
-        UIManager.put("FileChooser.fileNameLabelText", "Имя файла:");
-        UIManager.put("FileChooser.filesOfTypeLabelText", "Тип файлов:");
-        UIManager.put("FileChooser.homeFolderToolTipText", "Домашний каталог");
-        UIManager.put("FileChooser.lookInLabelText", "Каталог:");
-        UIManager.put("FileChooser.openButtonText", "Выбрать");
-        UIManager.put("FileChooser.openButtonToolTipText", "Выбрать файл");
-        UIManager.put("FileChooser.upFolderToolTipText", "На уровень вверх");
-        UIManager.put("FileChooser.fileDateHeaderText", "Дата/время");
-        UIManager.put("FileChooser.fileNameHeaderText", "Имя");
-        UIManager.put("FileChooser.fileSizeHeaderText", "Размер");
-        UIManager.put("FileChooser.detailsViewActionLabelText", "Детальный");
-        UIManager.put("FileChooser.listViewActionLabelText", "Списком");
-        UIManager.put("FileChooser.refreshActionLabelText", "Обновить");
-        UIManager.put("FileChooser.viewMenuLabelText", "Вид");
-
-        JFileChooser fd = new JFileChooser() {
-
-            @Override
-            public void approveSelection() {
-                if (getSelectedFile().exists()) {
-                    super.approveSelection();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Выбранный файл/каталог не существует!");
-                }
-            }
-        };
-        fd.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        fd.setAcceptAllFileFilterUsed(false);
-        fd.addChoosableFileFilter(SourceFileFilter.instALL);
-        fd.addChoosableFileFilter(SourceFileFilter.instEXE);
-        fd.addChoosableFileFilter(SourceFileFilter.instHDD);
-        fd.setFileFilter(SourceFileFilter.get(type));
-        fd.setDialogTitle("Выбор файла/каталога источника");
-        fd.setMultiSelectionEnabled(false);
-        String name = textSource.getText().trim();
-        if (name.length() > 0) {
-            File f = new File(name);
-            fd.setCurrentDirectory(f);
-            fd.setSelectedFile(f);
-        }
-
-        int res = fd.showOpenDialog(this);
-        if (res == JFileChooser.APPROVE_OPTION) {
-            File f = fd.getSelectedFile();
-            textSource.setText(f.getAbsolutePath());
-            type = SourceFileFilter.getType(f);
-            textType.setText(type.title);
-        }
+        SelectDialog dlg = new SelectDialog();
+        dlg.showOpenDialog(this);
     }
 
     /**
@@ -187,6 +132,37 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
             // Сканирование источника.
             Files.scan(App.srcName, App.srcCamLimit);
             App.mainFrame.tabSource.displayCams();
+        }
+    }
+
+    /**
+     * Диалог выбора существующего файла/каталога источника.
+     */
+    private class SelectDialog extends GUIFileSelectDialog {
+
+        public SelectDialog() {
+            super(textSource.getText().trim(), 
+                    Target.EXIST_ONLY, 
+                    Mode.ALL);
+        }
+
+        @Override
+        public void fireInit() {
+            setAcceptAllFileFilterUsed(false);
+            addChoosableFileFilter(SourceFileFilter.instALL);
+            addChoosableFileFilter(SourceFileFilter.instEXE);
+            addChoosableFileFilter(SourceFileFilter.instHDD);
+            setFileFilter(SourceFileFilter.get(type));
+            setDialogTitle("Выбор файла/каталога источника");
+        }
+
+        @Override
+        public void fireApply() {
+            File f = getSelectedFile();
+            textSource.setText(f.getAbsolutePath());
+            type = SourceFileFilter.getType(f);
+            textType.setText(type.title);
+            super.fireApply();
         }
     }
 }

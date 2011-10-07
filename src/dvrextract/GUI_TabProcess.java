@@ -7,13 +7,10 @@ import dvrextract.gui.JExtComboBox;
 import dvrextract.gui.JExtComboBox.ExtItem;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.text.ParseException;
 import java.util.ArrayList;
 import javax.swing.JButton;
-import javax.swing.JFormattedTextField;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.text.MaskFormatter;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -169,6 +166,8 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     public void setLocks() {
         if (Task.isAlive()) {
             // Выполняется задача.
+            dateStart.setEditable(false);
+            dateEnd.setEditable(false);
             buttonEstimate.setEnabled(false);
             buttonSelect.setEnabled(false);
             comboVideoFormat.setEnabled(false);
@@ -180,6 +179,8 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             textAudioCustom.setEnabled(false);
         } else {
             // Задач нет.
+            dateStart.setEditable(true);
+            dateEnd.setEditable(true);
             buttonEstimate.setEnabled(true);
             buttonSelect.setEnabled(true);
             comboVideoFormat.setEnabled(true);

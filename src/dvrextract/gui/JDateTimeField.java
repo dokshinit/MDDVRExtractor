@@ -1,15 +1,11 @@
 package dvrextract.gui;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import javax.swing.AbstractAction;
-import javax.swing.ActionMap;
-import javax.swing.InputMap;
 import javax.swing.InputVerifier;
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
@@ -19,6 +15,8 @@ import javax.swing.text.MaskFormatter;
 
 /**
  * Граф.элемент - Поле ввода даты\времени по маске.
+ * В случае, если какие-то поля отсутствуют в маске, то выставляются по 
+ * умолчанию (время в 0, дата в 1).
  * @author lex
  */
 public class JDateTimeField extends JFormattedTextField {
@@ -36,11 +34,11 @@ public class JDateTimeField extends JFormattedTextField {
      * @param dt Начальное значение (если null - текущая дата).
      */
     public JDateTimeField(String fmt, Date dt) {
-        setFormat(fmt);
-        InputMap im = getInputMap();
-        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "escape");
-        ActionMap am = getActionMap();
-        am.put("escape", new EscapeAction());
+        if (!setFormat(fmt)) {
+            setFormat(null);
+        }
+        getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "escape");
+        getActionMap().put("escape", new EscapeAction());
         timeMin = null;
         timeMax = null;
         setTime(dt);
@@ -79,16 +77,16 @@ public class JDateTimeField extends JFormattedTextField {
     public void setLockingVerify(boolean isOn) {
         setInputVerifier(isOn ? new DateTimeInputVerifier() : null);
     }
-    
+
     /**
      * Устанавливает формат вводимых данных (в том числе маску ввода).
      * @param fmt Строка формата для ввода (если null - формат по умолчанию).
+     * @return Состояние выполнения true-успешно, false-ошибка.
      */
-    public void setFormat(String fmt) {
-        if (fmt == null) {
+    public boolean setFormat(String fmt) {
+        if (fmt == null || fmt.isEmpty()) {
             fmt = "dd.MM.yyyy HH:mm:ss";
         }
-        formatDt = new SimpleDateFormat(fmt);
         // Генерируем из формата маску для ввода.
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < fmt.length(); i++) {
@@ -99,19 +97,24 @@ public class JDateTimeField extends JFormattedTextField {
                 case 'H':
                 case 'm':
                 case 's':
+                case 'S':
                     sb.append('#');
                     break;
                 default:
                     sb.append(fmt.charAt(i));
             }
         }
+        // В случае, если маска не верна и выбросит исключение - просто 
+        // невозможно будет вводить значения.
         try {
             MaskFormatter formatterDt = new MaskFormatter(sb.toString());
             formatterDt.setPlaceholderCharacter('0');
+            formatDt = new SimpleDateFormat(fmt);
             DefaultFormatterFactory factory = new DefaultFormatterFactory(formatterDt);
             setFormatterFactory(factory);
+            return true;
         } catch (ParseException ex) {
-            ex.printStackTrace();
+            return false;
         }
     }
 
@@ -141,7 +144,6 @@ public class JDateTimeField extends JFormattedTextField {
      * @param dt Дата.
      */
     public void setTime(Date dt) {
-        //time = getValidDate(dt);
         setText(formatDt.format(time));
     }
 

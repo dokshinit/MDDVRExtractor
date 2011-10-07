@@ -7,6 +7,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
 
 /**
@@ -16,7 +18,18 @@ import javax.imageio.ImageIO;
 public final class FFMpeg {
 
     // Список кодеков.
-    private static ArrayList<FFCodec> codecs = new ArrayList<FFCodec>();
+    private static final ArrayList<FFCodec> codecs = new ArrayList<FFCodec>();
+    // Паттерн для "парсинга" инфы о кодеке из вывода FFMpeg.
+    private static final Pattern patternCodec =
+            Pattern.compile("^\\ ([D\\ ])([E\\ ])([VAS])([S\\ ])([D\\ ])([T\\ ])\\ (\\w{1,})\\s{1,}(\\S.*\\S?)\\s*$");
+
+    /**
+     * Возвращает текущий списо кодеков.
+     * @return 
+     */
+    public static ArrayList<FFCodec> getCodecs() {
+        return codecs;
+    }
 
     /**
      * Инициализация. Заполняет список кодеков.
@@ -51,92 +64,48 @@ public final class FFMpeg {
             }
         }
     }
-
-    public static ArrayList<FFCodec> getCodecs() {
-        return codecs;
-    }
-
+    
     /**
      * Парсит строку и в случае успеха - добавляет кодек в список.
      * @param s Строка с кодеком.
      */
     private static void addCodec(String s) {
-        String name = "", title = "";
-        boolean isDecode = false, isEncode = false, isVideo = false, isAudio = false, isSub = false;
-
-        if (s.length() < 11) {
+        Matcher m = patternCodec.matcher(s);
+        // Отфильтровываем по схеме и выкидываем форматы картинок.
+        if (!m.matches() || m.group(8).indexOf("image") != -1) {
             return;
         }
+        char c = m.group(3).trim().charAt(0);
+        codecs.add(new FFCodec(m.group(7), m.group(8),
+                !m.group(1).trim().isEmpty(), !m.group(2).trim().isEmpty(),
+                c == 'V', c == 'A', c == 'S'));
+    }
 
-        char c = s.charAt(0);
-        if (c != ' ') {
-            return;
-        }
+    /**
+     * Класс для храрнения инфы о кодеках FFMpeg.
+     */
+    public static class FFCodec {
 
-        c = s.charAt(1);
-        if (c == ' ') {
-        } else if (c == 'D') {
-            isDecode = true;
-        } else {
-            return;
-        }
+        // Имя кодека.
+        public String name;
+        // Название кодека.
+        public String title;
+        // Модификаторы.
+        public boolean isDecode, isEncode, isVideo, isAudio, isSub;
 
-        c = s.charAt(2);
-        if (c == ' ') {
-        } else if (c == 'E') {
-            isEncode = true;
-        } else {
-            return;
+        /**
+         * Конструктор.
+         */
+        public FFCodec(String name, String title, boolean isDecode, boolean isEncode, 
+                boolean isVideo, boolean isAudio, boolean isSub) {
+            this.name = name;
+            this.title = title;
+            this.isDecode = isDecode;
+            this.isEncode = isEncode;
+            this.isVideo = isVideo;
+            this.isAudio = isAudio;
+            this.isSub = isSub;
         }
-
-        c = s.charAt(3);
-        if (c == ' ') {
-        } else if (c == 'V') {
-            isVideo = true;
-        } else if (c == 'A') {
-            isAudio = true;
-        } else if (c == 'S') {
-            isSub = true;
-        } else {
-            return;
-        }
-
-        c = s.charAt(4);
-        if (c != ' ' && c != 'S') {
-            return;
-        }
-
-        c = s.charAt(5);
-        if (c != ' ' && c != 'D') {
-            return;
-        }
-
-        c = s.charAt(6);
-        if (c != ' ' && c != 'T') {
-            return;
-        }
-
-        c = s.charAt(7);
-        if (c != ' ') {
-            return;
-        }
-
-        c = s.charAt(8);
-        if (c == ' ') {
-            return;
-        }
-
-        int pos = s.indexOf(' ', 8);
-        name = s.substring(8, pos).trim();
-        title = s.substring(pos + 1).trim();
-        // Отсеиваем те, что предназначены для создания снапшотов.
-        if (title.indexOf("image") != -1) {
-            return;
-        }
-        codecs.add(new FFCodec(name, title, isDecode, isEncode, isVideo, isAudio, isSub));
-//        App.log("FFMpeg: CODEC=" + name + ", " + title + ", ["
-//                + (isDecode ? 'D' : ' ') + (isEncode ? 'E' : ' ')
-//                + (isVideo ? 'V' : ' ') + (isAudio ? 'A' : ' ') + (isSub ? 'S' : ' ') + "]");
     }
 
     /**
@@ -173,30 +142,6 @@ public final class FFMpeg {
         }
         return image;
     }
-
-    /**
-     * Класс для храрнения инфы о кодеках FFMpeg.
-     */
-    public static class FFCodec {
-
-        // Имя кодека.
-        public String name;
-        // Название кодека.
-        public String title;
-        // Модификаторы.
-        public boolean isDecode, isEncode, isVideo, isAudio, isSub;
-
-        /**
-         * Конструктор.
-         */
-        public FFCodec(String name, String title, boolean isDecode, boolean isEncode, boolean isVideo, boolean isAudio, boolean isSub) {
-            this.name = name;
-            this.title = title;
-            this.isDecode = isDecode;
-            this.isEncode = isEncode;
-            this.isVideo = isVideo;
-            this.isAudio = isAudio;
-            this.isSub = isSub;
-        }
-    }
+    
+    
 }

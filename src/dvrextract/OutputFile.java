@@ -19,7 +19,7 @@ public class OutputFile {
     /**
      * Конструктор.
      * @param fileName Имя файла.
-     * @throws FileNotFoundException Ошибка при отсутсвии файла.
+     * @throws FileNotFoundException Ошибка при отсутствии файла.
      */
     public OutputFile(String fileName) throws FileNotFoundException {
         name = fileName;
