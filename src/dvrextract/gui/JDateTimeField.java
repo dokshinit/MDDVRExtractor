@@ -1,36 +1,104 @@
 package dvrextract.gui;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.swing.AbstractAction;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
 import javax.swing.InputVerifier;
 import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
+import javax.swing.KeyStroke;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.MaskFormatter;
 
 /**
- *
+ * Граф.элемент - Поле ввода даты\времени по маске.
  * @author lex
  */
 public class JDateTimeField extends JFormattedTextField {
 
+    // Форматер для преобразований.
     private SimpleDateFormat formatDt;
+    // Хранение даты\времени (как эквивалент текстового поля).
     private Date time;
+    // Минимальная\максимальная дата (для ограничения диапазона ввода дат).
+    private Date timeMin, timeMax;
 
+    /**
+     * Конструктор.
+     * @param fmt Строка формата для ввода (если null - по умолчению).
+     * @param dt Начальное значение (если null - текущая дата).
+     */
+    public JDateTimeField(String fmt, Date dt) {
+        setFormat(fmt);
+        InputMap im = getInputMap();
+        im.put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "escape");
+        ActionMap am = getActionMap();
+        am.put("escape", new EscapeAction());
+        timeMin = null;
+        timeMax = null;
+        setTime(dt);
+    }
+
+    /**
+     * Конструктор.
+     * @param fmt Строка формата даты-времени для ввода.
+     */
+    public JDateTimeField(String fmt) {
+        this(fmt, null);
+    }
+
+    /**
+     * Конструктор.
+     * @param dt Начальное значение даты.
+     */
+    public JDateTimeField(Date dt) {
+        this(null, dt);
+    }
+
+    /**
+     * Констркутор (все параметры - по умолчанию).
+     */
+    public JDateTimeField() {
+        this(new Date());
+    }
+
+    /**
+     * Включение\выключение режима блокирующей проверки значения поля.
+     * При включении - не даёт сменить фокус пока не введено правильное значение.
+     * При отключении - неверные значения исправляются откатом к пред.значению 
+     * (с проеркой на валидность).
+     * @param isOn Режим.
+     */
+    public void setLockingVerify(boolean isOn) {
+        setInputVerifier(isOn ? new DateTimeInputVerifier() : null);
+    }
+    
+    /**
+     * Устанавливает формат вводимых данных (в том числе маску ввода).
+     * @param fmt Строка формата для ввода (если null - формат по умолчанию).
+     */
     public void setFormat(String fmt) {
-        // Форматер для преобразований
+        if (fmt == null) {
+            fmt = "dd.MM.yyyy HH:mm:ss";
+        }
         formatDt = new SimpleDateFormat(fmt);
-        // Маска для ввода
+        // Генерируем из формата маску для ввода.
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i<fmt.length(); i++) {
+        for (int i = 0; i < fmt.length(); i++) {
             switch (fmt.charAt(i)) {
                 case 'd':
                 case 'M':
                 case 'y':
                 case 'H':
                 case 'm':
-                case 's': 
+                case 's':
                     sb.append('#');
                     break;
                 default:
@@ -46,103 +114,145 @@ public class JDateTimeField extends JFormattedTextField {
             ex.printStackTrace();
         }
     }
-    
-    public JDateTimeField() {
-        setFormat("dd.MM.yyyy HH:mm:ss");
-        
-        //"^([0-2][0-9]|3[01])\\.(0[0-9]|1[012])\\.(201[01]) ([01][0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$");
 
-        setInputVerifier(new InputVerifier() {
-
-            @Override
-            public boolean verify(JComponent input) {
-                System.out.println("VERIFY");
-                if (isValid(getText())) {
-                    return true;
-                }
-                return false;
-            }
-
-            @Override
-            public boolean shouldYieldFocus(JComponent input) {
-                return super.shouldYieldFocus(input);
-            }
-        });
-
-        setTime(new Date());
+    /**
+     * Возвращает верную для действующих ограничений дату путём сдвигания 
+     * указанной даты в действующий диапазон (если необходимо).
+     * @param dt Проверяемая на валидность дата.
+     * @return Верная дата (если исодная была верной, то она же и 
+     * возвращается - удобно для проверки на "коррекцию").
+     */
+    public Date getValidDate(Date dt) {
+        if (dt == null) {
+            dt = new Date();
+        }
+        if (timeMin != null && dt.before(timeMin)) {
+            dt = timeMin;
+        }
+        if (timeMax != null && dt.after(timeMax)) {
+            dt = timeMax;
+        }
+        return dt;
     }
 
-    public void setTime(Date time) {
-        this.time = time;
+    /**
+     * Устанавливает значение поля указанной датой. Если дата выходит за 
+     * диапазон разрешенных, но присвоениея не происходит!
+     * @param dt Дата.
+     */
+    public void setTime(Date dt) {
+        //time = getValidDate(dt);
+        setText(formatDt.format(time));
+    }
+
+    /**
+     * Возвращает текущую дату поля.
+     * @return Текущая дата.
+     */
+    public Date getTime() {
+        return time;
+    }
+
+    /**
+     * Установка минимальной даты.
+     * @param dt Дата.
+     */
+    public void setMinTime(Date dt) {
+        timeMin = dt;
+        if (dt != null) {
+            if (timeMax != null && timeMax.before(dt)) {
+                timeMax = dt;
+            }
+            if (time != null && time.before(dt)) {
+                setTime(dt);
+            }
+        }
+    }
+
+    /**
+     * Установка максимальной даты.
+     * @param dt Дата.
+     */
+    public void setMaxTime(Date dt) {
+        timeMax = dt;
+        if (dt != null) {
+            if (timeMin != null && timeMin.after(dt)) {
+                timeMin = dt;
+            }
+            if (time != null && time.after(dt)) {
+                setTime(dt);
+            }
+        }
+    }
+
+    /**
+     * Установка текста элемента напрямую. Строка парсится согласно формату,
+     * полученная дата проверяется на валидность и в элемент ставится её 
+     * представление. Т.е. в результате может быть совсем не исходной строкой.
+     * По формированию даты при ошибках - см. getValidDate().
+     * Нежелательно использование вовне! Необходимо использовать setTime().
+     * @param s Строка с датой.
+     */
+    @Override
+    public void setText(String s) {
+        System.out.println("setText=" + s);
+        Date dt = parse(s);
+        if (dt == null) {
+            dt = (time != null) ? time : new Date();
+        }
+        time = getValidDate(dt);
         super.setText(formatDt.format(time));
     }
 
-    public boolean isValid(String s) {
-        if (s == null) {
-            return false;
-        }
-
-        String sD = s.substring(0, 2).trim();
-        String sM = s.substring(3, 5).trim();
-        String sY = s.substring(6, 10).trim();
-        String sHh = s.substring(11, 13).trim();
-        String sMm = s.substring(14, 16).trim();
-        String sSs = s.substring(17, 19).trim();
-
-        int flag = 0;
-        int nd = 0, nm = 0, ny = 0, nhh = 0, nmm = 0, nss = 0;
-
-        if (sD.length() > 0) {
-            nd = new Integer(sD);
-            if (nd < 1 || nd > 31) {
-                return false;
+    /**
+     * Преобразование строки в дату по текущему формату. С проверкой 
+     * идентичности при обратном преобразовании.
+     * @param s Строка с датой по формату.
+     * @return Дата, в случае ошибки = null.
+     */
+    protected Date parse(String s) {
+        if (s != null) {
+            try {
+                // Проверка на реальность даты.
+                Date dt = formatDt.parse(s);
+                // Проверка на обратное преобразование (если дата распарсена 
+                // корректно, то обратное преобразование даст исходную строку).
+                if (!s.equals(formatDt.format(dt))) {
+                    return null;
+                }
+                // В случае успешного преобразования - возвращаем дату.
+                return dt;
+            } catch (ParseException ex) {
             }
         }
-        if (sM.length() > 0) {
-            nm = new Integer(sM);
-            if (nm < 1 || nm > 12) {
-                return false;
-            }
-        }
-        if (sY.length() > 0) {
-            ny = new Integer(sY);
-            if (ny < 2011 || ny > 2011) {
-                return false;
-            }
-        }
-        if (sHh.length() > 0) {
-            nhh = new Integer(sHh);
-            if (nhh < 0 || nhh > 23) {
-                return false;
-            }
-        }
-        if (sMm.length() > 0) {
-            nmm = new Integer(sMm);
-            if (nmm < 0 || nmm > 59) {
-                return false;
-            }
-        }
-        if (sSs.length() > 0) {
-            nss = new Integer(sSs);
-            if (nss < 0 || nss > 59) {
-                return false;
-            }
-        }
-        try {
-            // Проверка на реальность даты.
-            Date dt = formatDt.parse(s);
-            System.out.println(formatDt.format(dt));
-            if (!s.equals(formatDt.format(dt))) {
-                return false;
-            }
-        } catch (ParseException ex) {
-            return false;
-        }
-        
-        System.out.println("s=" + s + " #" + nd + "." + nm + "." + ny + " " + nhh + ":" + nmm + ":" + nss);
-        return true;
+        return null;
     }
-    
-    
-    
+
+    /**
+     * Верификатор ввода (соответствие формату, полноте ввода и диапазону).
+     */
+    private class DateTimeInputVerifier extends InputVerifier {
+
+        @Override
+        public boolean verify(JComponent input) {
+            Date dt = parse(getText());
+            if (dt != null) {
+                return dt == getValidDate(dt);
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Действие на нажатие Esc (откат).
+     */
+    private class EscapeAction extends AbstractAction {
+
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            int n = getCaretPosition();
+            setTime(time);
+            setCaretPosition(n);
+        }
+    }
 }
