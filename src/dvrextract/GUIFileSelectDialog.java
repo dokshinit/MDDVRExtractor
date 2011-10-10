@@ -1,7 +1,12 @@
 package dvrextract;
 
+import dvrextract.gui.GUIDialog;
+import java.awt.BorderLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
+import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
@@ -10,7 +15,9 @@ import javax.swing.UIManager;
  * Диалог выбора файла/каталога (для чтения/записи).
  * @author lex
  */
-public class GUIFileSelectDialog extends JFileChooser {
+public class GUIFileSelectDialog extends GUIDialog {
+
+    protected FileChooser fc;
 
     /**
      * Цель вызова диалога
@@ -43,13 +50,14 @@ public class GUIFileSelectDialog extends JFileChooser {
     // Режим диалога.
     private Mode mode;
 
-    public GUIFileSelectDialog(String fname, Target tgt, Mode m) {
+    protected GUIFileSelectDialog(String title, String fname, Target tgt, Mode m) {
+        setTitle(title);
 
         fname = fname != null ? fname : "";
         target = tgt;
         mode = m;
 
-        UIManager.put("FileChooser.readOnly", target == Target.EXIST_ONLY);
+        UIManager.put("FileChooser.readOnly", tgt == Target.EXIST_ONLY);
         UIManager.put("FileChooser.cancelButtonText", "Отмена");
         UIManager.put("FileChooser.cancelButtonToolTipText", "Отмена выбора");
         UIManager.put("FileChooser.detailsViewButtonToolTipText", "Детальный вид");
@@ -69,16 +77,20 @@ public class GUIFileSelectDialog extends JFileChooser {
         UIManager.put("FileChooser.refreshActionLabelText", "Обновить");
         UIManager.put("FileChooser.viewMenuLabelText", "Вид");
 
-        setFileSelectionMode(mode.id);
-        setMultiSelectionEnabled(false);
+        fc = new FileChooser();
+        add(fc, BorderLayout.CENTER);
+
+        fc.setFileSelectionMode(mode.id);
+        fc.setMultiSelectionEnabled(false);
 
         fireInit();
 
         if (fname.length() > 0) {
             File f = new File(fname);
-            setCurrentDirectory(f);
-            setSelectedFile(f);
+            fc.setCurrentDirectory(f);
+            fc.setSelectedFile(f);
         }
+        pack();
     }
 
     /**
@@ -91,37 +103,40 @@ public class GUIFileSelectDialog extends JFileChooser {
      * Вызывается при выборе файла.
      */
     public void fireApply() {
-        super.approveSelection();
+        fc.approveSelection();
     }
 
     /**
      * Вызывается при отмене выбора.
      */
     public void fireCancel() {
-        super.cancelSelection();
+        fc.cancelSelection();
     }
 
-    @Override
-    public void approveSelection() {
-        File f = getSelectedFile();
-        if (f.exists()) {
-            fireApply();
-        } else {
-            if (target == Target.EXIST_ONLY) {
-                JOptionPane.showMessageDialog(this, "Выбранный файл/каталог не существует!");
+    private class FileChooser extends JFileChooser {
+
+        @Override
+        public void approveSelection() {
+            File f = getSelectedFile();
+            if (f.exists()) {
+                fireApply();
             } else {
-                try {
-                    f.createNewFile();
-                    fireApply();
-                } catch (IOException ex) {
-                    JOptionPane.showMessageDialog(this, "Ошибка создания файла/каталога!");
+                if (target == Target.EXIST_ONLY) {
+                    JOptionPane.showMessageDialog(this, "Выбранный файл/каталог не существует!");
+                } else {
+                    try {
+                        f.createNewFile();
+                        fireApply();
+                    } catch (IOException ex) {
+                        JOptionPane.showMessageDialog(this, "Ошибка создания файла/каталога!");
+                    }
                 }
             }
         }
-    }
 
-    @Override
-    public void cancelSelection() {
-        fireCancel();
+        @Override
+        public void cancelSelection() {
+            fireCancel();
+        }
     }
 }

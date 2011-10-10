@@ -1,9 +1,11 @@
 package dvrextract;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
 /**
  * Сохранение сырых данных в файл.
@@ -14,7 +16,7 @@ public class OutputFile {
     // Имя файла.
     private String name;
     // Поток файла.
-    private FileOutputStream fout;
+    private OutputStream fout;
 
     /**
      * Конструктор.
@@ -29,7 +31,7 @@ public class OutputFile {
             if (ff.exists()) {
                 ff.delete();
             }
-            fout = new FileOutputStream(name);
+            fout = new BufferedOutputStream(new FileOutputStream(name));
         }
     }
 

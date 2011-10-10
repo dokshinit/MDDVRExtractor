@@ -72,20 +72,18 @@ public class OutputVideo {
      * @throws IOException Ошибка при операции записи.
      */
     public void save() throws IOException {
-        int size = processIn.available();
-        while (size > 0) {
+        while (processIn.available() > 0) {
             // Считываем.
-            int len = Math.min(buf.length, size);
+            int len = Math.min(buf.length, processIn.available());
             int readed = 1, pos = 0;
             while (readed >= 0 && pos < len) {
-                readed = processIn.read(buf, pos, size - pos);
+                readed = processIn.read(buf, pos, len - pos);
                 pos += readed;
             }
             // Записываем в файл.
             if (fout != null) {
                 fout.write(buf, 0, len);
             }
-            size -= len;
         }
     }
 

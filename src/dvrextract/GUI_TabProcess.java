@@ -181,7 +181,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             // Задач нет.
             dateStart.setEditable(true);
             dateEnd.setEditable(true);
-            buttonEstimate.setEnabled(true);
+            buttonEstimate.setEnabled(App.srcCamSelect > 0);
             buttonSelect.setEnabled(true);
             comboVideoFormat.setEnabled(true);
             ExtItem i = comboVideoFormat.getSelectedItem();
@@ -232,6 +232,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         @Override
         public void task() {
             // Вычисление приблизительных результатов обработки.
+            if (App.srcCamSelect < 0) return;
             for (int i=0; i<App.MAXCAMS; i++) {
                 CamInfo ci = App.srcCams[i];
                 for (FileInfo fi : ci.files) {

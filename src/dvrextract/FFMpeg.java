@@ -19,9 +19,11 @@ public final class FFMpeg {
 
     // Список кодеков.
     private static final ArrayList<FFCodec> codecs = new ArrayList<FFCodec>();
-    // Паттерн для "парсинга" инфы о кодеке из вывода FFMpeg.
+    // Паттерн для "парсинга" инфы о кодеке из вывода "ffmpeg -codecs".
+    // Исключаем из списка форматы изображений (image).
     private static final Pattern patternCodec =
-            Pattern.compile("^\\ ([D\\ ])([E\\ ])([VAS])([S\\ ])([D\\ ])([T\\ ])\\ (\\w{1,})\\s{1,}(\\S.*\\S?)\\s*$");
+            Pattern.compile("^\\ ([D\\ ])([E\\ ])([VAS])([S\\ ])([D\\ ])([T\\ ])\\ "
+            + "(\\w{1,})\\s{1,}((?:[\\S&&[^iJG]]|i(?!mage)|J(?!PEG)|G(?!IF)|\\s){1,})\\s*$");
 
     /**
      * Возвращает текущий списо кодеков.
@@ -64,21 +66,20 @@ public final class FFMpeg {
             }
         }
     }
-    
+
     /**
      * Парсит строку и в случае успеха - добавляет кодек в список.
      * @param s Строка с кодеком.
      */
     private static void addCodec(String s) {
         Matcher m = patternCodec.matcher(s);
-        // Отфильтровываем по схеме и выкидываем форматы картинок.
-        if (!m.matches() || m.group(8).indexOf("image") != -1) {
-            return;
+        // Отфильтровываем по схеме.
+        if (m.matches()) {
+            char c = m.group(3).trim().charAt(0);
+            codecs.add(new FFCodec(m.group(7), m.group(8),
+                    !m.group(1).trim().isEmpty(), !m.group(2).trim().isEmpty(),
+                    c == 'V', c == 'A', c == 'S'));
         }
-        char c = m.group(3).trim().charAt(0);
-        codecs.add(new FFCodec(m.group(7), m.group(8),
-                !m.group(1).trim().isEmpty(), !m.group(2).trim().isEmpty(),
-                c == 'V', c == 'A', c == 'S'));
     }
 
     /**
@@ -96,7 +97,7 @@ public final class FFMpeg {
         /**
          * Конструктор.
          */
-        public FFCodec(String name, String title, boolean isDecode, boolean isEncode, 
+        public FFCodec(String name, String title, boolean isDecode, boolean isEncode,
                 boolean isVideo, boolean isAudio, boolean isSub) {
             this.name = name;
             this.title = title;
@@ -130,18 +131,19 @@ public final class FFMpeg {
                 InputStream is = pr.getInputStream();
                 OutputStream os = pr.getOutputStream();
                 os.write(ba, 0, ba.length);
-                os.close(); // Вынуждаем обработать данные.
+                // Вынуждаем обработать данные (если не закрыть - во вх.потоке 
+                // данные не появляются, даже если делать flush()!).
+                os.close();
+                // Поток тормознут, если exitValue не вызывает исключение!
                 image = ImageIO.read(is);
             } catch (IOException e) {
                 e.printStackTrace();
             } finally {
                 if (pr != null) {
-                    pr.destroy();
+                    pr.destroy(); // На всякий случай.
                 }
             }
         }
         return image;
     }
-    
-    
 }

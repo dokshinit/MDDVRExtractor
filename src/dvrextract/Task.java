@@ -1,5 +1,7 @@
 package dvrextract;
 
+import javax.swing.JOptionPane;
+
 /**
  * Класс для запуска задач.
  * @author lex
@@ -59,10 +61,12 @@ public final class Task {
      */
     public static boolean start(Thread t) {
         if (t == null) {
+            JOptionPane.showMessageDialog(App.mainFrame, "Задание не может быть запущено!");
             return false;
         }
         synchronized (sync) {
             if (task != null && task.isAlive()) {
+                JOptionPane.showMessageDialog(App.mainFrame, "Задание не может быть запущено!");
                 return false;
             }
             task = t;
