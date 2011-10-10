@@ -4,6 +4,7 @@ import dvrextract.gui.GUI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
@@ -96,13 +97,15 @@ public class App {
     long startDataPos = 0;
     long endDataPos = 0;
     long curPos = 0;
+    ////////////////////////////////////////////////////////////////////////////
     // Информация о источнике:
+    ////////////////////////////////////////////////////////////////////////////
     // Подразумевается, что источником может быть или одиночный файл или
     // каталог. При этом каждый файл распознаётся исходя из имени файла:
     // по шалону *.exe - файл архива, по шаблону da*. - файл hdd.
     //
     // Каталог или файл.
-    public static String srcName = "/home/work/files/";
+    public static String srcName = "";
     // Тип источника: 0-EXE, 1-HDD
     public static FileType srcType = FileType.NO;
     // Ограничение одной камерой (если = 0 - без ограничений).
@@ -111,6 +114,10 @@ public class App {
     public static int srcCamSelect = 0;
     // Массив разделения источников по камерам.
     public static CamInfo[] srcCams = new CamInfo[MAXCAMS];
+    ////////////////////////////////////////////////////////////////////////////
+    // Информация об обработке:
+    ////////////////////////////////////////////////////////////////////////////
+    public static String destName = "";
 
     /**
      * Точка запуска приложения.
@@ -134,6 +141,12 @@ public class App {
                 mainFrame = new GUI_Main();
                 mainFrame.center();
                 mainFrame.setVisible(true);
+                if (!FFMpeg.isWork()) {
+                    JOptionPane.showMessageDialog(mainFrame,
+                            "Некорректная работа FFMPEG!",
+                            "Ошибка запроса кодеков",
+                            JOptionPane.WARNING_MESSAGE);
+                }
             }
         });
 

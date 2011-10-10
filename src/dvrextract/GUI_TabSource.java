@@ -83,22 +83,40 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
     }
 
     /**
+     * Отображение текущего источника в граф.элементах.
+     */
+    public void displaySource() {
+        // Отображаем новый источник и его тип.
+        textSource.setText(App.srcName);
+        textType.setText(App.srcType.title);
+    }
+
+    /**
      * Установка списка номеров камер. 
      * При этом происходит выбор первой из списка и обновление списка файлов.
      * @param cams Список номеров камер (для номера =0 - не выбрана).
      */
-    public void displayCams(ArrayList<Integer> cams) {
-        comboCam.removeItems();
-        if (cams != null) {
-            if (cams.isEmpty()) {
-                comboCam.addItem(0, "не выбрана");
-            }
-            for (int i : cams) {
-                comboCam.addItem(i, i == 0 ? "не выбрана" : "CAM" + i);
-            }
+    public void displayCams(final ArrayList<Integer> cams) {
+        try {
+            java.awt.EventQueue.invokeAndWait(new Runnable() {
+
+                @Override
+                public void run() {
+                    comboCam.removeItems();
+                    if (cams != null) {
+                        if (cams.isEmpty()) {
+                            comboCam.addItem(0, "не выбрана");
+                        }
+                        for (int i : cams) {
+                            comboCam.addItem(i, i == 0 ? "не выбрана" : "CAM" + i);
+                        }
+                    }
+                    comboCam.showData();
+                    fireCamSelect();
+                }
+            });
+        } catch (Exception ex) {
         }
-        comboCam.showData();
-        fireCamSelect();
     }
 
     /**
@@ -129,6 +147,7 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
 
     /**
      * Выставление блокировок элементов согласно текущему состоянию.
+     * Отдельно не вызывается, только из основного окна (пожтому нет тредсейф).
      */
     public void setLocks() {
         if (Task.isAlive()) {
@@ -156,9 +175,6 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
         GUI_SourceSelect dlg = new GUI_SourceSelect();
         dlg.center();
         dlg.setVisible(true);
-        // Отображаем новый источник и его тип.
-        textSource.setText(App.srcName);
-        textType.setText(App.srcType.title);
     }
 
     /**

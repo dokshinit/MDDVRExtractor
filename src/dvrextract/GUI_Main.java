@@ -108,47 +108,81 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         add(panelButton, BorderLayout.SOUTH);
 
         pack();
+        setLocks();
     }
     // Сосотояние кнопки "Обработка".
     // Если true - "Отмена" (остановка текущей задачи), false - "Обработка" (запуск обработки).
     private boolean cancelState = true;
-    
+
     /**
      * Выставление блокировок элементов согласно текущему состоянию.
      */
     public void setLocks() {
-        if (Task.isAlive()) {
-            // Выполняется задача.
-            buttonProcess.setEnabled(true);
-            buttonProcess.setText("Прервать");
-            cancelState = true;
-        } else {
-            // Задач нет.
-            buttonProcess.setEnabled(true);
-            buttonProcess.setText("Обработка");
-            cancelState = false;
+        try {
+            java.awt.EventQueue.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    if (Task.isAlive()) {
+                        // Выполняется задача.
+                        buttonProcess.setEnabled(true);
+                        buttonProcess.setText("Прервать");
+                        cancelState = true;
+                    } else {
+                        // Задач нет.
+                        buttonProcess.setEnabled(isPossibleProcess());
+                        buttonProcess.setText("Обработка");
+                        cancelState = false;
+                    }
+                    tabSource.setLocks();
+                    tabProcess.setLocks();
+                }
+            });
+        } catch (Exception ex) {
         }
-        tabSource.setLocks();
-        tabProcess.setLocks();
     }
     
+    private boolean isPossibleProcess() {
+        // ffmpeg не найден.
+        if (!FFMpeg.isWork()) return false;
+        // Не выбрана камера.
+        if (App.srcCamSelect <= 0) return false;
+        // Нет файлов для обработки (не должно быть по идее).
+        if (!App.srcCams[App.srcCamSelect-1].isExists) return false;
+        // Не выбран выходной файл.
+        if (App.destName.isEmpty()) return false;
+        return true;
+    }
+
     /**
      * Установка текстового сообщения в статусной строке.
      * @param text Сообщение.
      */
-    public void setProgressInfo(String text) {
-        textInfo.setText(text);
+    public void setProgressInfo(final String text) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                textInfo.setText(text);
+            }
+        });
     }
 
     /**
      * Установка текстового сообщения в прогрессе.
      * @param text Сообщение.
      */
-    public void setProgressText(String text) {
-        progressBar.setString(text);
-        if (text == null) {
-            progressBar.setString("");
-        }
+    public void setProgressText(final String text) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                progressBar.setString(text);
+                if (text == null) {
+                    progressBar.setString("");
+                }
+            }
+        });
     }
 
     /**
@@ -157,13 +191,19 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
      * @param startpos Начальная позиция.
      * @param endpos Конечная позиция.
      */
-    public void startProgress(int startpos, int endpos) {
-        progressBar.setIndeterminate(startpos == -1 && endpos == -1);
-        progressBar.setMinimum(startpos);
-        progressBar.setMaximum(endpos);
-        progressBar.setStringPainted(true);
-        progressBar.setValue(startpos);
-        progressBar.setString("");
+    public void startProgress(final int startpos, final int endpos) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                progressBar.setIndeterminate(startpos == -1 && endpos == -1);
+                progressBar.setMinimum(startpos);
+                progressBar.setMaximum(endpos);
+                progressBar.setStringPainted(true);
+                progressBar.setValue(startpos);
+                progressBar.setString("");
+            }
+        });
     }
 
     /**
@@ -177,15 +217,27 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
      * Установка значения позиции для прогресса.
      * @param pos Позиция.
      */
-    public void setProgress(int pos) {
-        progressBar.setValue(pos);
+    public void setProgress(final int pos) {
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                progressBar.setValue(pos);
+            }
+        });
     }
 
     /**
      * Остановка прогресса.
      */
     public void stopProgress() {
-        progressBar.setIndeterminate(false);
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                progressBar.setIndeterminate(false);
+            }
+        });
     }
 
     @Override

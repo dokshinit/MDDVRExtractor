@@ -37,6 +37,7 @@ public class JDateTimeField extends JFormattedTextField {
         if (!setFormat(fmt)) {
             setFormat(null);
         }
+        setInputVerifier(new DateTimeInputVerifier());
         getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), "escape");
         getActionMap().put("escape", new EscapeAction());
         timeMin = null;
@@ -66,6 +67,9 @@ public class JDateTimeField extends JFormattedTextField {
     public JDateTimeField() {
         this(new Date());
     }
+    
+    // Индикатор режима блокирования фокуса при неверном вводе.
+    private boolean locking = false;
 
     /**
      * Включение\выключение режима блокирующей проверки значения поля.
@@ -75,7 +79,7 @@ public class JDateTimeField extends JFormattedTextField {
      * @param isOn Режим.
      */
     public void setLockingVerify(boolean isOn) {
-        setInputVerifier(isOn ? new DateTimeInputVerifier() : null);
+        locking = isOn;
     }
 
     /**
@@ -144,7 +148,7 @@ public class JDateTimeField extends JFormattedTextField {
      * @param dt Дата.
      */
     public void setTime(Date dt) {
-        setText(formatDt.format(time));
+        setText(formatDt.format(dt));
     }
 
     /**
@@ -197,7 +201,7 @@ public class JDateTimeField extends JFormattedTextField {
      */
     @Override
     public void setText(String s) {
-        System.out.println("setText=" + s);
+        //System.out.println("setText=" + s);
         Date dt = parse(s);
         if (dt == null) {
             dt = (time != null) ? time : new Date();
@@ -238,10 +242,12 @@ public class JDateTimeField extends JFormattedTextField {
         @Override
         public boolean verify(JComponent input) {
             Date dt = parse(getText());
-            if (dt != null) {
-                return dt == getValidDate(dt);
+            time = getValidDate(dt);
+            System.out.println("Verify! dt=" + formatDt.format(time));
+            if (dt == time) {
+                return true;
             }
-            return false;
+            return !locking;
         }
     }
 

@@ -72,6 +72,16 @@ public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
     }
 
     /**
+     * Возвращает тип файла.
+     * @param f Файл.
+     * @return Тип файла.
+     */
+    public static FileType getType(String name) {
+        File f = new File(name);
+        return getType(f);
+    }
+
+    /**
      * Возвращает фильтр по типу файла.
      * @param type Тип файла.
      * @return Фильтр.
@@ -85,5 +95,14 @@ public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
             default:
                 return instALL;
         }
+    }
+
+    /**
+     * Возвращает фильтр по названию файла.
+     * @param file Имя файла.
+     * @return Фильтр.
+     */
+    public static SourceFileFilter get(String file) {
+        return get(getType(file));
     }
 }

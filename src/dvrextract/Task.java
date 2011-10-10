@@ -61,12 +61,16 @@ public final class Task {
      */
     public static boolean start(Thread t) {
         if (t == null) {
-            JOptionPane.showMessageDialog(App.mainFrame, "Задание не может быть запущено!");
+            JOptionPane.showMessageDialog(App.mainFrame,
+                    "Задание не может быть запущено!", "Ошибка",
+                    JOptionPane.WARNING_MESSAGE);
             return false;
         }
         synchronized (sync) {
             if (task != null && task.isAlive()) {
-                JOptionPane.showMessageDialog(App.mainFrame, "Задание не может быть запущено!");
+                JOptionPane.showMessageDialog(App.mainFrame, 
+                        "Задание не может быть запущено!", "Ошибка",
+                        JOptionPane.WARNING_MESSAGE);
                 return false;
             }
             task = t;

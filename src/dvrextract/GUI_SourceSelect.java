@@ -8,7 +8,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import net.miginfocom.swing.MigLayout;
 
@@ -28,15 +27,12 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
     private JExtComboBox comboCam;
     // Кнопка сканирования источника - подтверждение выбора.
     private JButton buttonScan;
-    //
-    // Тип выбранного файла.
-    private FileType type;
 
     /**
      * Конструктор.
      */
     public GUI_SourceSelect() {
-        type = FileType.NO;
+        super(App.mainFrame);
         init();
     }
 
@@ -78,9 +74,7 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         pack();
         setResizable(false); // После вычисления размера - изменение ни к чему.
 
-        File f = new File(textSource.getText());
-        type = SourceFileFilter.getType(f);
-        textType.setText(type.title);
+        textType.setText(SourceFileFilter.getType(textSource.getText()).title);
     }
 
     /**
@@ -128,8 +122,10 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         public void task() {
             // Установка источника.
             App.srcName = textSource.getText();
-            App.srcType = type;
+            App.srcType = SourceFileFilter.getType(textSource.getText());
             App.srcCamLimit = comboCam.getSelectedItem().id;
+            // Отображение источника.
+            App.mainFrame.tabSource.displaySource();
             // Очистка отображаемого списка камер источника.
             App.mainFrame.tabSource.displayCams(0);
             // Сканирование источника.
@@ -144,26 +140,24 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
     private class SelectDialog extends GUIFileSelectDialog {
 
         private SelectDialog() {
-            super("Выбор файла/каталога источника", textSource.getText().trim(), 
-                    Target.EXIST_ONLY, Mode.ALL);
+            super(GUI_SourceSelect.this, "Выбор файла/каталога источника",
+                    textSource.getText().trim(), Target.EXIST_ONLY, Mode.ALL);
         }
 
         @Override
-        public void fireInit() {
+        public void fireInit(FileChooser fc) {
             fc.setAcceptAllFileFilterUsed(false);
             fc.addChoosableFileFilter(SourceFileFilter.instALL);
             fc.addChoosableFileFilter(SourceFileFilter.instEXE);
             fc.addChoosableFileFilter(SourceFileFilter.instHDD);
-            fc.setFileFilter(SourceFileFilter.get(type));
+            fc.setFileFilter(SourceFileFilter.get(textSource.getText()));
         }
 
         @Override
-        public void fireApply() {
-            File f = fc.getSelectedFile();
+        public void fireApply(FileChooser fc) throws CancelActionExeption {
+            final File f = fc.getSelectedFile();
             textSource.setText(f.getAbsolutePath());
-            type = SourceFileFilter.getType(f);
-            textType.setText(type.title);
-            super.fireApply();
+            textType.setText(SourceFileFilter.getType(f).title);
         }
     }
 }

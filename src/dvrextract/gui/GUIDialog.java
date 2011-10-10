@@ -4,7 +4,9 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.Window;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 
 /**
  * Диалог приложения (общие настройки и методы).
@@ -16,13 +18,18 @@ public class GUIDialog extends JDialog {
      * Конструктор.
      */
     public GUIDialog() {
+        this(null);
+    }
+    
+    public GUIDialog(Window owner) {
+        super(owner);
         setModal(true);
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
         setBackground(GUI.bgPanel);
         setForeground(GUI.bgPanel);
     }
-
+    
     /**
      * Располагает диалог по центру экрана.
      */

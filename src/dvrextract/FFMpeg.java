@@ -32,6 +32,14 @@ public final class FFMpeg {
     public static ArrayList<FFCodec> getCodecs() {
         return codecs;
     }
+    
+    /**
+     * Проверяет инициализирован ли FFMpeg (если проблемы, то список кодеков будет пуст).
+     * @return true - всё в порядке, false - ffmpeg не работает корректно.
+     */
+    public static boolean isWork() {
+        return !codecs.isEmpty(); 
+    }
 
     /**
      * Инициализация. Заполняет список кодеков.
