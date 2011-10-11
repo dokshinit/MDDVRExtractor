@@ -143,6 +143,11 @@ public class Files {
                     if (isExist == -1) {
                         continue; // Камеры нет.
                     }
+                    // Если есть такая камера (по которой ограничение), то сбрасываем ограничение
+                    // чтобы не отфильтровывало при парсинге файла.
+                    if (cam > 0 && cam == n + 1) {
+                        cam = 0;
+                    }
                     // Смещение первого фрейма.
                     long frameOffs = bbF.getLong(72 + (808 * n));
                     info.addCamData(n + 1, frameOffs, null);
@@ -286,7 +291,7 @@ public class Files {
                 int i = 0;
                 for (; i < len - frameSize; i++) {
                     if (f.parseHeader(bbF, i) == 0) {
-                        // Если номер камеры указан и это не он - пропускаем разбор.
+                        // Если номер камеры указан и это не он - пропускаем.
                         if (f.camNumber == cam && f.isMain) {
                             f.pos = pos + i;
                             ci.mainFrame = f;

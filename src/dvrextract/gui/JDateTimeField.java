@@ -1,6 +1,7 @@
 package dvrextract.gui;
 
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -27,6 +28,8 @@ public class JDateTimeField extends JFormattedTextField {
     private Date time;
     // Минимальная\максимальная дата (для ограничения диапазона ввода дат).
     private Date timeMin, timeMax;
+    // Индикатор режима блокирования фокуса при неверном вводе.
+    private boolean isLockFocus;
 
     /**
      * Конструктор.
@@ -34,6 +37,7 @@ public class JDateTimeField extends JFormattedTextField {
      * @param dt Начальное значение (если null - текущая дата).
      */
     public JDateTimeField(String fmt, Date dt) {
+        isLockFocus = false;
         if (!setFormat(fmt)) {
             setFormat(null);
         }
@@ -67,9 +71,6 @@ public class JDateTimeField extends JFormattedTextField {
     public JDateTimeField() {
         this(new Date());
     }
-    
-    // Индикатор режима блокирования фокуса при неверном вводе.
-    private boolean locking = false;
 
     /**
      * Включение\выключение режима блокирующей проверки значения поля.
@@ -79,7 +80,7 @@ public class JDateTimeField extends JFormattedTextField {
      * @param isOn Режим.
      */
     public void setLockingVerify(boolean isOn) {
-        locking = isOn;
+        isLockFocus = isOn;
     }
 
     /**
@@ -201,14 +202,26 @@ public class JDateTimeField extends JFormattedTextField {
      */
     @Override
     public void setText(String s) {
+        Date oldValue = time;
         //System.out.println("setText=" + s);
         Date dt = parse(s);
         if (dt == null) {
             dt = (time != null) ? time : new Date();
         }
         time = getValidDate(dt);
+        int n = getCaretPosition();
         super.setText(formatDt.format(time));
+        setCaretPosition(Math.min(n, getText().length()));
+        if (!time.equals(oldValue)) {
+            // Вызываем листенеры с событием изменения значения времени.
+            ActionEvent e = new ActionEvent(this, ID_TIMECHANGE, "change_time");
+            for (ActionListener a : listenerList.getListeners(ActionListener.class)) {
+                a.actionPerformed(e);
+            }
+        }
     }
+    // ID события изменения значения времени.
+    public final static int ID_TIMECHANGE = 1;
 
     /**
      * Преобразование строки в дату по текущему формату. С проверкой 
@@ -242,12 +255,12 @@ public class JDateTimeField extends JFormattedTextField {
         @Override
         public boolean verify(JComponent input) {
             Date dt = parse(getText());
-            time = getValidDate(dt);
-            System.out.println("Verify! dt=" + formatDt.format(time));
-            if (dt == time) {
+            Date validdt = getValidDate(dt);
+            //System.out.println("Verify! dt=" + formatDt.format(time));
+            if (dt == validdt) {
                 return true;
             }
-            return !locking;
+            return !isLockFocus;
         }
     }
 

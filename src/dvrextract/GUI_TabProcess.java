@@ -11,6 +11,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -20,7 +21,7 @@ import net.miginfocom.swing.MigLayout;
  * Вкладка "Обработка".
  * @author lex
  */
-public final class GUI_TabProcess extends JPanel implements ActionListener, PropertyChangeListener {
+public final class GUI_TabProcess extends JPanel implements ActionListener {
 
     // Выбранная камера.
     private JTextField textCam;
@@ -72,10 +73,10 @@ public final class GUI_TabProcess extends JPanel implements ActionListener, Prop
         add(GUI.createLabel("Период c"), "skip");
 
         add(dateStart = GUI.createDTText(), "w 150, spanx, split 4");
-        dateStart.addPropertyChangeListener("value", this);
+        dateStart.addActionListener(this);
         add(GUI.createLabel("по"), "");
         add(dateEnd = GUI.createDTText(), "w 150");
-        dateEnd.addPropertyChangeListener("value", this);
+        dateEnd.addActionListener(this);
         add(buttonEstimate = GUI.createButton("Оценка"), "wrap");
         buttonEstimate.addActionListener(this);
 
@@ -112,7 +113,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener, Prop
         add(comboSubFormat = GUI.createCombo(false), "left, spanx, wrap");
 
         ArrayList<FFCodec> list = FFMpeg.getCodecs();
-        comboVideoFormat.addItem(0, new Item("Без преобразования"));
+        comboVideoFormat.addItem(0, new Item("Без преобразования", "copy"));
         int n = 1;
         for (FFCodec i : list) {
             if (i.isEncode && i.isVideo) {
@@ -122,13 +123,13 @@ public final class GUI_TabProcess extends JPanel implements ActionListener, Prop
         comboVideoFormat.addItem(1000, new Item("Ручные настройки"));
         comboVideoFormat.showData();
 
-        comboVideoFPS.addItem(0, new Item("Без преобразования"));
+        comboVideoFPS.addItem(0, new Item("Без преобразования", "{origfps}"));
         comboVideoFPS.addItem(1, new Item("12"));
         comboVideoFPS.addItem(2, new Item("25"));
         comboVideoFPS.addItem(1000, new Item("Ручные настройки"));
         comboVideoFPS.showData();
 
-        comboVideoSize.addItem(0, new Item("Без преобразования"));
+        comboVideoSize.addItem(0, new Item("Без преобразования", "{origsize}"));
         comboVideoSize.addItem(1, new Item("352x288"));
         comboVideoSize.addItem(2, new Item("352x576"));
         comboVideoSize.addItem(3, new Item("704x288"));
@@ -136,15 +137,15 @@ public final class GUI_TabProcess extends JPanel implements ActionListener, Prop
         comboVideoSize.addItem(1000, new Item("Ручные настройки"));
         comboVideoSize.showData();
 
-        comboAudioFormat.addItem(-1, "Не сохранять");
-        comboAudioFormat.addItem(0, "Без преобразования");
+        comboAudioFormat.addItem(-1, new Item("Не сохранять"));
+        comboAudioFormat.addItem(0, new Item("Без преобразования", "copy"));
         n = 1;
         for (FFCodec i : list) {
             if (i.isEncode && i.isAudio) {
                 comboAudioFormat.addItem(n++, new Item(i.title, i.name));
             }
         }
-        comboAudioFormat.addItem(1000, "Ручные настройки");
+        comboAudioFormat.addItem(1000, new Item("Ручные настройки"));
         comboAudioFormat.showData();
 
         comboSubFormat.addItem(-1, "Не создавать");
@@ -159,6 +160,10 @@ public final class GUI_TabProcess extends JPanel implements ActionListener, Prop
         //dateStart.setText("01.08.2011 10:00:00");
         //dateEnd.setText("01.08.2011 10:59:59");
         setDestination("/home/work/files/probe1.avi");
+        fireStartDateChange();
+        fireEndDateChange();
+        fireVideoFormatSelect();
+        fireAudioFormatSelect();
     }
 
     /**
@@ -167,52 +172,29 @@ public final class GUI_TabProcess extends JPanel implements ActionListener, Prop
      * @param origsize Оригинальное значение размера кадра вида WxH.
      * @return Строка опций.
      */
-    public String getVideoOptions(String origfps, String origsize) {
+    private String getVideoOptions() {
         StringBuilder s = new StringBuilder();
         boolean isCustom = false;
         ExtItem i = comboVideoFormat.getSelectedItem();
-        switch (i.id) {
-            case 0:
-                s.append("-vcodec copy ");
-                break;
-            case 1000:
-                isCustom = true;
-                break;
-            default:
-                s.append("-vcodec ");
-                s.append(((Item) i.object).name);
-                s.append(" ");
+        if (i.id == 1000) {
+            isCustom = true;
+        } else {
+            s.append("-vcodec ").append(((Item) i.object).name).append(" ");
         }
         i = comboVideoFPS.getSelectedItem();
-        switch (i.id) {
-            case 0:
-                s.append("-r ");
-                s.append(origfps);
-                break;
-            case 1000:
-                isCustom = true;
-                break;
-            default:
-                s.append("-r ");
-                s.append(((Item) i.object).name);
-                s.append(" ");
+        if (i.id == 1000) {
+            isCustom = true;
+        } else {
+            s.append("-r ").append(((Item) i.object).name).append(" ");
         }
         i = comboVideoSize.getSelectedItem();
-        switch (i.id) {
-            case 0:
-                s.append("-s ");
-                s.append(origsize);
-                break;
-            case 1000:
-                isCustom = true;
-                break;
-            default:
-                s.append("-s ");
-                s.append(((Item) i.object).name);
-                s.append(" ");
+        if (i.id == 1000) {
+            isCustom = true;
+        } else {
+            s.append("-s ").append(((Item) i.object).name).append(" ");
         }
         if (isCustom) {
-            s.append(textVideoCustom.getText());
+            s.append(textVideoCustom.getText().trim());
         }
         return s.toString().trim();
     }
@@ -221,27 +203,16 @@ public final class GUI_TabProcess extends JPanel implements ActionListener, Prop
      * Возвращает строку с опциями для аудио.
      * @return Строка опций.
      */
-    public String getAudioOptions() {
+    private String getAudioOptions() {
         StringBuilder s = new StringBuilder();
         boolean isCustom = false;
         ExtItem i = comboAudioFormat.getSelectedItem();
-        switch (i.id) {
-            case -1:
-                s.append("-an ");
-                break;
-            case 0:
-                s.append("-acodec copy ");
-                break;
-            case 1000:
-                isCustom = true;
-                break;
-            default:
-                s.append("-acodec ");
-                s.append(((Item) i.object).name);
-                s.append(" ");
-        }
-        if (isCustom) {
-            s.append(textAudioCustom.getText());
+        if (i.id == 1000) {
+            s.append(textAudioCustom.getText().trim());
+        } else if (i.id == -1) {
+            s.append("-an ");
+        } else {
+            s.append("-acodec ").append(((Item) i.object).name).append(" ");
         }
         return s.toString().trim();
     }
@@ -308,35 +279,20 @@ public final class GUI_TabProcess extends JPanel implements ActionListener, Prop
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == buttonEstimate) {
+        if (e.getSource() == dateStart) {
+            fireStartDateChange();
+        } else if (e.getSource() == dateEnd) {
+            fireEndDateChange();
+        } else if (e.getSource() == buttonEstimate) {
             fireEstimate();
         } else if (e.getSource() == buttonSelect) {
             fireSelectDestination();
-        } else if (e.getSource() == comboVideoFormat) {
+        } else if (e.getSource() == comboVideoFormat
+                || e.getSource() == comboVideoSize
+                || e.getSource() == comboVideoFPS) {
             fireVideoFormatSelect();
         } else if (e.getSource() == comboAudioFormat) {
             fireAudioFormatSelect();
-        }
-    }
-
-    @Override
-    public void propertyChange(PropertyChangeEvent evt) {
-        if (evt.getSource() == dateStart) {
-            fireStartDateChange();
-        } else if (evt.getSource() == dateEnd) {
-            fireEndDateChange();
-        }
-    }
-
-    private void fireStartDateChange() {
-        if (dateStart.getTime().after(dateEnd.getTime())) {
-            dateEnd.setTime(dateStart.getTime());
-        }
-    }
-
-    private void fireEndDateChange() {
-        if (dateEnd.getTime().before(dateStart.getTime())) {
-            dateStart.setTime(dateEnd.getTime());
         }
     }
 
@@ -358,13 +314,27 @@ public final class GUI_TabProcess extends JPanel implements ActionListener, Prop
             if (App.srcCamSelect < 0) {
                 return;
             }
-            for (int i = 0; i < App.MAXCAMS; i++) {
-                CamInfo ci = App.srcCams[i];
-                for (FileInfo fi : ci.files) {
-                    //fi.
-                }
+            CamInfo ci = App.srcCams[App.srcCamSelect];
+            for (FileInfo info : ci.files ) {
+                
             }
         }
+    }
+
+    private void fireStartDateChange() {
+        if (dateStart.getTime().after(dateEnd.getTime())) {
+            dateEnd.setTime(dateStart.getTime());
+        }
+        App.destTimeStart = dateStart.getTime();
+        //System.out.println("Fire Start Change dt="+App.destTimeStart.toString());
+    }
+
+    private void fireEndDateChange() {
+        if (dateEnd.getTime().before(dateStart.getTime())) {
+            dateStart.setTime(dateEnd.getTime());
+        }
+        App.destTimeEnd = dateStart.getTime();
+        //System.out.println("Fire End Change dt="+App.destTimeEnd.toString());
     }
 
     /**
@@ -381,6 +351,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener, Prop
      */
     private void fireVideoFormatSelect() {
         setLocks();
+        App.videoOptions = getVideoOptions();
     }
 
     /**
@@ -388,6 +359,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener, Prop
      */
     private void fireAudioFormatSelect() {
         setLocks();
+        App.audioOptions = getAudioOptions();
     }
 
     /**
@@ -407,7 +379,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener, Prop
 
         public Item(String title) {
             this.title = title;
-            this.name = "";
+            this.name = title;
         }
 
         @Override

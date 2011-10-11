@@ -3,6 +3,7 @@ package dvrextract;
 import dvrextract.gui.GUI;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
@@ -117,7 +118,11 @@ public class App {
     ////////////////////////////////////////////////////////////////////////////
     // Информация об обработке:
     ////////////////////////////////////////////////////////////////////////////
+    public static Date destTimeStart;
+    public static Date destTimeEnd;
     public static String destName = "";
+    public static String videoOptions = "";
+    public static String audioOptions = "";
 
     /**
      * Точка запуска приложения.
