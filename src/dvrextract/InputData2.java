@@ -35,13 +35,15 @@ public class InputData2 {
     // (не соответствует реальной, реального позиционирвания не происходит!)
     private long position;
 
-    // TODO: Сделать источник буферизированным на чтение
-    // При создании указывается размер буфера и процент сдвига при выходе за буфер.
-    // Например: 100кб буфер и при чтении во второй половине (>50%) +50% дочитывается.
-    // или как >75% -> +75%. Как правило это размер на который необходимо 
-    // осуществлять предчтение (возвращаться назад).
     /**
      * Конструктор.
+     * При создании указывается размер буфера и размер сохраняемых данных при 
+     * смещении буфера.
+     * Например: 100кб буфер и 10кб кэш - при чтении >100кб буфер сдвинется на 
+     * (100-10)кб при этом последние 10кб буфера сдвинутся в начало и 90кб 
+     * дочитаются следом за ними. Т.е. смысл в том, чтобы если возникнет нужда
+     * вернуть указатель назад и считать инфу заново, то в пределах размера кэша
+     * это не вызовет обращения к файлу - будет читаться из буфера.
      * @param fileName Имя файла-источника.
      * @throws FileNotFoundException Ошибка при отсутствии файла.
      * @throws IOException Ошибка при позиционировании.
@@ -64,10 +66,20 @@ public class InputData2 {
         return fileSize;
     }
 
+    /**
+     * Возвращает позицию текущего логическую указателя для чтения.
+     * @return Позиция.
+     */
     public long getPosition() {
         return position;
     }
 
+    /**
+     * Установка размеров буфера и кэша. Не сбрасывает позицию!
+     * @param size Размер буфера.
+     * @param cache Размер кэша (д.б. меньше размера буфера!).
+     * @throws IOException При ошибках позиционирования.
+     */
     private void setBuffer(int size, int cache) throws IOException {
         if (size < 2048) {
             size = 2048;
@@ -119,21 +131,76 @@ public class InputData2 {
         readLow(bufferArray, index, size);
     }
 
-    private void moveToEnd(int n) {
-        for (int i = n - 1, j = bufferSize - 1; i >= 0; i--, j--) {
-            bufferArray[j] = bufferArray[i];
-        }
-    }
-
     private void moveToStart(int n) {
         for (int i = 0, j = bufferSize - n; i < n; i++, j++) {
             bufferArray[i] = bufferArray[j];
         }
     }
 
+    private void moveToEnd(int n) {
+        for (int i = n - 1, j = bufferSize - 1; i >= 0; i--, j--) {
+            bufferArray[j] = bufferArray[i];
+        }
+    }
+
+    /**
+     * Актуализирует содержимое буфера согласно текущей позиции.
+     * Если необходимо - происходит сдвиг буфера и обновление недостающих данных.
+     * @throws IOException 
+     */
+    private void validateBuffer() throws IOException {
+        if (position < bufferPosition) { // Двигаем буфер назад.
+            // Новая позиция буфера.
+            long newPos = position - (bufferSize - cacheSize);
+            if (newPos < 0) { // Если меньше начала файла.
+                newPos = 0;
+            }
+            // Кол-во байт в буфере которые перекрываются новым буфером.
+            int nOld = (int) ((newPos + bufferSize) - bufferPosition);
+            if (!isBufferEmpty && nOld > 0) { // Если буфер загружен и есть что смещать.
+                moveToEnd(nOld);
+                updateBuffer(newPos, 0, bufferSize - nOld);
+            } else { // Если буфер не загружен или смещать нечего - читаем полностью.
+                updateBuffer(newPos, 0, bufferSize);
+            }
+
+        } else if (position >= bufferPosition + bufferSize) { // Двигаем буфер вперёд.
+            // Новая позиция буфера.
+            long newPos = position - cacheSize;
+            if (newPos + bufferSize > fileSize) { // Если вышли за длину файла.
+                newPos = fileSize - bufferSize;
+            }
+            // Кол-во байт в буфере которые перекрываются новым буфером.
+            int nOld = (int) ((bufferPosition + bufferSize) - newPos);
+            if (!isBufferEmpty && nOld > 0) { // Если буфер загружен и есть что смещать.
+                moveToStart(nOld);
+                updateBuffer(newPos, nOld, bufferSize - nOld);
+            } else { // Если буфер не загружен или смещать нечего - читаем полностью.
+                updateBuffer(newPos, 0, bufferSize);
+            }
+        } else { // Попадаем в буфер.
+            if (isBufferEmpty) { // Если буфер не загружен - загружаем.
+                updateBuffer(bufferPosition, 0, bufferSize);
+            }
+        }
+    }
+
+    private boolean isPosInBuffer(long pos) {
+        return (pos >= bufferPosition && pos < bufferPosition + bufferSize) ? true : false;
+    }
+
+    private byte getFromBuffer() throws IOException {
+        long bufpos = position - bufferPosition;
+        if (bufpos < 0 || bufpos >= bufferSize) {
+            throw new IOException("bufpos=" + bufpos);
+        }
+        return bufferArray[(int)bufpos];
+    }
+
     /**
      * Позиционирует текущий логический указатель чтения/записи на заданную 
-     * позицию от начала файла.
+     * позицию от начала файла. Валидации буфера не происходит (делается при 
+     * первом чтении).
      * @param pos Позиция.
      * @throws IOException Ошибка ввода-вывода при выходе за диапазон позиций.
      */
@@ -145,76 +212,22 @@ public class InputData2 {
     }
 
     /**
-     * Актуализирует содержимое буфера согласно текущей позиции.
-     * Если необходимо - происходит сдвиг буфера и обновление недостающих данных.
-     * @throws IOException 
-     */
-    private void validateBuffer() throws IOException {
-        if (position < bufferPosition) {
-            // Двигаем буфер назад.
-            long newPos = position - (bufferSize - cacheSize);
-            if (newPos < 0) {
-                newPos = 0;
-            }
-            int nOld = (int) ((newPos + bufferSize) - bufferPosition);
-            if (!isBufferEmpty && nOld > 0) { // Если есть что смещать.
-                moveToEnd(nOld);
-                updateBuffer(newPos, 0, bufferSize - nOld);
-            } else {
-                updateBuffer(newPos, 0, bufferSize);
-            }
-
-        } else if (position >= bufferPosition + bufferSize) {
-            // Двигаем буфер вперёд.
-            long newPos = position - cacheSize;
-            if (newPos + bufferSize > fileSize) {
-                newPos = fileSize - bufferSize;
-            }
-            int nOld = (int) ((bufferPosition + bufferSize) - newPos);
-            if (!isBufferEmpty && nOld > 0) {
-                moveToStart(nOld);
-                updateBuffer(newPos, nOld, bufferSize - nOld);
-            } else {
-                updateBuffer(newPos, 0, bufferSize);
-            }
-        } else {
-            // Попадаем в буфер.
-            if (isBufferEmpty) {
-                updateBuffer(bufferPosition, 0, bufferSize);
-            }
-        }
-    }
-
-    /**
      * Буферизированное считывание данных в массив с тек.позиции.
      * @param ba Приёмник.
      * @param index Начальный отступ в приёмнике.
      * @param size Размер считываемого блока.
      */
-    public void read(byte[] ba, int index, int size) {
-        // Если буфер не загружен - загружаем при первом же буф.действии.
-        // Сливаем ту чать, что есть в буфере.
-        long bsize = position
-        
-        if (size <= bufferSize) {
-            // Обычное буферизированное чтение.
-        } else {
-            // Небуферизированное чтение + буф.чтение.
+    public void read(byte[] ba, int index, int size) throws IOException {
+        // Для первого варианта реализовал упрощенный вариант.
+        // Проверка на сущ.в буфере тек.позиции, если надо - актуализация буфера, 
+        // далее - чтение из буфер байта.
+        for (int i = 0; i < size; i++) {
+            if (!isPosInBuffer(position)) {
+                validateBuffer();
+            }
+            ba[index + i] = getFromBuffer();
+            seek(position+1);
         }
-        
-        // Проверяем, где начало буфера.
-        if (position >= bufferPosition && position < bufferPosition + bufferSize) {
-            // Начало блока в буфере.
-        } else {
-            // Начало блока вне буфера.
-        }
-
-        // Если это не всё - определяем размер небуферизированного чтения
-        // (если остаток больше размера буфера-шаг - т.е. все равно буфер тут же 
-        // шагнёт дальше - избегаем лишних телодвижений). Считываем напрямую в 
-        // приёмник.
-
-        // Остаток считываем буферизированно подвинув буфер.
     }
 
     /**

@@ -1,5 +1,6 @@
 package dvrextract;
 
+import java.awt.Dimension;
 import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.TimeZone;
@@ -19,6 +20,8 @@ public class Frame {
     public Date time;
     // Номер камеры (+допинфа в старшем байте? игнорируем).
     public int camNumber;
+    // Код разрешениея: 4-352x288, 5-704x288, 6-704x576, 8-1280x720, 9-1920x1080.
+    public int idResolution;
     // Частота кадров в секунду.
     public int fps;
     // Базовый кадр.
@@ -54,6 +57,10 @@ public class Frame {
         this.type = type;
     }
 
+    /**
+     * Возвращает размер заголовка для данного типа фрейма.
+     * @return Размер в байтах.
+     */
     public int getHeaderSize() {
         switch (type) {
             case EXE:
@@ -65,6 +72,39 @@ public class Frame {
             default:
                 return 0;
         }
+    }
+
+    /**
+     * Проверяет является ли код разрешения видеокадра допустимым.
+     * @return true - да, false - неизвестный код.
+     */
+    public boolean isValidResolution() {
+        if (idResolution == 4 || idResolution == 5 || idResolution == 6
+                || idResolution == 8 || idResolution == 9) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Возвращает разрешение видеокадра (или разрешение по умолчанию, если фрейм
+     * не распознанн или неизвестный код разрешения).
+     * @return 
+     */
+    public Dimension getResolution() {
+        switch (idResolution) {
+            case 4:
+                return new Dimension(352, 288);
+            case 5:
+                return new Dimension(704, 288);
+            case 6:
+                return new Dimension(704, 576);
+            case 8:
+                return new Dimension(1280, 720);
+            case 9:
+                return new Dimension(1920, 1080);
+        }
+        return new Dimension(704, 576);
     }
 
     /**
@@ -138,28 +178,35 @@ public class Frame {
         if (camNumber < 1 || camNumber > App.MAXCAMS) {
             return 2;
         }
-        fps = bb.get(offset + 0x12);
-        if (fps < 0 || fps > 30) {
+        // Код разрешения видеокадра.
+        idResolution = bb.get(offset + 0x11);
+        if (idResolution < 0 || idResolution > 100) {
             return 3;
         }
+        // Количество кадров в секунду.
+        fps = bb.get(offset + 0x12);
+        if (fps < 0 || fps > 60) {
+            return 4;
+        }
+        // Флаг ключевого (базового) кадра.
         int mf = bb.get(offset + 0x13);
         if (mf > 1) { // MainFrame
-            return 4;
+            return 5;
         }
         // Размер кадра видеоданных.
         videoSize = bb.getInt(offset + 0x19);
         if (videoSize < 0 || videoSize > 1000000) {
-            return 5;
+            return 6;
         }
         // Размер кадра аудиоданных.
         audioSize = bb.getInt(offset + 0x1D);
         if (audioSize < 0 || audioSize > 1000000) {
-            return 6;
+            return 7;
         }
         // Дата и время кадра.
         int tb = bb.getInt(offset + 0x04);
         if (tb < 1104541200) {
-            return 7;
+            return 8;
         }
         // Дата-время (смещение в секундах от 1970 г.)
         time = dateFromRAW(tb);
