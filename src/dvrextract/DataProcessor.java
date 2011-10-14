@@ -1,5 +1,6 @@
 package dvrextract;
 
+import java.io.BufferedInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -146,14 +147,9 @@ public class DataProcessor {
             throw new SourceException("");
         }
 
-        // * 2. Цикл обработки (последовательно обрабатываем все файлы списка):
-        // * 2.1. Берем фрейм из файла.
-        // * 2.2. Записываем данные фрейма в процесс ffmpeg.
-        // * 2.3. Проверяем и сохраняем выходные данные из ffmpeg.
-        // * 3. Закрываем входной поток ffmpeg. Сохраняем выходные данные. Закрываем процесс.
         try {
             // Буфер чтения и парсинга данных.
-            final byte[] baFrame = new byte[100000];
+            final byte[] baFrame = new byte[1000000];
             final ByteBuffer bbF = ByteBuffer.wrap(baFrame);
             bbF.order(ByteOrder.LITTLE_ENDIAN);
             fileInfo = fileinfo;
@@ -169,13 +165,25 @@ public class DataProcessor {
             while (pos < endpos) {
                 in.seek(pos);
                 int len = (int) Math.min(baFrame.length, ost);
-                in.read(baFrame, (int) len);
+                in.read(baFrame, len);
                 int i = 0;
                 for (; i < len - frameSize; i++) {
                     if (f.parseHeader(bbF, i) == 0) {
                         // Если номер камеры указан и это не он - пропускаем.
+                        i += frameSize;
                         if (f.camNumber == cam) {
-                            if (f.isMain || (frame != null && frame.frameParsedCount > 0))
+                            if (f.isMain || (frame != null && frameParsedCount > 0)) {
+                                if (i + f.videoSize + f.audioSize > len) {
+                                    int size1 = len - i;
+                                    int size2 = f.videoSize + f.audioSize - size1;
+                                    processOut.write(baFrame, i, size1);
+                                    pos += len;
+                                    i = 0;
+                                    len = (int) Math.min(baFrame.length, ost - len);
+                                    in.read(baFrame, len);
+                                }
+                                processOut.write(baFrame, i + frameSize, f.videoSize + f.audioSize);
+                            }
                         }
                         i += f.getHeaderSize() + f.videoSize + f.audioSize - 1; // -1 т.к. автоинкремент.
                     }
