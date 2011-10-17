@@ -131,12 +131,20 @@ public class InputData2 {
         readLow(bufferArray, index, size);
     }
 
+    /**
+     * Перемещение заданого кол-ва байт из конца буфера в начало.
+     * @param n Кол-во байт.
+     */
     private void moveToStart(int n) {
         for (int i = 0, j = bufferSize - n; i < n; i++, j++) {
             bufferArray[i] = bufferArray[j];
         }
     }
 
+    /**
+     * Перемещение заданого кол-ва байт из начала буфера в конец.
+     * @param n Кол-во байт.
+     */
     private void moveToEnd(int n) {
         for (int i = n - 1, j = bufferSize - 1; i >= 0; i--, j--) {
             bufferArray[j] = bufferArray[i];
@@ -185,16 +193,28 @@ public class InputData2 {
         }
     }
 
-    private boolean isPosInBuffer(long pos) {
-        return (pos >= bufferPosition && pos < bufferPosition + bufferSize) ? true : false;
+    /**
+     * Проверяет находятся ли данные по текущей позиции в буфере.
+     * @return ture - в буфере, false - нет (в том числе, когда буфер пуст).
+     */
+    private boolean isByteBuffered() {
+        return (!isBufferEmpty && position >= bufferPosition && position < bufferPosition + bufferSize) ? true : false;
     }
 
-    private byte getFromBuffer() throws IOException {
+    /**
+     * Возвращает байт с текущей позиции (НЕ инкрементирует позицию!)
+     * @return Значение (байт).
+     * @throws IOException При ошибках позиционирования и валидации буфера.
+     */
+    private byte getByteBuffered() throws IOException {
+        if (!isByteBuffered()) {
+            validateBuffer();
+        }
         long bufpos = position - bufferPosition;
         if (bufpos < 0 || bufpos >= bufferSize) {
             throw new IOException("bufpos=" + bufpos);
         }
-        return bufferArray[(int)bufpos];
+        return bufferArray[(int) bufpos];
     }
 
     /**
@@ -219,14 +239,9 @@ public class InputData2 {
      */
     public void read(byte[] ba, int index, int size) throws IOException {
         // Для первого варианта реализовал упрощенный вариант.
-        // Проверка на сущ.в буфере тек.позиции, если надо - актуализация буфера, 
-        // далее - чтение из буфер байта.
         for (int i = 0; i < size; i++) {
-            if (!isPosInBuffer(position)) {
-                validateBuffer();
-            }
-            ba[index + i] = getFromBuffer();
-            seek(position+1);
+            ba[index + i] = getByteBuffered();
+            seek(position + 1);
         }
     }
 
