@@ -81,7 +81,7 @@ public class Files {
                 App.mainFrame.setProgressInfo("Сканирование источника: " + fa[i].getName());
                 Thread.sleep(100);
                 FileType type = SourceFileFilter.getType(fa[i]);
-                FileInfo info = parseFileBuffered(fa[i].getPath(), type, cam);
+                FileInfo info = parseFile(fa[i].getPath(), type, cam);
                 if (info != null) {
                     // Обрабатываем инфу - добавляем файл ко всем камерам, какие в нём перечислены.
                     for (FileInfo.CamData n : info.camInfo) {
@@ -102,19 +102,135 @@ public class Files {
     /**
      * Сканирование файла-источника. Если это EXE - чтение инфы. Распознавание 
      * начального и конечного кадров файла.
+     * Используется буферизированный на чтение файл с кешем.
      * @param fileName Имя файла-источника.
      * @param type Тип файла-источника.
      * @param cam Ограничение по камере (0-по всем, иначе только для данной камеры).
      * @return 
      */
-    private static FileInfo parseFileBuffered(String fileName, FileType type, int cam) {
+    private static FileInfo parseFile(String fileName, FileType type, int cam) {
+        try {
+            final InputBufferedFile in = new InputBufferedFile(fileName, 100000, 100);
+
+            final FileInfo info = new FileInfo();
+            info.fileName = fileName;
+            info.fileSize = in.getSize();
+            info.fileType = type;
+            info.startDataPos = 0;
+            info.endDataPos = info.fileSize;
+
+            Frame f = new Frame(type);
+            final int frameSize = f.getHeaderSize();
+            long pos = 0; // Позиция поиска.
+            long endpos = in.getSize(); // Конечная позиция.
+
+            // Буфер чтения и парсинга данных.
+            final byte[] baFrame = new byte[frameSize];
+            final ByteBuffer bbF = ByteBuffer.wrap(baFrame);
+            bbF.order(ByteOrder.LITTLE_ENDIAN);
+
+            // Если это EXE - делаем разбор инфы в конце файла.
+            if (type == FileType.EXE) {
+                long exepos = in.getSize() - exeInfoSize;
+                if (exepos < 1024000) {
+                    return null;
+                }
+                in.seek(exepos);
+                // Инфа по камерам.
+                for (int n = 0; n < App.MAXCAMS; n++) {
+                    // Наличие данных камер.
+                    int isExist = in.readInt(exepos + 8 + (4 * n));
+                    if (isExist == -1) {
+                        continue; // Камеры нет.
+                    }
+                    // Если есть такая камера (по которой ограничение), то сбрасываем ограничение
+                    // чтобы не отфильтровывало при парсинге файла.
+                    if (cam > 0 && cam == n + 1) {
+                        cam = 0;
+                    }
+                    // Смещение первого фрейма.
+                    long frameOffs = in.readLong(exepos + 72 + (808 * n));
+                    info.addCamData(n + 1, frameOffs, null);
+                    App.log("CAM" + (n + 1) + " данные в наличии!");
+                }
+                // Позиции начала и конца данных в файле.
+                info.startDataPos = in.readLong(exepos + 19532);
+                if (info.startDataPos < 1024000 || info.startDataPos > in.getSize() - exeInfoSize) {
+                    return null;
+                }
+                info.endDataPos = in.readLong(exepos + 19660);
+                if (info.endDataPos < 1024000 || info.endDataPos > in.getSize() - exeInfoSize) {
+                    return null;
+                }
+                pos = info.startDataPos; // Начало.
+                endpos = info.endDataPos; // Конец.
+            }
+            App.log("Общий размер данных = " + (endpos - pos));
+
+            // Ищем первый кадр (от начала к концу).
+            for (; pos < endpos - frameSize; pos++) {
+                in.seek(pos);
+                in.read(baFrame, frameSize);
+                if (f.parseHeader(bbF, 0) == 0) {
+                    break;
+                }
+            }
+            // Разбор не получился или если номер камеры указан и это не он - пропускаем разбор.
+            if (!f.isParsed || cam > 0 && f.camNumber != cam) {
+                in.close();
+                return null;
+            }
+            f.pos = pos;
+            info.frameFirst = f;
+            if (info.camInfo.isEmpty()) { // Для HDD инфа заполняется из первого кадра.
+                info.addCamData(f.camNumber, f.pos, f.isMain ? f : null);
+            }
+
+            // Ищем последний кадр (от конца к началу).
+            f = new Frame(type);
+            long startpos = pos;
+            pos = endpos - frameSize;
+            for (; pos >= startpos; pos--) {
+                in.seek(pos);
+                in.read(baFrame, frameSize);
+                if (f.parseHeader(bbF, 0) == 0) {
+                    break;
+                }
+            }
+            if (!f.isParsed) { // Разбор не получился.
+                in.close();
+                return null;
+            }
+            f.pos = pos;
+            info.frameLast = f;
+
+            // Разбор успешный - возвращаем результат.
+            //App.log("CAM"+info.camNumber+" file="+info.fileName);
+            in.close();
+            return info;
+
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Сканирование файла-источника. Если это EXE - чтение инфы. Распознавание 
+     * начального и конечного кадров файла.
+     * @param fileName Имя файла-источника.
+     * @param type Тип файла-источника.
+     * @param cam Ограничение по камере (0-по всем, иначе только для данной камеры).
+     * @return 
+     */
+    private static FileInfo parseFileBufferedNative(String fileName, FileType type, int cam) {
         try {
             // Буфер чтения и парсинга данных.
             final byte[] baFrame = new byte[100000];
             final ByteBuffer bbF = ByteBuffer.wrap(baFrame);
             bbF.order(ByteOrder.LITTLE_ENDIAN);
 
-            InputData in = new InputData(fileName);
+            InputFile in = new InputFile(fileName);
 
             FileInfo info = new FileInfo();
             info.fileName = fileName;
@@ -265,43 +381,34 @@ public class Files {
                 return ci.mainFrame;
             }
             // Если кадр не распознанн - распознаём.
+            InputBufferedFile in = new InputBufferedFile(info.fileName, 100000, 100);
+
+            Frame f = new Frame(info.fileType);
+            int frameSize = f.getHeaderSize();
+            long pos = info.startDataPos; // Позиция поиска.
+            if (info.fileType == FileType.EXE) {
+                pos = ci.mainFrameOffset;
+            }
+            long endpos = info.endDataPos; // Конечная позиция).
+
             // Буфер чтения и парсинга данных.
-            final byte[] baFrame = new byte[100000];
+            final byte[] baFrame = new byte[frameSize];
             final ByteBuffer bbF = ByteBuffer.wrap(baFrame);
             bbF.order(ByteOrder.LITTLE_ENDIAN);
 
-            InputData in = new InputData(info.fileName);
-            Frame f = new Frame(info.fileType);
-
-            long pos = info.startDataPos; // Позиция поиска.
-            long size = info.endDataPos; // Размер данных (конечная позиция).
-            long ost = size - pos; // Остаток данных.
-            int frameSize = f.getHeaderSize();
-
-            if (info.fileType == FileType.EXE) {
-                pos = ci.mainFrameOffset;
-                ost = size - pos;
-            }
-
             // Ищем первый кадр (от стартовой позиции к конечной).
-            while (pos < size - frameSize) {
+            for (; pos < endpos - frameSize; pos++) {
                 in.seek(pos);
-                int len = (int) Math.min(baFrame.length, ost);
-                in.read(baFrame, (int) len);
-                int i = 0;
-                for (; i < len - frameSize; i++) {
-                    if (f.parseHeader(bbF, i) == 0) {
-                        // Если номер камеры указан и это не он - пропускаем.
-                        if (f.camNumber == cam && f.isMain) {
-                            f.pos = pos + i;
-                            ci.mainFrame = f;
-                            return f; // При успехе возвращаем фрейм.
-                        }
-                        i += f.getHeaderSize() + f.videoSize + f.audioSize - 1; // -1 т.к. автоинкремент.
+                in.read(baFrame, frameSize);
+                if (f.parseHeader(bbF, 0) == 0) {
+                    // Если номер камеры указан и это не он - пропускаем.
+                    if (f.camNumber == cam && f.isMain) {
+                        f.pos = pos;
+                        ci.mainFrame = f;
+                        return f; // При успехе возвращаем фрейм.
                     }
+                    pos += f.getHeaderSize() + f.videoSize + f.audioSize - 1; // -1 т.к. автоинкремент.
                 }
-                pos += i;
-                ost -= i;
             }
             // Разбор не получился.
             in.close();

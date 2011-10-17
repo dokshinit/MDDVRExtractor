@@ -8,7 +8,7 @@ import java.io.RandomAccessFile;
  * Низкоуровневые операции с файлом-источником.
  * @author lex
  */
-public class InputData {
+public class InputFile {
 
     // Имя файла.
     private String name;
@@ -21,7 +21,7 @@ public class InputData {
      * @throws FileNotFoundException Ошибка при отсутствии файла.
      * @throws IOException Ошибка при позиционировании.
      */
-    public InputData(String fileName) throws FileNotFoundException, IOException {
+    public InputFile(String fileName) throws FileNotFoundException, IOException {
         name = fileName;
         in = null;
         if (name != null) {

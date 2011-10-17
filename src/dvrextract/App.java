@@ -106,7 +106,7 @@ public class App {
     // по шалону *.exe - файл архива, по шаблону da*. - файл hdd.
     //
     // Каталог или файл.
-    public static String srcName = "";
+    public static String srcName = "/home/work/files";
     // Тип источника: 0-EXE, 1-HDD
     public static FileType srcType = FileType.NO;
     // Ограничение одной камерой (если = 0 - без ограничений).

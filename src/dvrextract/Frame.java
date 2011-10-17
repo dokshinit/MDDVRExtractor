@@ -179,7 +179,7 @@ public class Frame {
             return 2;
         }
         // Код разрешения видеокадра.
-        idResolution = bb.get(offset + 0x11);
+        idResolution = bb.get(offset + 0x10);
         if (idResolution < 0 || idResolution > 100) {
             return 3;
         }

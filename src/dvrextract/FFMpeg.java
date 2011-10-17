@@ -1,5 +1,6 @@
 package dvrextract;
 
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -32,13 +33,13 @@ public final class FFMpeg {
     public static ArrayList<FFCodec> getCodecs() {
         return codecs;
     }
-    
+
     /**
      * Проверяет инициализирован ли FFMpeg (если проблемы, то список кодеков будет пуст).
      * @return true - всё в порядке, false - ffmpeg не работает корректно.
      */
     public static boolean isWork() {
-        return !codecs.isEmpty(); 
+        return !codecs.isEmpty();
     }
 
     /**
@@ -129,13 +130,14 @@ public final class FFMpeg {
         Process pr = null;
         if (frame != null) {
             try {
-                InputData in = new InputData(info.fileName);
+                InputFile in = new InputFile(info.fileName);
                 in.seek(frame.pos + frame.getHeaderSize());
                 byte[] ba = new byte[frame.videoSize];
                 in.read(ba, frame.videoSize);
                 in.close();
+                Dimension d = info.frameFirst.getResolution();
 
-                pr = Runtime.getRuntime().exec("ffmpeg -i - -r 1 -s 704x576 -f image2 -");
+                pr = Runtime.getRuntime().exec("ffmpeg -i - -r 1 -s " + d.width + "x" + d.height + " -f image2 -");
                 InputStream is = pr.getInputStream();
                 OutputStream os = pr.getOutputStream();
                 os.write(ba, 0, ba.length);

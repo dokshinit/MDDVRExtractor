@@ -138,9 +138,9 @@ public class DataProcessor {
         if (process == null) {
             startFFMpegProcess();
         }
-        InputData in = null;
+        InputFile in = null;
         try {
-            in = new InputData(fileinfo.fileName);
+            in = new InputFile(fileinfo.fileName);
         } catch (FileNotFoundException ex) {
             throw new SourceException("");
         } catch (IOException ex) {

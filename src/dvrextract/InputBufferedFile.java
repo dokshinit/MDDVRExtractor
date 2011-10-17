@@ -7,10 +7,12 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * Низкоуровневые операции с файлом-источником.
+ * Файл для буферизованного чтения с кешированием данных.
+ * Позволяет возвращаться назад и читать в пределах размера кеша без обращения к диску.
+ * Справедливо для любого направления движения, от начала к концу или наоборот.
  * @author lex
  */
-public class InputData2 {
+public class InputBufferedFile {
 
     // Имя файла.
     private String name;
@@ -20,8 +22,10 @@ public class InputData2 {
     private long fileSize;
     // Буфер чтения и парсинга данных.
     private byte[] bufferArray;
-    // Буфер для парсинга данных (может не нужен?).
     private ByteBuffer byteBuffer;
+    // Буфер для парсинга данных при чтении атомарных типов.
+    private byte[] parseArray;
+    private ByteBuffer parseBuffer;
     // Сигнализатор отсутствия содержимого буфера.
     private boolean isBufferEmpty;
     // Размер буфера.
@@ -48,8 +52,11 @@ public class InputData2 {
      * @throws FileNotFoundException Ошибка при отсутствии файла.
      * @throws IOException Ошибка при позиционировании.
      */
-    public InputData2(String fileName, int bufsize, int cachesize) throws FileNotFoundException, IOException {
-        // Буфер чтения и парсинга данных.
+    public InputBufferedFile(String fileName, int bufsize, int cachesize) throws FileNotFoundException, IOException {
+        // Буфер парсинга данных.
+        parseArray = new byte[16]; // byte/int/long/double (<= 8 bytes.)
+        parseBuffer = ByteBuffer.wrap(parseArray);
+        parseBuffer.order(ByteOrder.LITTLE_ENDIAN);
         name = fileName;
         in = new RandomAccessFile(name, "r");
         fileSize = in.length();
@@ -72,6 +79,29 @@ public class InputData2 {
      */
     public long getPosition() {
         return position;
+    }
+    
+    /**
+     * Возвращает смещение в буфере для указанной позиции в файле.
+     * @param pos Позиция в файле.
+     * @return Позиция в буфере соответсвующая позиции в файле.
+     */
+    public int getBufferIndex(long pos) throws IOException {
+        int bpos = (int)(pos - bufferPosition);
+        if (bpos < 0 || bpos >= bufferSize) {
+            throw new IOException("Out of buffer: bpos="+bpos+" pos="+pos);
+        }
+        return bpos;
+    }
+    
+    /**
+     * Возвращает байт-буфер для внешних операций с буфером.
+     * Например - считывание данных напрямую из буфера (безопасно в пределах 
+     * кеша т.к. данные заведомо есть!).
+     * @return Байт-буфер.
+     */
+    public ByteBuffer getByteBuffer() {
+        return byteBuffer;
     }
 
     /**
@@ -105,12 +135,13 @@ public class InputData2 {
     }
 
     /**
-     * Чтение блока данных с текущей позиции в буфер (с начала).
+     * Чтение блока данных с текущей позиции в буфер.
      * @param ba Буфер.
+     * @param index Начальная позиция в буфере.
      * @param size Размер данных в байтах.
      * @throws IOException Ошибка ввода-вывода.
      */
-    private void readLow(byte[] ba, int index, int size) throws IOException {
+    private void readNative(byte[] ba, int index, int size) throws IOException {
         int readed = 1, pos = 0;
         while (readed >= 0 && pos < size) {
             readed = in.read(ba, index + pos, size - pos);
@@ -128,7 +159,7 @@ public class InputData2 {
     private void updateBuffer(long pos, int index, int size) throws IOException {
         bufferPosition = pos;
         in.seek(bufferPosition + index);
-        readLow(bufferArray, index, size);
+        readNative(bufferArray, index, size);
     }
 
     /**
@@ -191,6 +222,7 @@ public class InputData2 {
                 updateBuffer(bufferPosition, 0, bufferSize);
             }
         }
+        isBufferEmpty = false;
     }
 
     /**
@@ -206,13 +238,14 @@ public class InputData2 {
      * @return Значение (байт).
      * @throws IOException При ошибках позиционирования и валидации буфера.
      */
-    private byte getByteBuffered() throws IOException {
+    private byte getBufferedByte() throws IOException {
         if (!isByteBuffered()) {
             validateBuffer();
         }
         long bufpos = position - bufferPosition;
         if (bufpos < 0 || bufpos >= bufferSize) {
-            throw new IOException("bufpos=" + bufpos);
+            throw new IOException("Out of buffer: index=" + bufpos
+                    + " pos=" + position + " buf=" + bufferPosition);
         }
         return bufferArray[(int) bufpos];
     }
@@ -226,7 +259,7 @@ public class InputData2 {
      */
     public void seek(long pos) throws IOException {
         if (pos < 0 || pos > fileSize) {
-            throw new IOException("seek pos=" + pos);
+            throw new IOException("Out of file: pos=" + pos + " size=" + fileSize);
         }
         position = pos;
     }
@@ -240,9 +273,18 @@ public class InputData2 {
     public void read(byte[] ba, int index, int size) throws IOException {
         // Для первого варианта реализовал упрощенный вариант.
         for (int i = 0; i < size; i++) {
-            ba[index + i] = getByteBuffered();
+            ba[index + i] = getBufferedByte();
             seek(position + 1);
         }
+    }
+
+    /**
+     * Буферизированное считывание данных в массив с нулевого индекса с тек.позиции.
+     * @param ba Приёмник.
+     * @param size Размер считываемого блока.
+     */
+    public void read(byte[] ba, int size) throws IOException {
+        read(ba, 0, size);
     }
 
     /**
@@ -251,7 +293,7 @@ public class InputData2 {
      * @param n Смещение в байтах.
      * @throws IOException Ошибка ввода-вывода.
      */
-    public void skip(int n) throws IOException {
+    public void skip(long n) throws IOException {
         seek(position + n);
     }
 
@@ -263,5 +305,66 @@ public class InputData2 {
         if (in != null) {
             in.close();
         }
+    }
+
+    public byte readByte() throws IOException {
+        byte b = getBufferedByte();
+        seek(position + 1);
+        return b;
+    }
+
+    public short readShort() throws IOException {
+        read(parseArray, 0, 2);
+        return parseBuffer.getShort(0);
+    }
+
+    public int readInt() throws IOException {
+        read(parseArray, 0, 4);
+        return parseBuffer.getInt(0);
+    }
+
+    public long readLong() throws IOException {
+        read(parseArray, 0, 8);
+        return parseBuffer.getLong(0);
+    }
+
+    public float readFloat() throws IOException {
+        read(parseArray, 0, 4);
+        return parseBuffer.getFloat(0);
+    }
+
+    public double readDouble() throws IOException {
+        read(parseArray, 0, 8);
+        return parseBuffer.getDouble(0);
+    }
+
+    public byte readByte(long pos) throws IOException {
+        seek(pos);
+        return readByte();
+    }
+
+    public short readShort(long pos) throws IOException {
+        seek(pos);
+        return readShort();
+    }
+
+    public int readInt(long pos) throws IOException {
+        seek(pos);
+        return readInt();
+    }
+
+    public long readLong(long pos) throws IOException {
+        seek(pos);
+        return readLong();
+    }
+
+    public float readFloat(long pos) throws IOException {
+        seek(pos);
+        return readFloat();
+    }
+
+    public double readDouble(long pos) throws IOException {
+        seek(pos);
+        return readDouble();
     }
 }

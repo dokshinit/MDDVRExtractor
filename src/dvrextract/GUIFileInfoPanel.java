@@ -9,12 +9,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
-import javax.imageio.ImageIO;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -81,14 +76,14 @@ public final class GUIFileInfoPanel extends JPanel {
         l.setFont(new Font(l.getFont().getName(), Font.BOLD, 50));
         l.setForeground(new Color(0xA0A0B0));
         panelImage.setBackground(new Color(0x8080A0));
-        setImageSize(dx, dy);
+        setImageSize();
         panelImage.setBorder(new LineBorder(Color.red));
         panelImage.addMouseListener(new ImageMouseAdapter());
         panelImage.setToolTipText("Первый ключевой кадр.");
         panelImage.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         //
         panelInfo = new JPanel(new MigLayout("", "[]10[right][grow,shrink]"));
-        panelInfo.add(panelImage, "id im1, spany");
+        panelInfo.add(panelImage, "id im1, spany, top");
         //
         textName = createInfo("Имя", 30, "growx");
         textSize = createInfo("Размер", 15, null);
@@ -97,7 +92,9 @@ public final class GUIFileInfoPanel extends JPanel {
         textFirstTime = createInfo("Начало", 15, null);
         textLastTime = createInfo("Конец", 15, null);
         textAmountTime = createInfo("Длительность", 22, null);
-        panelInfo.add(GUI.createNoteLabel("Изменение масштаба происходит по нажатию кнопки мыши на кадре."), "pos im1.x2+10 im1.y2-pref");
+        panelInfo.add(GUI.createNoteLabel("Изменение масштаба происходит по нажатию кнопки мыши на кадре."),
+                "spanx, pushy, bottom"); 
+        //"pos im1.x2+10 im1.y2-pref"
         //
         scrollPane = new JScrollPane(panelInfo);
         add(scrollPane, BorderLayout.CENTER);
@@ -142,6 +139,7 @@ public final class GUIFileInfoPanel extends JPanel {
             }
         }
         curInfo = info;
+        setImageSize();
     }
 
     /**
@@ -156,15 +154,22 @@ public final class GUIFileInfoPanel extends JPanel {
         long ms = (period - h * 3600 * 1000 - m * 60 * 1000 - s * 1000);
         return String.format("%d час. %d мин. %d сек. %d мсек.", h, m, s, ms);
     }
-    // Размер картинки - 1 - полкадра, 2 - полный кадр.
-    private double zoom = 0.5;
-    // Размер оригинальной картинки.
-    private int dx = 2 * 352, dy = 2 * 288;
+    // Размер картинки: true - маленький (x=352,y-сжат), false - полный кадр.
+    private boolean isSmallView = true;
 
-    public void setImageSize(int x, int y) {
-        dx = x;
-        dy = y;
-        Dimension d = new Dimension((int) (dx * zoom) + 2, (int) (dy * zoom) + 2);
+    public void setImageSize() {
+        int x = 704, y = 576;
+        if (curInfo != null) {
+            Dimension d = curInfo.frameFirst.getResolution();
+            x = d.width;
+            y = d.height;
+        }
+        if (isSmallView) {
+            double z = 352.0 / x;
+            x = (int)(z*x);
+            y = (int)(z*y);
+        }
+        Dimension d = new Dimension(x + 2, y + 2);
         panelImage.setPreferredSize(d);
         panelImage.setMinimumSize(d);
         panelImage.setMaximumSize(d);
@@ -178,8 +183,8 @@ public final class GUIFileInfoPanel extends JPanel {
         public void mouseClicked(MouseEvent e) {
             // Меняем масштаб картинки.
             //App.log("Click! zoom="+zoom+" dx="+dx+" dy="+dy);
-            zoom = (zoom == 1.0) ? 0.5 : 1.0;
-            setImageSize(dx, dy);
+            isSmallView = isSmallView ? false : true;
+            setImageSize();
         }
     }
 }
