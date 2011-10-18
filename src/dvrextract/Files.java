@@ -81,7 +81,7 @@ public class Files {
                 App.mainFrame.setProgressInfo("Сканирование источника: " + fa[i].getName());
                 Thread.sleep(100);
                 FileType type = SourceFileFilter.getType(fa[i]);
-                FileInfo info = parseFile(fa[i].getPath(), type, cam);
+                FileInfo info = scanFile(fa[i].getPath(), type, cam);
                 if (info != null) {
                     // Обрабатываем инфу - добавляем файл ко всем камерам, какие в нём перечислены.
                     for (FileInfo.CamData n : info.camInfo) {
@@ -108,7 +108,7 @@ public class Files {
      * @param cam Ограничение по камере (0-по всем, иначе только для данной камеры).
      * @return 
      */
-    private static FileInfo parseFile(String fileName, FileType type, int cam) {
+    private static FileInfo scanFile(String fileName, FileType type, int cam) {
         try {
             final InputBufferedFile in = new InputBufferedFile(fileName, 100000, 100);
 

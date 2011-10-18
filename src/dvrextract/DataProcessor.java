@@ -1,15 +1,13 @@
 package dvrextract;
 
-import java.io.BufferedInputStream;
+import java.awt.Dimension;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  * Процесс обработки данных.
@@ -72,18 +70,24 @@ public class DataProcessor {
             }
         }
         try {
+            // Останов процесса FFMpeg.
             stopFFMpegProcess();
         } catch (FFMpegException ex) {
             App.log(ex.getMessage());
         }
     }
 
+    /**
+     * Запуск процесса FFMpeg c параметрами для обработки.
+     * @throws dvrextract.DataProcessor.FFMpegException Ошибка выполнения операции.
+     */
     private static void startFFMpegProcess() throws FFMpegException {
         if (process == null) {
             // Оригинальный fps.
             String fps = String.valueOf(fileInfo.frameFirst.fps);
             // Оригинальный размер кадра.
-            String size = "704x576"; // TODO: Переделать в реальную подстановку!
+            Dimension d = fileInfo.frameFirst.getResolution();
+            String size = "" + d.width + "x" + d.height;
             // Компилируем командную строку для ffmpeg.
             StringBuilder cmd = new StringBuilder("ffmpeg -i - ");
             cmd.append(App.videoOptions.replace("{origfps}", fps).replace("{origsize}", size));
@@ -103,12 +107,17 @@ public class DataProcessor {
                     process.destroy();
                     process = null;
                 }
-                // Выход!
                 throw new FFMpegException("Ошибка запуска FFMpeg!");
             }
         }
     }
 
+    /**
+     * Завершение процесса FFMpeg. Сначала закрывает принимающий поток, потом
+     * ожидает завершения процесса и при истечении таймаута, если процесс не
+     * завершился - завершает его принудительно.
+     * @throws dvrextract.DataProcessor.FFMpegException 
+     */
     private static void stopFFMpegProcess() throws FFMpegException {
         if (process != null) {
             try {
@@ -116,21 +125,30 @@ public class DataProcessor {
                 processOut.close();
             } catch (IOException ex) {
             }
-            // 1 сек. ожидание выхода и форсированное снятие процесса!
-            // TODO: Сделать окно с вопросом о снятии!
-            for (int i = 0; i < 10; i++) {
-                try {
-                    process.exitValue();
-                    return;
-                } catch (IllegalThreadStateException e) {
+            while (true) {
+                // 10 сек. ожидание выхода и форсированное снятие процесса!
+                for (int i = 0; i < 100; i++) {
                     try {
-                        Thread.sleep(100);
-                    } catch (InterruptedException ex) {
+                        process.exitValue();
+                        return;
+                    } catch (IllegalThreadStateException e) {
+                        try {
+                            Thread.sleep(100);
+                        } catch (InterruptedException ex) {
+                        }
                     }
                 }
+                Object[] options = {"Завершить", "Ожидать завершения"};
+                int n = JOptionPane.showOptionDialog(App.mainFrame, 
+                        "Завершить процесс FFMpeg принудительно или ожидать ещё 10 сек.?",
+                        "Подтверждение", JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE, null, options,
+                        options[1]);
+                if (n == 0) {
+                    process.destroy();
+                    throw new FFMpegException("FFMpeg завершен принудительно!");
+                }
             }
-            process.destroy();
-            throw new FFMpegException("FFMpeg завершен принудительно!");
         }
     }
 
@@ -138,9 +156,9 @@ public class DataProcessor {
         if (process == null) {
             startFFMpegProcess();
         }
-        InputFile in = null;
+        InputBufferedFile in = null;
         try {
-            in = new InputFile(fileinfo.fileName);
+            in = new InputBufferedFile(fileinfo.fileName, 1000000, 100);
         } catch (FileNotFoundException ex) {
             throw new SourceException("");
         } catch (IOException ex) {
@@ -148,10 +166,6 @@ public class DataProcessor {
         }
 
         try {
-            // Буфер чтения и парсинга данных.
-            final byte[] baFrame = new byte[1000000];
-            final ByteBuffer bbF = ByteBuffer.wrap(baFrame);
-            bbF.order(ByteOrder.LITTLE_ENDIAN);
             fileInfo = fileinfo;
 
             int cam = App.srcCamSelect;
@@ -159,20 +173,24 @@ public class DataProcessor {
             int frameSize = f.getHeaderSize();
             long pos = fileInfo.frameFirst.pos; // Текущая позиция.
             long endpos = fileInfo.endDataPos; // Последняя позиция.
-            long ost = endpos - pos; // Размер данных к обработке.
 
+            // Буфер чтения и парсинга данных.
+            final byte[] baFrame = new byte[frameSize];
+            final ByteBuffer bbF = ByteBuffer.wrap(baFrame);
+            bbF.order(ByteOrder.LITTLE_ENDIAN);
+            
             // Идём по кадрам от начала к концу.
-            while (pos < endpos) {
+            for (; pos < endpos-frameSize; pos++) {
                 in.seek(pos);
-                int len = (int) Math.min(baFrame.length, ost);
-                in.read(baFrame, len);
-                int i = 0;
-                for (; i < len - frameSize; i++) {
-                    if (f.parseHeader(bbF, i) == 0) {
-                        // Если номер камеры указан и это не он - пропускаем.
-                        i += frameSize;
-                        if (f.camNumber == cam) {
-                            if (f.isMain || (frame != null && frameParsedCount > 0)) {
+                in.read(baFrame, frameSize);
+                if (f.parseHeader(bbF, 0) == 0) {
+                    // Берем только фреймы выбранной камеры (актуально для EXE файла).
+                    if (f.camNumber == cam) {
+                        // Если это не ключевой кадр и в выводе пусто - пропускаем.
+                        // TODO Доработать логику! Т.к. может случится так, что первый кадр файла не ключевой,
+                        // а продолжение предыдущего, но предыдущего нет, а есть предпредыдущий - будет 
+                        // неверным добавлять этот кадр.
+                        if (f.isMain || (frame != null && frameParsedCount > 0)) {
                                 if (i + f.videoSize + f.audioSize > len) {
                                     int size1 = len - i;
                                     int size2 = f.videoSize + f.audioSize - size1;
