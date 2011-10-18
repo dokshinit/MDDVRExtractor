@@ -22,15 +22,16 @@ public class DataProcessor {
     private static InputStream processIn;
     private static OutputStream processOut;
     ////////////////////////////////////////////////////////////////////////////
+    // Текущая инфа о камере.
     private static CamInfo camInfo;
     // Текущий обрабатываемый файл.
     private static FileInfo fileInfo;
     // Последний обработанный фрейм.
     private static Frame frame;
     ////////////////////////////////////////////////////////////////////////////
-    // Кол-во распарсеных кадров.
+    // Кол-во распарсеных кадров (кол-во вызовов парсера).
     public static long frameParsedCount;
-    // Кол-во обработанных кадров.
+    // Кол-во обработанных кадров (сохранённых).
     public static long frameProcessCount;
     // Размер обработанных данных.
     public static long videoProcessSize;
@@ -90,9 +91,9 @@ public class DataProcessor {
             String size = "" + d.width + "x" + d.height;
             // Компилируем командную строку для ffmpeg.
             StringBuilder cmd = new StringBuilder("ffmpeg -i - ");
-            cmd.append(App.videoOptions.replace("{origfps}", fps).replace("{origsize}", size));
+            cmd.append(App.destVideoOptions.replace("{origfps}", fps).replace("{origsize}", size));
             cmd.append(" ");
-            cmd.append(App.audioOptions);
+            cmd.append(App.destAudioOptions);
             cmd.append(" ");
             cmd.append(App.destName);
 
@@ -126,7 +127,7 @@ public class DataProcessor {
             } catch (IOException ex) {
             }
             while (true) {
-                // 10 сек. ожидание выхода и форсированное снятие процесса!
+                // 10 сек. ожидание выхода и запрос на форсированное снятие процесса!
                 for (int i = 0; i < 100; i++) {
                     try {
                         process.exitValue();
@@ -139,7 +140,7 @@ public class DataProcessor {
                     }
                 }
                 Object[] options = {"Завершить", "Ожидать завершения"};
-                int n = JOptionPane.showOptionDialog(App.mainFrame, 
+                int n = JOptionPane.showOptionDialog(App.mainFrame,
                         "Завершить процесс FFMpeg принудительно или ожидать ещё 10 сек.?",
                         "Подтверждение", JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE, null, options,
@@ -175,12 +176,12 @@ public class DataProcessor {
             long endpos = fileInfo.endDataPos; // Последняя позиция.
 
             // Буфер чтения и парсинга данных.
-            final byte[] baFrame = new byte[frameSize];
+            final byte[] baFrame = new byte[1000000];
             final ByteBuffer bbF = ByteBuffer.wrap(baFrame);
             bbF.order(ByteOrder.LITTLE_ENDIAN);
-            
+
             // Идём по кадрам от начала к концу.
-            for (; pos < endpos-frameSize; pos++) {
+            for (; pos < endpos - frameSize; pos++) {
                 in.seek(pos);
                 in.read(baFrame, frameSize);
                 if (f.parseHeader(bbF, 0) == 0) {
@@ -190,24 +191,29 @@ public class DataProcessor {
                         // TODO Доработать логику! Т.к. может случится так, что первый кадр файла не ключевой,
                         // а продолжение предыдущего, но предыдущего нет, а есть предпредыдущий - будет 
                         // неверным добавлять этот кадр.
-                        if (f.isMain || (frame != null && frameParsedCount > 0)) {
-                                if (i + f.videoSize + f.audioSize > len) {
-                                    int size1 = len - i;
-                                    int size2 = f.videoSize + f.audioSize - size1;
-                                    processOut.write(baFrame, i, size1);
-                                    pos += len;
-                                    i = 0;
-                                    len = (int) Math.min(baFrame.length, ost - len);
-                                    in.read(baFrame, len);
+                        long time = f.time.getTime();
+                        // Отбрасываем кадры, которые ранее последнего записанного кадра 
+                        // (направление времени только на увеличение!)
+                        if (timeMax == -1 || time > timeMax) {
+                            if (f.isMain || (frame != null && frameProcessCount > 0)) {
+                                in.read(baFrame, f.videoSize + f.audioSize);
+                                int audio = (App.destAudioType != -1 ? f.audioSize : 0);
+                                processOut.write(baFrame, 0, f.videoSize + audio);
+                                if (App.destSubType != -1) {
+                                    writeSub();
                                 }
-                                processOut.write(baFrame, i + frameSize, f.videoSize + f.audioSize);
+                                frame = f;
+                                frameProcessCount++;
+                                videoProcessSize += f.videoSize;
+                                audioProcessSize += audio;
+                                timeMin = (timeMin == -1) ? time : timeMin;
+                                timeMax = time;
                             }
                         }
-                        i += f.getHeaderSize() + f.videoSize + f.audioSize - 1; // -1 т.к. автоинкремент.
                     }
+                    pos += frameSize + f.videoSize + f.audioSize - 1; // -1 т.к. автоинкремент.
                 }
-                pos += i;
-                ost -= i;
+                frameParsedCount++;
             }
             //App.log("CAM"+info.camNumber+" file="+info.fileName);
             in.close();
@@ -215,6 +221,14 @@ public class DataProcessor {
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
+    }
+
+    /**
+     * Если для текущего фрейма необходимо - формирует субтитры согласно 
+     * настройкам и сохраняет их в файл.
+     */
+    private static void writeSub() {
+        //
     }
 
     public final static class FFMpegException extends Exception {
@@ -228,26 +242,6 @@ public class DataProcessor {
 
         public SourceException(String msg) {
             super(msg);
-        }
-    }
-
-    /**
-     * Процесс обработки данных.
-     */
-    private class TaskProcess extends Task.Thread {
-
-        @Override
-        public void fireStart() {
-            super.fireStart();
-        }
-
-        @Override
-        public void fireStop() {
-            super.fireStop();
-        }
-
-        @Override
-        protected void task() {
         }
     }
 }

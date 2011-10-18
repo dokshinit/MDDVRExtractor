@@ -40,7 +40,8 @@ public class JDirectory extends JPanel {
     public JDirectory(AbstractTableModel m, TableColumnModel tm) {
         tableModel = m;
         columnModel = tm;
-
+        tm.linkToData(m); // Обязательно для корректного сопоставления!!!
+        
         scrolled = false;
         table = new JXTable(tableModel, columnModel);
         table.setColumnControlVisible(true);

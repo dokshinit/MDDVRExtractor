@@ -307,62 +307,122 @@ public class InputBufferedFile {
         }
     }
 
+    /**
+     * Чтение byte из файла (буферизированно). Указатель смещается.
+     * @return Считанное значение.
+     * @throws IOException Ошибка операции.
+     */
     public byte readByte() throws IOException {
         byte b = getBufferedByte();
         seek(position + 1);
         return b;
     }
 
+    /**
+     * Чтение short из файла (буферизированно). Указатель смещается.
+     * @return Считанное значение.
+     * @throws IOException Ошибка операции.
+     */
     public short readShort() throws IOException {
         read(parseArray, 0, 2);
         return parseBuffer.getShort(0);
     }
 
+    /**
+     * Чтение int из файла (буферизированно). Указатель смещается.
+     * @return Считанное значение.
+     * @throws IOException Ошибка операции.
+     */
     public int readInt() throws IOException {
         read(parseArray, 0, 4);
         return parseBuffer.getInt(0);
     }
 
+    /**
+     * Чтение long из файла (буферизированно). Указатель смещается.
+     * @return Считанное значение.
+     * @throws IOException Ошибка операции.
+     */
     public long readLong() throws IOException {
         read(parseArray, 0, 8);
         return parseBuffer.getLong(0);
     }
 
+    /**
+     * Чтение float из файла (буферизированно). Указатель смещается.
+     * @return Считанное значение.
+     * @throws IOException Ошибка операции.
+     */
     public float readFloat() throws IOException {
         read(parseArray, 0, 4);
         return parseBuffer.getFloat(0);
     }
 
+    /**
+     * Чтение double из файла (буферизированно). Указатель смещается.
+     * @return Считанное значение.
+     * @throws IOException Ошибка операции.
+     */
     public double readDouble() throws IOException {
         read(parseArray, 0, 8);
         return parseBuffer.getDouble(0);
     }
 
+    /**
+     * Чтение byte из файла с указанной позиции (буферизированно). Указатель смещается.
+     * @return Считанное значение.
+     * @throws IOException Ошибка операции.
+     */
     public byte readByte(long pos) throws IOException {
         seek(pos);
         return readByte();
     }
 
+    /**
+     * Чтение short из файла с указанной позиции (буферизированно). Указатель смещается.
+     * @return Считанное значение.
+     * @throws IOException Ошибка операции.
+     */
     public short readShort(long pos) throws IOException {
         seek(pos);
         return readShort();
     }
 
+    /**
+     * Чтение int из файла с указанной позиции (буферизированно). Указатель смещается.
+     * @return Считанное значение.
+     * @throws IOException Ошибка операции.
+     */
     public int readInt(long pos) throws IOException {
         seek(pos);
         return readInt();
     }
 
+    /**
+     * Чтение long из файла с указанной позиции (буферизированно). Указатель смещается.
+     * @return Считанное значение.
+     * @throws IOException Ошибка операции.
+     */
     public long readLong(long pos) throws IOException {
         seek(pos);
         return readLong();
     }
 
+    /**
+     * Чтение float из файла с указанной позиции (буферизированно). Указатель смещается.
+     * @return Считанное значение.
+     * @throws IOException Ошибка операции.
+     */
     public float readFloat(long pos) throws IOException {
         seek(pos);
         return readFloat();
     }
 
+    /**
+     * Чтение double из файла с указанной позиции (буферизированно). Указатель смещается.
+     * @return Считанное значение.
+     * @throws IOException Ошибка операции.
+     */
     public double readDouble(long pos) throws IOException {
         seek(pos);
         return readDouble();

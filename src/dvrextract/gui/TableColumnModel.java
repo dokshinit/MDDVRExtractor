@@ -67,7 +67,7 @@ public class TableColumnModel extends DefaultTableColumnModel {
 
     /**
      * Сопоставление столбцов и данных (по идентификаторам),
-     * присваивоение индеков.
+     * присваивоение индексов.
      */
     public void linkToData(AbstractTableModel model) {
         TableColumn col = null;

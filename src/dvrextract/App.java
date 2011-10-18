@@ -1,7 +1,6 @@
 package dvrextract;
 
 import dvrextract.gui.GUI;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -28,12 +27,17 @@ public class App {
     // Глобальные переменные.
     ////////////////////////////////////////////////////////////////////////////
     public static GUI_Main mainFrame; // Основное окно работы программы.
-
+    // Для отладки, если true - подробный лог.
+    public static boolean isDebug = false;
+    
     /**
      * Вывод строки лога.
      * @param text Текст сообщения.
      */
     public static void log(String text) {
+        if (mainFrame != null && mainFrame.tabLog != null) {
+            mainFrame.tabLog.getLogPanel().add(LogTableModel.Type.TEXT, text);
+        }
         System.out.println(text);
     }
 
@@ -85,19 +89,6 @@ public class App {
             App.log("Ошибка включения L&F (" + laf + ")!" + e);
         }
     }
-    //
-    static int camNumber = 0;
-    static boolean isAudio = false;
-    static String sInput = null;
-    static String sFile = null;
-    static String sVideo = null;
-    static String sSRT = null;
-    int frameCount = 0;
-    int frameInStepCount = 0;
-    //
-    long startDataPos = 0;
-    long endDataPos = 0;
-    long curPos = 0;
     ////////////////////////////////////////////////////////////////////////////
     // Информация о источнике:
     ////////////////////////////////////////////////////////////////////////////
@@ -121,8 +112,10 @@ public class App {
     public static Date destTimeStart;
     public static Date destTimeEnd;
     public static String destName = "";
-    public static String videoOptions = "";
-    public static String audioOptions = "";
+    public static String destVideoOptions = "";
+    public static String destAudioOptions = "";
+    public static int destAudioType;
+    public static int destSubType;
 
     /**
      * Точка запуска приложения.

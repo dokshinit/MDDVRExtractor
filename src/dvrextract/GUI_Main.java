@@ -23,6 +23,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
     ////////////////////////////////////////////////////////////////////////////
     public GUI_TabSource tabSource;
     public GUI_TabProcess tabProcess;
+    public GUI_TabLog tabLog;
     ////////////////////////////////////////////////////////////////////////////
     // Закладка: Обработка
     ////////////////////////////////////////////////////////////////////////////
@@ -52,7 +53,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
     }
 
     /**
-     * Инициализация графических компонентов.
+     * Инициализация графических компонент.
      */
     private void init() {
         setLayout(new BorderLayout());
@@ -78,10 +79,9 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         tabPane.addTab("Состояние", panelTab3);
 
         ////////////////////////////////////////////////////////////////////////
-        // Вкладка "Лог" (обработки)
+        // Вкладка "Лог"
         ////////////////////////////////////////////////////////////////////////
-        JPanel panelTab4 = new JPanel(new MigLayout());
-        tabPane.addTab("Лог", panelTab4);
+        tabPane.addTab("Лог", tabLog = new GUI_TabLog());
 
         textVideo = new JTextField(50);
         buttonVideo = GUI.createButton("Выбор");
@@ -265,10 +265,22 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         if (e.getSource() == buttonProcess) {
             if (!Task.isAlive()) {
                 // Запуск задачи.
+                Task.start(new ProcessTask());
             } else {
                 // Остановка задачи.
                 Task.terminate();
             }
+        }
+    }
+    
+    /**
+     * Процесс обработки данных.
+     */
+    private class ProcessTask extends Task.Thread {
+
+        @Override
+        protected void task() {
+            DataProcessor.process();
         }
     }
 }

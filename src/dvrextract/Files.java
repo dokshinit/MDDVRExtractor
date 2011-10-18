@@ -65,7 +65,7 @@ public class Files {
             if (Task.isTerminate()) {
                 return;
             }
-
+            
             for (int i = 0; i < fa.length; i++) {
                 if (fa[i].isDirectory()) { // Каталог.
                     scanDir(fa[i].getPath(), cam); // Переходим глубже на один уровень.
@@ -111,14 +111,14 @@ public class Files {
     private static FileInfo scanFile(String fileName, FileType type, int cam) {
         try {
             final InputBufferedFile in = new InputBufferedFile(fileName, 100000, 100);
-
+            
             final FileInfo info = new FileInfo();
             info.fileName = fileName;
             info.fileSize = in.getSize();
             info.fileType = type;
             info.startDataPos = 0;
             info.endDataPos = info.fileSize;
-
+            
             Frame f = new Frame(type);
             final int frameSize = f.getHeaderSize();
             long pos = 0; // Позиция поиска.
@@ -208,13 +208,14 @@ public class Files {
             //App.log("CAM"+info.camNumber+" file="+info.fileName);
             in.close();
             return info;
-
+            
         } catch (IOException ioe) {
             ioe.printStackTrace();
             return null;
         }
     }
 
+    // <editor-fold defaultstate="collapsed" desc="Deprecated parseFileBufferedNative">
     /**
      * Сканирование файла-источника. Если это EXE - чтение инфы. Распознавание 
      * начального и конечного кадров файла.
@@ -223,22 +224,23 @@ public class Files {
      * @param cam Ограничение по камере (0-по всем, иначе только для данной камеры).
      * @return 
      */
+    @Deprecated
     private static FileInfo parseFileBufferedNative(String fileName, FileType type, int cam) {
         try {
             // Буфер чтения и парсинга данных.
             final byte[] baFrame = new byte[100000];
             final ByteBuffer bbF = ByteBuffer.wrap(baFrame);
             bbF.order(ByteOrder.LITTLE_ENDIAN);
-
+            
             InputFile in = new InputFile(fileName);
-
+            
             FileInfo info = new FileInfo();
             info.fileName = fileName;
             info.fileSize = in.getSize();
             info.fileType = type;
             info.startDataPos = 0;
             info.endDataPos = info.fileSize;
-
+            
             Frame f = new Frame(type);
             long pos = 0; // Позиция поиска.
             long ost = in.getSize(); // Остаток данных.
@@ -289,7 +291,7 @@ public class Files {
                 in.seek(pos);
                 int len = (int) Math.min(baFrame.length, ost);
                 in.read(baFrame, (int) len);
-
+                
                 for (int i = 0; i < len - frameSize; i++) {
                     if (f.parseHeader(bbF, i) == 0) {
                         // Если номер камеры указан и это не он - пропускаем разбор.
@@ -351,12 +353,13 @@ public class Files {
             //App.log("CAM"+info.camNumber+" file="+info.fileName);
             in.close();
             return info;
-
+            
         } catch (IOException ioe) {
             ioe.printStackTrace();
             return null;
         }
     }
+    // </editor-fold>
 
     /**
      * Получение первого ключевого кадра из файла для заданной камеры.
@@ -382,7 +385,7 @@ public class Files {
             }
             // Если кадр не распознанн - распознаём.
             InputBufferedFile in = new InputBufferedFile(info.fileName, 100000, 100);
-
+            
             Frame f = new Frame(info.fileType);
             int frameSize = f.getHeaderSize();
             long pos = info.startDataPos; // Позиция поиска.
@@ -413,7 +416,7 @@ public class Files {
             // Разбор не получился.
             in.close();
             return null;
-
+            
         } catch (IOException ioe) {
             ioe.printStackTrace();
             return null;

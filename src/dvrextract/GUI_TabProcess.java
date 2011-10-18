@@ -7,11 +7,8 @@ import dvrextract.gui.JExtComboBox;
 import dvrextract.gui.JExtComboBox.ExtItem;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Date;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
@@ -111,6 +108,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         addSection("Титры");
         add(GUI.createLabel("Формат"), "skip");
         add(comboSubFormat = GUI.createCombo(false), "left, spanx, wrap");
+        comboSubFormat.addActionListener(this);
 
         ArrayList<FFCodec> list = FFMpeg.getCodecs();
         comboVideoFormat.addItem(0, new Item("Без преобразования", "copy"));
@@ -164,6 +162,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         fireEndDateChange();
         fireVideoFormatSelect();
         fireAudioFormatSelect();
+        fireSubFormatSelect();
     }
 
     /**
@@ -293,6 +292,8 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             fireVideoFormatSelect();
         } else if (e.getSource() == comboAudioFormat) {
             fireAudioFormatSelect();
+        } else if (e.getSource() == comboSubFormat) {
+            fireSubFormatSelect();
         }
     }
 
@@ -351,7 +352,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      */
     private void fireVideoFormatSelect() {
         setLocks();
-        App.videoOptions = getVideoOptions();
+        App.destVideoOptions = getVideoOptions();
     }
 
     /**
@@ -359,7 +360,16 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      */
     private void fireAudioFormatSelect() {
         setLocks();
-        App.audioOptions = getAudioOptions();
+        App.destAudioOptions = getAudioOptions();
+        App.destAudioType = comboAudioFormat.getSelectedItem().id;
+    }
+
+    /**
+     * Обработка выбора субтитров.
+     */
+    private void fireSubFormatSelect() {
+        setLocks();
+        App.destSubType = comboSubFormat.getSelectedItem().id;
     }
 
     /**
