@@ -35,6 +35,7 @@ public final class GUIFileInfoPanel extends JPanel {
     private JTextField textSize;
     private JTextField textType;
     private JTextField textCams;
+    private JTextField textResolution;
     private JTextField textFirstTime;
     private JTextField textLastTime;
     private JTextField textAmountTime;
@@ -89,6 +90,7 @@ public final class GUIFileInfoPanel extends JPanel {
         textSize = createInfo("Размер", 15, null);
         textType = createInfo("Тип", 10, null);
         textCams = createInfo("Камеры", 30, null);
+        textResolution = createInfo("Разрешение", 12, null);
         textFirstTime = createInfo("Начало", 15, null);
         textLastTime = createInfo("Конец", 15, null);
         textAmountTime = createInfo("Длительность", 22, null);
@@ -110,6 +112,7 @@ public final class GUIFileInfoPanel extends JPanel {
             textSize.setText("");
             textType.setText("");
             textCams.setText("");
+            textResolution.setText("");
             textFirstTime.setText("");
             textLastTime.setText("");
             textAmountTime.setText("");
@@ -120,6 +123,8 @@ public final class GUIFileInfoPanel extends JPanel {
                 textSize.setText(NumberTools.doubleToFormatString((double) info.fileSize, NumberTools.format0, "", "") + " байт");
                 textType.setText(info.fileType.title);
                 textCams.setText(info.getCamsToString());
+                Dimension d = info.frameFirst.getResolution();
+                textResolution.setText(String.format("%d x %d", d.width, d.height));
                 if (info.frameFirst != null) {
                     textFirstTime.setText(df.format(info.frameFirst.time));
                 } else {

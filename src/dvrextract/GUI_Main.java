@@ -236,6 +236,10 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
             @Override
             public void run() {
                 progressBar.setIndeterminate(false);
+                progressBar.setMinimum(0);
+                progressBar.setMaximum(0);
+                progressBar.setValue(0);
+                progressBar.setString("");
             }
         });
     }

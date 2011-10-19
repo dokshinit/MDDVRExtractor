@@ -1,9 +1,11 @@
 package dvrextract;
 
+import dvrextract.LogTableModel.Type;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
 import java.util.Collections;
 
 /**
@@ -16,6 +18,8 @@ public class Files {
     private static final int exeInfoSize =
             4 + 4 + 4 * 16 + 8 * 16 * 101 + 4 * 16 * 101
             + 4 + 16 * 4 + 8 + 15 * 8 + 8 + 15 * 8 + 16 * 8;
+    // Список для занесение всех файлов для сканирования.
+    private static final ArrayList<File> files = new ArrayList<File>();
 
     /**
      * Сканирование источника (с рекурсивным обходом подкаталогов).
@@ -26,25 +30,57 @@ public class Files {
      * @param startpath Источник (файл или каталог).
      */
     public static void scan(String startpath, int cam) {
-        App.mainFrame.setProgressInfo("Сканирование источника.");
+        String msg = "Построение списка файлов источника...";
+        App.log(msg);
+        App.mainFrame.setProgressInfo(msg);
         App.mainFrame.startProgress();
+
         // Очистка всех данных о предыдущем сканировании.
         for (int i = 0; i < App.MAXCAMS; i++) {
             App.srcCams[i].clear();
         }
-        // Сканирование.
+        files.clear();
+
+        // Построение списка файлов для сканирования.
         scanDir(startpath, cam);
-        // Сортировка списков файлов.
-        for (int i = 0; i < App.MAXCAMS; i++) {
-            Collections.sort(App.srcCams[i].files, FileInfo.getComparator());
+
+        msg = "Сканирование источника...";
+        App.log(msg);
+        App.mainFrame.setProgressInfo(msg);
+        if (files.size() > 0) {
+            App.mainFrame.startProgress(1, files.size());
+
+            // Сканирование.
+            for (int n = 0; n < files.size(); n++) {
+                if (Task.isTerminate()) {
+                    break;
+                }
+                final String msg1 = String.format("Сканирование файла (%d из %d)", n + 1, files.size());
+                final String msg2 = files.get(n).getPath();
+                App.mainFrame.setProgressInfo(msg1);
+                App.mainFrame.setProgressText(msg2);
+                App.log(msg1 + ": " + msg2);
+                scanFile(files.get(n), cam);
+                App.mainFrame.setProgress(n + 1);
+            }
+            App.mainFrame.setProgress(files.size());
+
+            // Сортировка списков файлов.
+            for (int i = 0; i < App.MAXCAMS; i++) {
+                Collections.sort(App.srcCams[i].files, FileInfo.getComparator());
+            }
         }
         App.mainFrame.stopProgress();
-        App.mainFrame.setProgressInfo("Сканирование источника завершено"
-                + (Task.isTerminate() ? " (прервано)." : "."));
+        msg = "Сканирование источника завершено"
+                + (Task.isTerminate() ? " (прервано)." : ".");
+        App.mainFrame.setProgressInfo(msg);
+        App.log(msg);
+
+        files.clear();
     }
 
     /**
-     * Сканирование уровня источника с рекурсией вглубь.
+     * Построение списка файлов источника с рекурсией вглубь.
      * @param path Источник (файл или каталог).
      */
     private static void scanDir(String path, int cam) {
@@ -65,7 +101,7 @@ public class Files {
             if (Task.isTerminate()) {
                 return;
             }
-            
+
             for (int i = 0; i < fa.length; i++) {
                 if (fa[i].isDirectory()) { // Каталог.
                     scanDir(fa[i].getPath(), cam); // Переходим глубже на один уровень.
@@ -74,25 +110,12 @@ public class Files {
                 if (fa[i].length() <= 0) { // Пустой файл.
                     continue;
                 }
-                // Простой файл.
                 if (Task.isTerminate()) {
                     return;
                 }
-                App.mainFrame.setProgressInfo("Сканирование источника: " + fa[i].getName());
-                Thread.sleep(100);
-                FileType type = SourceFileFilter.getType(fa[i]);
-                FileInfo info = scanFile(fa[i].getPath(), type, cam);
-                if (info != null) {
-                    // Обрабатываем инфу - добавляем файл ко всем камерам, какие в нём перечислены.
-                    for (FileInfo.CamData n : info.camInfo) {
-                        App.srcCams[n.camNumber - 1].addFile(info);
-                    }
-                    App.log((info.frameFirst.pos > 0
-                            ? "Pos=" + info.frameFirst.pos + " " : "")
-                            + "file=" + fa[i].getPath() + " cams=" + info.camInfo.size()
-                            + " [" + info.frameFirst.time.toString()
-                            + " - " + info.frameLast.time.toString() + "]");
-                }
+                // Простой файл.
+                files.add(fa[i]);
+                App.mainFrame.setProgressInfo("Построение списка файлов: " + fa[i].getPath());
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -100,7 +123,34 @@ public class Files {
     }
 
     /**
-     * Сканирование файла-источника. Если это EXE - чтение инфы. Распознавание 
+     * Сканирование файла-источника.
+     * @param path Источник (файл или каталог).
+     */
+    private static void scanFile(File file, int cam) {
+        try {
+            FileType type = SourceFileFilter.getType(file);
+            FileInfo info = parseFile(file.getPath(), type, cam);
+            if (info != null) {
+                // Обрабатываем инфу - добавляем файл ко всем камерам, какие в нём перечислены.
+                for (FileInfo.CamData n : info.camInfo) {
+                    App.srcCams[n.camNumber - 1].addFile(info);
+                }
+                if (App.isDebug) {
+                    App.log(Type.INFO,
+                            (info.frameFirst.pos > 0 ? "Pos=" + info.frameFirst.pos + " " : "")
+                            + "file=" + file.getName() + " cams=" + info.camInfo.size()
+                            + " [" + info.frameFirst.time.toString()
+                            + " - " + info.frameLast.time.toString() + "]");
+                }
+            }
+            Thread.sleep(100);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * Распарсивание файла-источника. Если это EXE - чтение инфы. Распознавание 
      * начального и конечного кадров файла.
      * Используется буферизированный на чтение файл с кешем.
      * @param fileName Имя файла-источника.
@@ -108,17 +158,17 @@ public class Files {
      * @param cam Ограничение по камере (0-по всем, иначе только для данной камеры).
      * @return 
      */
-    private static FileInfo scanFile(String fileName, FileType type, int cam) {
+    private static FileInfo parseFile(String fileName, FileType type, int cam) {
         try {
             final InputBufferedFile in = new InputBufferedFile(fileName, 100000, 100);
-            
+
             final FileInfo info = new FileInfo();
             info.fileName = fileName;
             info.fileSize = in.getSize();
             info.fileType = type;
             info.startDataPos = 0;
             info.endDataPos = info.fileSize;
-            
+
             Frame f = new Frame(type);
             final int frameSize = f.getHeaderSize();
             long pos = 0; // Позиция поиска.
@@ -151,7 +201,9 @@ public class Files {
                     // Смещение первого фрейма.
                     long frameOffs = in.readLong(exepos + 72 + (808 * n));
                     info.addCamData(n + 1, frameOffs, null);
-                    App.log("CAM" + (n + 1) + " данные в наличии!");
+                    if (App.isDebug) {
+                        App.log(Type.INFO, "CAM" + (n + 1) + " данные в наличии!");
+                    }
                 }
                 // Позиции начала и конца данных в файле.
                 info.startDataPos = in.readLong(exepos + 19532);
@@ -165,7 +217,9 @@ public class Files {
                 pos = info.startDataPos; // Начало.
                 endpos = info.endDataPos; // Конец.
             }
-            App.log("Общий размер данных = " + (endpos - pos));
+            if (App.isDebug) {
+                App.log(Type.INFO, "Общий размер данных = " + (endpos - pos));
+            }
 
             // Ищем первый кадр (от начала к концу).
             for (; pos < endpos - frameSize; pos++) {
@@ -208,7 +262,7 @@ public class Files {
             //App.log("CAM"+info.camNumber+" file="+info.fileName);
             in.close();
             return info;
-            
+
         } catch (IOException ioe) {
             ioe.printStackTrace();
             return null;
@@ -231,16 +285,16 @@ public class Files {
             final byte[] baFrame = new byte[100000];
             final ByteBuffer bbF = ByteBuffer.wrap(baFrame);
             bbF.order(ByteOrder.LITTLE_ENDIAN);
-            
+
             InputFile in = new InputFile(fileName);
-            
+
             FileInfo info = new FileInfo();
             info.fileName = fileName;
             info.fileSize = in.getSize();
             info.fileType = type;
             info.startDataPos = 0;
             info.endDataPos = info.fileSize;
-            
+
             Frame f = new Frame(type);
             long pos = 0; // Позиция поиска.
             long ost = in.getSize(); // Остаток данных.
@@ -291,7 +345,7 @@ public class Files {
                 in.seek(pos);
                 int len = (int) Math.min(baFrame.length, ost);
                 in.read(baFrame, (int) len);
-                
+
                 for (int i = 0; i < len - frameSize; i++) {
                     if (f.parseHeader(bbF, i) == 0) {
                         // Если номер камеры указан и это не он - пропускаем разбор.
@@ -353,7 +407,7 @@ public class Files {
             //App.log("CAM"+info.camNumber+" file="+info.fileName);
             in.close();
             return info;
-            
+
         } catch (IOException ioe) {
             ioe.printStackTrace();
             return null;
@@ -385,7 +439,7 @@ public class Files {
             }
             // Если кадр не распознанн - распознаём.
             InputBufferedFile in = new InputBufferedFile(info.fileName, 100000, 100);
-            
+
             Frame f = new Frame(info.fileType);
             int frameSize = f.getHeaderSize();
             long pos = info.startDataPos; // Позиция поиска.
@@ -416,7 +470,7 @@ public class Files {
             // Разбор не получился.
             in.close();
             return null;
-            
+
         } catch (IOException ioe) {
             ioe.printStackTrace();
             return null;
@@ -426,7 +480,7 @@ public class Files {
 
 /*
  * ФОРМАТ ОПИСАТЕЛЯ EXE ФАЙЛА:
- 
+
  * <конец данных>
  * int ?; =2
  * int ?; =1

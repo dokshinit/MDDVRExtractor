@@ -218,7 +218,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
     /**
      * Устанавливает имя выходного файла (без проверки!). 
-     * @param text 
+     * @param text Путь и имя файла.
      */
     public void setDestination(String text) {
         App.destName = text;
@@ -227,6 +227,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
     /**
      * Отображение выбранной на закладке источника камере.
+     * @param title Название камеры.
      */
     public void displayCam(String title) {
         textCam.setText(title);
@@ -311,14 +312,26 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
         @Override
         public void task() {
-            // Вычисление приблизительных результатов обработки.
             if (App.srcCamSelect < 0) {
                 return;
             }
+            App.mainFrame.startProgress();
+            String msg = "Подсчёт данных для обработки...";
+            App.mainFrame.setProgressInfo(msg);
+            App.log(msg);
+
+            // Вычисление приблизительных результатов к обработке.
             CamInfo ci = App.srcCams[App.srcCamSelect];
             for (FileInfo info : ci.files ) {
-                
+                // TODO: Подсчёт данных для обработки.
             }
+            
+            App.mainFrame.stopProgress();
+            msg = "Подсчёт данных для обработки завершён.";
+            App.mainFrame.setProgressInfo(msg);
+            App.log(msg);
+            
+            // TODO: Вывод окна с информацией о данных для обработки.
         }
     }
 
@@ -327,7 +340,6 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             dateEnd.setTime(dateStart.getTime());
         }
         App.destTimeStart = dateStart.getTime();
-        //System.out.println("Fire Start Change dt="+App.destTimeStart.toString());
     }
 
     private void fireEndDateChange() {
@@ -335,7 +347,6 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             dateStart.setTime(dateEnd.getTime());
         }
         App.destTimeEnd = dateStart.getTime();
-        //System.out.println("Fire End Change dt="+App.destTimeEnd.toString());
     }
 
     /**

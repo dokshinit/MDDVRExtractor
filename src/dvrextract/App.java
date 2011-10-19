@@ -29,16 +29,44 @@ public class App {
     public static GUI_Main mainFrame; // Основное окно работы программы.
     // Для отладки, если true - подробный лог.
     public static boolean isDebug = false;
-    
+
+    /**
+     * Вывод строки лога с типом.
+     * @param type Тип сообщения.
+     * @param text Текст сообщения.
+     */
+    public static void log(LogTableModel.Type type, String text) {
+        if (mainFrame != null && mainFrame.tabLog != null) {
+            mainFrame.tabLog.getLogPanel().add(type, text);
+        }
+        System.out.println(text);
+    }
+
+    /**
+     * Обновление последней строки лога с типом.
+     * @param text Текст сообщения.
+     */
+    public static void logupd(LogTableModel.Type type, String text) {
+        if (mainFrame != null && mainFrame.tabLog != null) {
+            mainFrame.tabLog.getLogPanel().update(type, text);
+        }
+        System.out.println(text);
+    }
+
     /**
      * Вывод строки лога.
      * @param text Текст сообщения.
      */
     public static void log(String text) {
-        if (mainFrame != null && mainFrame.tabLog != null) {
-            mainFrame.tabLog.getLogPanel().add(LogTableModel.Type.TEXT, text);
-        }
-        System.out.println(text);
+        log(LogTableModel.Type.TEXT, text);
+    }
+
+    /**
+     * Обновление последней строки лога.
+     * @param text Текст сообщения.
+     */
+    public static void logupd(String text) {
+        logupd(LogTableModel.Type.TEXT, text);
     }
 
     public static void initLAF() {
@@ -111,7 +139,7 @@ public class App {
     ////////////////////////////////////////////////////////////////////////////
     public static Date destTimeStart;
     public static Date destTimeEnd;
-    public static String destName = "";
+    public static String destName = "/home/work/files/ffmpeg.mkv";
     public static String destVideoOptions = "";
     public static String destAudioOptions = "";
     public static int destAudioType;
@@ -213,8 +241,4 @@ public class App {
     //TODO: Прикрутить ключи для консольного использования.
     //TODO: Сделать просмотр или просто первые кадры камер? Средства?
     //TODO: Сделать процедуру считывающую первый заголовок и последний и выдающую инфу наверх.
-    //TODO: Сделать процедуру обрабатывающую все файлы в каталоге и собирающую инфу в разрезе камер.
-    // к каждой камере - список файлов с определенными параметрами
-    //Можно ли делать скриншоты из одного опорного кадра?
-    //Каким образом в видео добавить дату-время (титрами?)?
 }
