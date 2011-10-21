@@ -10,6 +10,26 @@ import java.util.Collections;
 
 /**
  * Осуществление действий с источником: сканирование, обработка.
+ * -----------------------------------------------------------------------------
+ * ФОРМАТ ОПИСАТЕЛЯ EXE ФАЙЛА:
+ * <конец данных>
+ * int ?; =2
+ * int ?; =1
+ * int[16] ?;            // (=0 - если камера есть, =-1 - если нет)
+ * ---
+ * long[16][101] offset; // Смещение в файле до опорных кадров с шагом (? мин).
+ * ---
+ * int[16][101] ?;       // Номер начального кадра в отрезке?
+ * ---
+ * int displayMode;      // Режим отображения камер в плеере. (1-4-9 ?)
+ * int[16] isExist;      // Есть или нет данные камеры (0-нет, 1-есть).
+ * long startDataPos;    // Начало данных в файле.
+ * long[15] ?;           // Нули.
+ * long endDataPos;      // Конец данных в файле (начало данного блока инфы)
+ * long[15] ?;           // Нули.
+ * long[16] frameCount;  // Общее кол-во кадров по камерам.
+ * <конец файла>
+ * -----------------------------------------------------------------------------
  * @author lex
  */
 public class Files {
@@ -30,10 +50,21 @@ public class Files {
      * @param startpath Источник (файл или каталог).
      */
     public static void scan(String startpath, int cam) {
+        // Сканирование источника.
         String msg = "Построение списка файлов источника...";
         App.log(msg);
         App.mainFrame.setProgressInfo(msg);
         App.mainFrame.startProgress();
+
+        // Установка источника.
+        App.srcName = startpath;
+        App.srcType = SourceFileFilter.getType(startpath);
+        App.srcCamLimit = cam;
+
+        // Отображение источника.
+        App.mainFrame.tabSource.displaySource();
+        // Очистка отображаемого списка камер источника.
+        App.mainFrame.tabSource.displayCams(0);
 
         // Очистка всех данных о предыдущем сканировании.
         for (int i = 0; i < App.MAXCAMS; i++) {
@@ -70,13 +101,14 @@ public class Files {
                 Collections.sort(App.srcCams[i].files, FileInfo.getComparator());
             }
         }
+        files.clear();
+
         App.mainFrame.stopProgress();
         msg = "Сканирование источника завершено"
                 + (Task.isTerminate() ? " (прервано)." : ".");
         App.mainFrame.setProgressInfo(msg);
         App.log(msg);
-
-        files.clear();
+        App.mainFrame.tabSource.displayCams();
     }
 
     /**
@@ -115,10 +147,11 @@ public class Files {
                 }
                 // Простой файл.
                 files.add(fa[i]);
-                App.mainFrame.setProgressInfo("Построение списка файлов: " + fa[i].getPath());
+                App.mainFrame.setProgressText(fa[i].getPath());
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            Err.log("File path = " + path);
+            Err.log(ex);
         }
     }
 
@@ -145,7 +178,8 @@ public class Files {
             }
             Thread.sleep(100);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            Err.log("File name = " + file);
+            Err.log(ex);
         }
     }
 
@@ -161,7 +195,7 @@ public class Files {
     private static FileInfo parseFile(String fileName, FileType type, int cam) {
         try {
             final InputBufferedFile in = new InputBufferedFile(fileName, 100000, 100);
-
+            final int exeplayersize = 1000000; // Минимальный размер встроенного плеера.
             final FileInfo info = new FileInfo();
             info.fileName = fileName;
             info.fileSize = in.getSize();
@@ -182,7 +216,7 @@ public class Files {
             // Если это EXE - делаем разбор инфы в конце файла.
             if (type == FileType.EXE) {
                 long exepos = in.getSize() - exeInfoSize;
-                if (exepos < 1024000) {
+                if (exepos < exeplayersize) {
                     return null;
                 }
                 in.seek(exepos);
@@ -207,11 +241,11 @@ public class Files {
                 }
                 // Позиции начала и конца данных в файле.
                 info.startDataPos = in.readLong(exepos + 19532);
-                if (info.startDataPos < 1024000 || info.startDataPos > in.getSize() - exeInfoSize) {
+                if (info.startDataPos < exeplayersize || info.startDataPos > in.getSize() - exeInfoSize) {
                     return null;
                 }
                 info.endDataPos = in.readLong(exepos + 19660);
-                if (info.endDataPos < 1024000 || info.endDataPos > in.getSize() - exeInfoSize) {
+                if (info.endDataPos < exeplayersize || info.endDataPos > in.getSize() - exeInfoSize) {
                     return null;
                 }
                 pos = info.startDataPos; // Начало.
@@ -264,156 +298,11 @@ public class Files {
             return info;
 
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            Err.log("Source file = " + fileName);
+            Err.log(ioe);
             return null;
         }
     }
-
-    // <editor-fold defaultstate="collapsed" desc="Deprecated parseFileBufferedNative">
-    /**
-     * Сканирование файла-источника. Если это EXE - чтение инфы. Распознавание 
-     * начального и конечного кадров файла.
-     * @param fileName Имя файла-источника.
-     * @param type Тип файла-источника.
-     * @param cam Ограничение по камере (0-по всем, иначе только для данной камеры).
-     * @return 
-     */
-    @Deprecated
-    private static FileInfo parseFileBufferedNative(String fileName, FileType type, int cam) {
-        try {
-            // Буфер чтения и парсинга данных.
-            final byte[] baFrame = new byte[100000];
-            final ByteBuffer bbF = ByteBuffer.wrap(baFrame);
-            bbF.order(ByteOrder.LITTLE_ENDIAN);
-
-            InputFile in = new InputFile(fileName);
-
-            FileInfo info = new FileInfo();
-            info.fileName = fileName;
-            info.fileSize = in.getSize();
-            info.fileType = type;
-            info.startDataPos = 0;
-            info.endDataPos = info.fileSize;
-
-            Frame f = new Frame(type);
-            long pos = 0; // Позиция поиска.
-            long ost = in.getSize(); // Остаток данных.
-            long size = in.getSize(); // Размер данных (конечная позиция).
-            int frameSize = f.getHeaderSize();
-
-            // Если это EXE - делаем разбор инфы в конце файла.
-            if (type == FileType.EXE) {
-                if (in.getSize() < exeInfoSize + 1024000) {
-                    return null;
-                }
-                in.seek(in.getSize() - exeInfoSize);
-                in.read(baFrame, exeInfoSize);
-                // Инфа по камерам.
-                for (int n = 0; n < App.MAXCAMS; n++) {
-                    // Наличие данных камер.
-                    int isExist = bbF.getInt(8 + (4 * n));
-                    if (isExist == -1) {
-                        continue; // Камеры нет.
-                    }
-                    // Если есть такая камера (по которой ограничение), то сбрасываем ограничение
-                    // чтобы не отфильтровывало при парсинге файла.
-                    if (cam > 0 && cam == n + 1) {
-                        cam = 0;
-                    }
-                    // Смещение первого фрейма.
-                    long frameOffs = bbF.getLong(72 + (808 * n));
-                    info.addCamData(n + 1, frameOffs, null);
-                    App.log("CAM" + (n + 1) + " данные в наличии!");
-                }
-                // Позиции начала и конца данных в файле.
-                info.startDataPos = bbF.getLong(19532);
-                if (info.startDataPos < 1024000 || info.startDataPos > in.getSize() - exeInfoSize) {
-                    return null;
-                }
-                info.endDataPos = bbF.getLong(19660);
-                if (info.endDataPos < 1024000 || info.endDataPos > in.getSize() - exeInfoSize) {
-                    return null;
-                }
-                pos = info.startDataPos; // Начало.
-                size = info.endDataPos; // Конец.
-                ost = size - pos;
-            }
-            App.log("Общий размер данных = " + ost);
-
-            // Ищем первый кадр (от начала к концу).
-            while (pos < size - frameSize) {
-                in.seek(pos);
-                int len = (int) Math.min(baFrame.length, ost);
-                in.read(baFrame, (int) len);
-
-                for (int i = 0; i < len - frameSize; i++) {
-                    if (f.parseHeader(bbF, i) == 0) {
-                        // Если номер камеры указан и это не он - пропускаем разбор.
-                        if (cam > 0 && f.camNumber != cam) {
-                            in.close();
-                            return null;
-                        }
-                        f.pos = pos + i;
-                        if (info.camInfo.isEmpty()) {
-                            // Для HDD инфа заполняется из первого кадра.
-                            info.addCamData(f.camNumber, f.pos, f.isMain ? f : null);
-                        }
-                        info.frameFirst = f;
-                        break;
-                    }
-                }
-                if (f.isParsed) {
-                    break;
-                } else {
-                    pos += len - frameSize;
-                    ost -= len - frameSize;
-                }
-            }
-            if (!f.isParsed) {
-                // Разбор не получился.
-                in.close();
-                return null;
-            }
-
-            // Ищем последний кадр (от конца к началу).
-            f = new Frame(type);
-            pos = size;
-            ost = size;
-            while (pos > 0) {
-                int len = (int) Math.min(baFrame.length, ost);
-                pos -= len;
-                in.seek(pos);
-                in.read(baFrame, (int) len);
-                for (int i = len - frameSize; i >= 0; i--) {
-                    if (f.parseHeader(bbF, i) == 0) {
-                        f.pos = pos + i;
-                        info.frameLast = f;
-                        break;
-                    }
-                }
-                if (f.isParsed) {
-                    break;
-                } else {
-                    ost -= len - frameSize;
-                }
-            }
-            if (!f.isParsed) {
-                // Разбор не получился.
-                in.close();
-                return null;
-            }
-
-            // Разбор успешный - возвращаем результат.
-            //App.log("CAM"+info.camNumber+" file="+info.fileName);
-            in.close();
-            return info;
-
-        } catch (IOException ioe) {
-            ioe.printStackTrace();
-            return null;
-        }
-    }
-    // </editor-fold>
 
     /**
      * Получение первого ключевого кадра из файла для заданной камеры.
@@ -472,30 +361,9 @@ public class Files {
             return null;
 
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            Err.log("File info = " + info.toString());
+            Err.log(ioe);
             return null;
         }
     }
 }
-
-/*
- * ФОРМАТ ОПИСАТЕЛЯ EXE ФАЙЛА:
-
- * <конец данных>
- * int ?; =2
- * int ?; =1
- * int[16] ?; // (=0 - если камера есть, =-1 - если нет)
- * ---
- * long[16][101] offset; // Смещение в файле до опорных кадров с шагом (? мин).
- * ---
- * int[16][101] ?; // Номер начального кадра в отрезке?
- * ---
- * int displayMode; // Режим отображения камер в плеере. (1-4-9 ?)
- * int[16] isExist; // Есть или нет данные камеры (0-нет, 1-есть).
- * long startDataPos; // Начало данных в файле.
- * long[15] ?; // Нули.
- * long endDataPos; // Конец данных в файле (начало данного блока инфы)
- * long[15] ?; // Нули.
- * long[16] frameCount; // Общее кол-во кадров по камерам.
- * <конец файла>
- */

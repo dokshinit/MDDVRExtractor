@@ -14,7 +14,7 @@ import javax.swing.Timer;
  *
  * @author Докшин_А_Н
  */
-public class ExtMouseAdapter extends MouseAdapter {
+public class ExtMouseAdapter extends MouseAdapter implements ActionListener {
 
     // Таймаут ожидания второго клика в миллисекундах.
     private int doubleClickDelay = 300;
@@ -25,21 +25,21 @@ public class ExtMouseAdapter extends MouseAdapter {
     private int col = -1;
     private int row = -1;
 
+    /**
+     * Конструктор.
+     */
     public ExtMouseAdapter() {
-
-        ActionListener actionListener = new ActionListener() {
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                timer.stop();
-            }
-        };
         owner = null;
-        timer = new Timer(doubleClickDelay, actionListener);
+        timer = new Timer(doubleClickDelay, this);
         timer.setRepeats(false);
     }
 
-    void setOwner(Object obj) {
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        timer.stop();
+    }
+
+    private void setOwner(Object obj) {
         owner = obj;
         if (owner != null) {
             if (owner instanceof JTable) {
@@ -50,7 +50,7 @@ public class ExtMouseAdapter extends MouseAdapter {
         }
     }
 
-    boolean checkOwner(Object obj) {
+    private boolean checkOwner(Object obj) {
         if (owner == obj) {
             if (owner instanceof JTable) {
                 JTable tab = (JTable) owner;
@@ -61,7 +61,7 @@ public class ExtMouseAdapter extends MouseAdapter {
         return false;
     }
 
-    void show(String s) {
+    public void show(String s) {
         System.out.print(s);
         if (owner != null) {
             System.out.print(": " + owner.getClass().getName());

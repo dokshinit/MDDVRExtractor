@@ -68,7 +68,7 @@ public final class FFMpeg {
             }
             pr.destroy();
         } catch (IOException e) {
-            e.printStackTrace();
+            Err.log(e);
         } finally {
             if (pr != null) {
                 pr.destroy();
@@ -147,7 +147,7 @@ public final class FFMpeg {
                 // Поток тормознут, если exitValue не вызывает исключение!
                 image = ImageIO.read(is);
             } catch (IOException e) {
-                e.printStackTrace();
+                Err.log(e);
             } finally {
                 if (pr != null) {
                     pr.destroy(); // На всякий случай.

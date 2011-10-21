@@ -84,4 +84,14 @@ public class InputFile {
             in.close();
         }
     }
+
+    /**
+     * Безопасный вариант закрытия файла-источника (не вызывает исключений).
+     */
+    public void closeSafe() {
+        try {
+            close();
+        } catch (IOException ex) {
+        }
+    }
 }

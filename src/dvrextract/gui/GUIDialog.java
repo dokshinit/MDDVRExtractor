@@ -6,7 +6,6 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.Window;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 
 /**
  * Диалог приложения (общие настройки и методы).

@@ -11,14 +11,17 @@ import org.jdesktop.swingx.decorator.ComponentAdapter;
  */
 public class LogHighlighter extends AbstractHighlighter {
 
-    Color errorColor;
-    Color hideInfoColor;
-    Color infoColor;
+    // Цвет текста строки с типом ERROR.
+    private Color errorColor;
+    // Цвет текста строки с типом HIDE.
+    private Color hideInfoColor;
+    // Цвет текста строки с типом INFO.
+    private Color infoColor;
 
     public LogHighlighter() {
-        this.errorColor = new Color(0xFF0000);
-        this.hideInfoColor = new Color(0xA0A0A0);
-        this.infoColor = new Color(0x0000FF);
+        errorColor = new Color(0xFF0000);
+        hideInfoColor = new Color(0xA0A0A0);
+        infoColor = new Color(0x0000FF);
     }
 
     @Override

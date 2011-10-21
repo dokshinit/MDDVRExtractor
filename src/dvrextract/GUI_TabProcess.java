@@ -152,11 +152,9 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         comboSubFormat.showData();
 
         comboVideoFormat.setSelectedId(0);
-        comboAudioFormat.setSelectedId(0);
-        comboSubFormat.setSelectedId(0);
+        comboAudioFormat.setSelectedId(-1);
+        comboSubFormat.setSelectedId(-1);
         //
-        //dateStart.setText("01.08.2011 10:00:00");
-        //dateEnd.setText("01.08.2011 10:59:59");
         setDestination("/home/work/files/probe1.avi");
         fireStartDateChange();
         fireEndDateChange();
@@ -322,15 +320,15 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
             // Вычисление приблизительных результатов к обработке.
             CamInfo ci = App.srcCams[App.srcCamSelect];
-            for (FileInfo info : ci.files ) {
+            for (FileInfo info : ci.files) {
                 // TODO: Подсчёт данных для обработки.
             }
-            
+
             App.mainFrame.stopProgress();
             msg = "Подсчёт данных для обработки завершён.";
             App.mainFrame.setProgressInfo(msg);
             App.log(msg);
-            
+
             // TODO: Вывод окна с информацией о данных для обработки.
         }
     }

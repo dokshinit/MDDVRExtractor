@@ -1,12 +1,14 @@
 package dvrextract;
 
 import java.awt.Dimension;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -19,8 +21,9 @@ public class DataProcessor {
     ////////////////////////////////////////////////////////////////////////////
     // Процесс FFMPEG обрабатывающий данные.
     private static Process process;
-    private static InputStream processIn;
+    //private static InputStream processIn;
     private static OutputStream processOut;
+    private static OutputFile rawOut;
     ////////////////////////////////////////////////////////////////////////////
     // Текущая инфа о камере.
     private static CamInfo camInfo;
@@ -52,30 +55,56 @@ public class DataProcessor {
         timeMin = -1;
         timeMax = -1;
         // Проверка и обработка в хронологическом порядке списка файлов.
-        int cam = App.srcCamSelect;
+        int cam = App.srcCamSelect - 1;
         camInfo = App.srcCams[cam];
 
-        for (int i = 0; i < camInfo.files.size(); i++) {
-            if (Task.isTerminate()) {
-                break;
-            }
-            FileInfo fi = camInfo.files.get(i);
-            if (!fi.frameFirst.time.after(App.destTimeEnd)
-                    && !fi.frameLast.time.before(App.destTimeStart)) {
-                try {
-                    processFile(fi);
-                } catch (Exception ex) {
-                    App.log(ex.getMessage());
+        String msg = "Обработка источника...";
+        App.log(msg);
+        App.mainFrame.setProgressInfo(msg);
+        App.mainFrame.startProgress(1, camInfo.files.size());
+
+        try {
+            for (int i = 0; i < camInfo.files.size(); i++) {
+                if (Task.isTerminate()) {
                     break;
                 }
+                FileInfo fi = camInfo.files.get(i);
+
+                msg = String.format("Обработка файла (%d из %d)", i + 1, camInfo.files.size());
+                App.log(msg + ": " + fi.fileName);
+                App.mainFrame.setProgressInfo(msg);
+                App.mainFrame.setProgressText(fi.fileName);
+
+                // Выбираем только те файлы, промежутки которых попадают в 
+                if (!fi.frameFirst.time.after(App.destTimeEnd)
+                        && !fi.frameLast.time.before(App.destTimeStart)
+                        && (timeMax == -1 || fi.frameLast.time.getTime() >= timeMax)) {
+                    try {
+                        processFile(fi);
+                    } catch (SourceException ex) {
+                        App.log(ex.getMessage());
+                        break;
+                    }
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                }
             }
-        }
-        try {
+
             // Останов процесса FFMpeg.
+            App.log("Завершение процесса кодирования...");
             stopFFMpegProcess();
+            App.logupd("Процесс кодирования завершен.");
+
         } catch (FFMpegException ex) {
             App.log(ex.getMessage());
         }
+        App.mainFrame.stopProgress();
+
+        msg = "Обработка источника завершена.";
+        App.log(msg);
+        App.mainFrame.setProgressInfo(msg);
     }
 
     /**
@@ -96,11 +125,19 @@ public class DataProcessor {
             cmd.append(App.destAudioOptions);
             cmd.append(" ");
             cmd.append(App.destName);
-
+            if (!App.isDebug) {
+                App.log("FFMpeg = " + cmd.toString());
+            }
+            try {
+                rawOut = new OutputFile("/home/work/files/probe1.out");
+                File f = new File(App.destName);
+                if (f.exists()) f.delete();
+            } catch (FileNotFoundException ex) {
+            }
             // Стартуем процесс обработки.
             try {
                 process = Runtime.getRuntime().exec(cmd.toString());
-                processIn = process.getInputStream();
+                //processIn = process.getInputStream();
                 processOut = process.getOutputStream();
 
             } catch (IOException ex) {
@@ -108,6 +145,7 @@ public class DataProcessor {
                     process.destroy();
                     process = null;
                 }
+                Err.log(ex);
                 throw new FFMpegException("Ошибка запуска FFMpeg!");
             }
         }
@@ -119,12 +157,15 @@ public class DataProcessor {
      * завершился - завершает его принудительно.
      * @throws dvrextract.DataProcessor.FFMpegException 
      */
+    @SuppressWarnings("SleepWhileInLoop")
     private static void stopFFMpegProcess() throws FFMpegException {
         if (process != null) {
             try {
+                rawOut.close();
                 processOut.flush();
                 processOut.close();
             } catch (IOException ex) {
+                Err.log(ex);
             }
             while (true) {
                 // 10 сек. ожидание выхода и запрос на форсированное снятие процесса!
@@ -154,26 +195,37 @@ public class DataProcessor {
     }
 
     private static void processFile(FileInfo fileinfo) throws FFMpegException, SourceException {
-        if (process == null) {
-            startFFMpegProcess();
-        }
-        InputBufferedFile in = null;
+        //InputBufferedFile in = null;
+        InputFile in = null;
         try {
-            in = new InputBufferedFile(fileinfo.fileName, 1000000, 100);
+            //in = new InputBufferedFile(fileinfo.fileName, 1000000, 100);
+            in = new InputFile(fileinfo.fileName);
         } catch (FileNotFoundException ex) {
-            throw new SourceException("");
+            throw new SourceException("File not found = " + fileinfo.fileName);
         } catch (IOException ex) {
-            throw new SourceException("");
+            throw new SourceException("File IO = " + fileinfo.fileName);
+        }
+
+        fileInfo = fileinfo; // Нужно для успешного старта FFMpeg (дефолтные фпс и размеры)
+
+        if (process == null) {
+            App.log("Запуск процесса кодирования...");
+            startFFMpegProcess();
+            App.logupd("Запущен процесс кодирования.");
         }
 
         try {
-            fileInfo = fileinfo;
-
             int cam = App.srcCamSelect;
             Frame f = new Frame(fileInfo.fileType);
             int frameSize = f.getHeaderSize();
             long pos = fileInfo.frameFirst.pos; // Текущая позиция.
             long endpos = fileInfo.endDataPos; // Последняя позиция.
+            // Если это EXE - берём начальную позицию из инфы.
+            if (fileInfo.fileType == FileType.EXE) {
+                FileInfo.CamData cd = fileInfo.getCamData(cam);
+                pos = cd.mainFrameOffset;
+            }
+            App.log("File:"+fileInfo.fileName+" start="+pos+ " end=" + endpos + " size=" + fileInfo.fileSize);
 
             // Буфер чтения и парсинга данных.
             final byte[] baFrame = new byte[1000000];
@@ -187,20 +239,25 @@ public class DataProcessor {
                 if (f.parseHeader(bbF, 0) == 0) {
                     // Берем только фреймы выбранной камеры (актуально для EXE файла).
                     if (f.camNumber == cam) {
+                        //App.log("Frame pos=" + pos + " cam=" + f.camNumber + " VSz=" + f.videoSize + " ASz=" + f.audioSize);
                         // Если это не ключевой кадр и в выводе пусто - пропускаем.
                         // TODO Доработать логику! Т.к. может случится так, что первый кадр файла не ключевой,
                         // а продолжение предыдущего, но предыдущего нет, а есть предпредыдущий - будет 
                         // неверным добавлять этот кадр.
                         long time = f.time.getTime();
                         // Отбрасываем кадры, которые ранее последнего записанного кадра 
-                        // (направление времени только на увеличение!)
-                        if (timeMax == -1 || time > timeMax) {
-                            if (f.isMain || (frame != null && frameProcessCount > 0)) {
+                        // (направление времени только на увеличение, а т.к. 
+                        // дискретность времени в DVR-секунды, то неравенство не строгое!)
+                        if (timeMax == -1 || time >= timeMax) {
+                            // Если не было обработанных кадров - начинаем только с ключевого,
+                            // если были - включаем любые.
+                            if (f.isMain || frameProcessCount > 0) {
                                 in.read(baFrame, f.videoSize + f.audioSize);
                                 int audio = (App.destAudioType != -1 ? f.audioSize : 0);
                                 processOut.write(baFrame, 0, f.videoSize + audio);
+                                rawOut.write(baFrame, f.videoSize, f.audioSize);
                                 if (App.destSubType != -1) {
-                                    writeSub();
+                                    //writeSub();
                                 }
                                 frame = f;
                                 frameProcessCount++;
@@ -212,14 +269,24 @@ public class DataProcessor {
                         }
                     }
                     pos += frameSize + f.videoSize + f.audioSize - 1; // -1 т.к. автоинкремент.
+                } else {
+                    App.log("Frame pos=" + pos + " Not parsed!");
                 }
                 frameParsedCount++;
             }
-            //App.log("CAM"+info.camNumber+" file="+info.fileName);
             in.close();
+            App.log("Frame parsed = " + frameParsedCount);
+            App.log("Frame processed = " + frameProcessCount);
+            App.log("Video size = " + videoProcessSize);
 
         } catch (IOException ioe) {
-            ioe.printStackTrace();
+            Err.log("File name = " + fileinfo.fileName);
+            Err.log(ioe);
+            throw new SourceException("File process IO = " + fileinfo.fileName);
+        } finally {
+            if (in != null) {
+                in.closeSafe();
+            }
         }
     }
 

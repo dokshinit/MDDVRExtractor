@@ -120,17 +120,8 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
 
         @Override
         public void task() {
-            // Установка источника.
-            App.srcName = textSource.getText();
-            App.srcType = SourceFileFilter.getType(textSource.getText());
-            App.srcCamLimit = comboCam.getSelectedItem().id;
-            // Отображение источника.
-            App.mainFrame.tabSource.displaySource();
-            // Очистка отображаемого списка камер источника.
-            App.mainFrame.tabSource.displayCams(0);
             // Сканирование источника.
-            Files.scan(App.srcName, App.srcCamLimit);
-            App.mainFrame.tabSource.displayCams();
+            Files.scan(textSource.getText(), comboCam.getSelectedItem().id);
         }
     }
 

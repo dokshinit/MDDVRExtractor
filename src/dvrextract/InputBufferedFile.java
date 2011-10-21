@@ -308,6 +308,16 @@ public class InputBufferedFile {
     }
 
     /**
+     * Безопасный вариант закрытия файла-источника (не вызывает исключений).
+     */
+    public void closeSafe() {
+        try {
+            close();
+        } catch (IOException ex) {
+        }
+    }
+
+    /**
      * Чтение byte из файла (буферизированно). Указатель смещается.
      * @return Считанное значение.
      * @throws IOException Ошибка операции.

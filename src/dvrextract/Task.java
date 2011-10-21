@@ -129,17 +129,17 @@ public final class Task {
             try {
                 fireStart();
             } catch (Exception ex) {
-                ex.printStackTrace();
+                Err.log(ex);
             }
             try {
                 task();
             } catch (Exception ex) {
-                ex.printStackTrace();
+                Err.log(ex);
             }
             try {
                 fireStop();
             } catch (Exception ex) {
-                ex.printStackTrace();
+                Err.log(ex);
             }
             Task.fireStop();
         }

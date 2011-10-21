@@ -69,6 +69,9 @@ public class App {
         logupd(LogTableModel.Type.TEXT, text);
     }
 
+    /**
+     * Инициализация Look&Feel.
+     */
     public static void initLAF() {
         String laf = "javax.swing.plaf.metal.MetalLookAndFeel";
         //String laf = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
@@ -125,7 +128,7 @@ public class App {
     // по шалону *.exe - файл архива, по шаблону da*. - файл hdd.
     //
     // Каталог или файл.
-    public static String srcName = "/home/work/files";
+    public static String srcName = "/home/work/files/AZS2/1.exe";
     // Тип источника: 0-EXE, 1-HDD
     public static FileType srcType = FileType.NO;
     // Ограничение одной камерой (если = 0 - без ограничений).
@@ -139,7 +142,7 @@ public class App {
     ////////////////////////////////////////////////////////////////////////////
     public static Date destTimeStart;
     public static Date destTimeEnd;
-    public static String destName = "/home/work/files/ffmpeg.mkv";
+    public static String destName = "";
     public static String destVideoOptions = "";
     public static String destAudioOptions = "";
     public static int destAudioType;
@@ -151,11 +154,18 @@ public class App {
      */
     public static void main(String[] args) {
 
+        // Инициализация лога ошибок.
+        Err.init();
+
+        // Инициализация переменных.
         for (int i = 0; i < MAXCAMS; i++) {
             srcCams[i] = new CamInfo();
         }
 
+        // Инициализация Look&Feel.
         initLAF();
+
+        // Инициализация FFMpeg (получение списков кодеков).
         FFMpeg.init();
 
         // Старт многооконного приложения
@@ -176,20 +186,10 @@ public class App {
             }
         });
 
-//        HDDFiles hdd = new HDDFiles("/home/work/files/AZSVIDEO/RESEARCH/rest/131");
-//        HDDFiles hdd = new HDDFiles("/mnt/131");
-//        hdd.scan(6);
-//
-//        for (int i = 0; i < App.MAXCAMS; i++) {
-//            long size = 0, time = 0;
-//            for (int n = 0; n < hdd.files[i].size(); n++) {
-//                HDDFileInfo info = hdd.files[i].get(n);
-//                size += info.fileSize;
-//                time += info.frameLast.time.getTime() - info.frameFirst.time.getTime();
-//            }
-//            log("CAM" + (i + 1) + " files=" + hdd.files[i].size() + " size=" + size + " time=" + (time / 1000));
-//        }
-
+        //TODO: Два режима работы - графический и консольный.
+        //TODO: Прикрутить ключи для консольного использования.
+        //TODO: Сделать просмотр или просто первые кадры камер? Средства?
+        //TODO: Сделать процедуру считывающую первый заголовок и последний и выдающую инфу наверх.
 
         /*
          * Ориентировочный синтаксис использования из консоли:
@@ -222,23 +222,5 @@ public class App {
          *          Дата и время конца сохранения данных.
          * 
          */
-
-
-        /*
-         * 1. Выбор источника данных: каталог или файл exe/hdd.
-         * 2. Сканирование источника. 
-         *    Если это файл, то параметры файла.
-         *    Если каталог - параметры каждого файла в каталоге.
-         * 3. Если каталог - выбор файлов.
-         * 4. Настройка параметров обработки. 
-         *    Видеопотока, титров, аудио, выходных файлов, доп.параметров ffmpeg.
-         * 5. Обработка с отображением прогреса.
-         */
-
-
     }
-    //TODO: Два режима работы - графический и консольный.
-    //TODO: Прикрутить ключи для консольного использования.
-    //TODO: Сделать просмотр или просто первые кадры камер? Средства?
-    //TODO: Сделать процедуру считывающую первый заголовок и последний и выдающую инфу наверх.
 }
