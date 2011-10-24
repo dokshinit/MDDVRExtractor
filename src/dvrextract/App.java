@@ -9,9 +9,11 @@ import javax.swing.UIManager;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
 
+// TODO: Добавить определение операционной системы - давать соответствующий выбор сохранения результатов.
+// TODO: Для линукса - запись видео\аудио\титров через три именованых канала в один файл, для винды - в три разных (два потока ffmpeg + файл srt).
+// TODO: Проверка наличия нужных кодеков (g722 и srt)?
+//
 // TODO: Зависает обновление таблицы после долгого скролла.
-// TODO: Хранить изображения?
-// TODO: При выборе конкретной камеры при скане - не выводит список!
 /**
  *
  * @author lex
@@ -29,6 +31,9 @@ public class App {
     public static GUI_Main mainFrame; // Основное окно работы программы.
     // Для отладки, если true - подробный лог.
     public static boolean isDebug = false;
+    // Операционная система поддерживает именованные каналы (pipe).
+    // Если да, то будет доступно в опциях - сливать всё в один файл!
+    public static boolean isPipe = false;
 
     /**
      * Вывод строки лога с типом.
@@ -128,7 +133,7 @@ public class App {
     // по шалону *.exe - файл архива, по шаблону da*. - файл hdd.
     //
     // Каталог или файл.
-    public static String srcName = "/home/work/files/AZS2/1.exe";
+    public static String srcName = "/home/work/files/AZSVIDEO/1/1.exe";
     // Тип источника: 0-EXE, 1-HDD
     public static FileType srcType = FileType.NO;
     // Ограничение одной камерой (если = 0 - без ограничений).

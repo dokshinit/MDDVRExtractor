@@ -166,7 +166,9 @@ public class Files {
             if (info != null) {
                 // Обрабатываем инфу - добавляем файл ко всем камерам, какие в нём перечислены.
                 for (FileInfo.CamData n : info.camInfo) {
-                    App.srcCams[n.camNumber - 1].addFile(info);
+                    if (cam == 0 || cam == n.camNumber) {
+                        App.srcCams[n.camNumber - 1].addFile(info);
+                    }
                 }
                 if (App.isDebug) {
                     App.log(Type.INFO,

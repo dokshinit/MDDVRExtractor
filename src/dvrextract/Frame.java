@@ -128,11 +128,15 @@ public class Frame {
      * Дата хранится в формате int - кол-во секунд от 01.01.1970.
      * @return Дата и время в формате джавы.
      */
-    public static Date dateFromRAW(int bdate) {
+    public static Date dateFromRAW(long bdate) {
         // Часовой пояс для вычисления коррекции к мировому времени.
         // Приведение к дате в счислении Java: кол-во мс от 01.01.1970.
         // отнимаем 60 минут чтобы компенсировать ленее время - ПРОКОНТРОЛИРОВАТЬ НА СТЫКЕ!
-        long javaDate = (long) bdate * 1000;
+        // long: младший int - мсек, старший - сек.
+        long sec = bdate >> 32;
+        long msec = bdate & 0xFFFFFFFFL;
+        if (msec < 0 || msec > 999) return null; // Не верный формат времени!
+        long javaDate = sec*1000 + msec;
         // Внесение коррекции на часовой пояс.
         // НЕ учитывается переход на летнее и зимнее время, т.к. исходная
         // информация уже с учётом летнего времени!
@@ -144,8 +148,9 @@ public class Frame {
      * @param date Дата.
      * @return Время в формате DVR.
      */
-    public static int dateToRAW(Date date) {
-        return (int) ((date.getTime() + timeZone) / 1000);
+    public static long dateToRAW(Date date) {
+        long t = date.getTime() + timeZone;
+        return ((t / 1000) << 32) + (t % 1000);
     }
 
     /**
@@ -195,21 +200,19 @@ public class Frame {
         }
         // Размер кадра видеоданных.
         videoSize = bb.getInt(offset + 0x19);
-        if (videoSize < 0 || videoSize > 1000000) {
+        if (videoSize < 0 || videoSize > 10000000) {
             return 6;
         }
         // Размер кадра аудиоданных.
         audioSize = bb.getInt(offset + 0x1D);
-        if (audioSize < 0 || audioSize > 1000000) {
+        if (audioSize < 0 || audioSize > 10000000) {
             return 7;
         }
-        // Дата и время кадра.
-        int tb = bb.getInt(offset + 0x04);
-        if (tb < 1104541200) {
+        // Дата-время (смещение в секундах от 1970 г.)
+        time = dateFromRAW(bb.getLong(offset));
+        if (time == null || (time.getTime() < 1104541200000L)) { // 
             return 8;
         }
-        // Дата-время (смещение в секундах от 1970 г.)
-        time = dateFromRAW(tb);
         // Номер кадра.
         number = bb.getInt(offset + 0x2D);
         // Базовый кадр.

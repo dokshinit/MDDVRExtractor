@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -23,7 +21,7 @@ public class DataProcessor {
     private static Process process;
     //private static InputStream processIn;
     private static OutputStream processOut;
-    private static OutputFile rawOut;
+    private static OutputFile rawVideo,rawAudio,rawAll;
     ////////////////////////////////////////////////////////////////////////////
     // Текущая инфа о камере.
     private static CamInfo camInfo;
@@ -119,7 +117,10 @@ public class DataProcessor {
             Dimension d = fileInfo.frameFirst.getResolution();
             String size = "" + d.width + "x" + d.height;
             // Компилируем командную строку для ffmpeg.
-            StringBuilder cmd = new StringBuilder("ffmpeg -i - ");
+            StringBuilder cmd = new StringBuilder("ffmpeg ");
+            cmd.append("-r ").append(fps).append(" ");
+            //cmd.append("-f pcm")
+            cmd.append(" -i - ");
             cmd.append(App.destVideoOptions.replace("{origfps}", fps).replace("{origsize}", size));
             cmd.append(" ");
             cmd.append(App.destAudioOptions);
@@ -129,7 +130,9 @@ public class DataProcessor {
                 App.log("FFMpeg = " + cmd.toString());
             }
             try {
-                rawOut = new OutputFile("/home/work/files/probe1.out");
+                rawVideo = new OutputFile("/home/work/files/probe1.video");
+                rawAudio = new OutputFile("/home/work/files/probe1.audio");
+                rawAll = new OutputFile("/home/work/files/probe1.out");
                 File f = new File(App.destName);
                 if (f.exists()) f.delete();
             } catch (FileNotFoundException ex) {
@@ -161,7 +164,9 @@ public class DataProcessor {
     private static void stopFFMpegProcess() throws FFMpegException {
         if (process != null) {
             try {
-                rawOut.close();
+                rawVideo.close();
+                rawAudio.close();
+                rawAll.close();
                 processOut.flush();
                 processOut.close();
             } catch (IOException ex) {
@@ -239,12 +244,14 @@ public class DataProcessor {
                 if (f.parseHeader(bbF, 0) == 0) {
                     // Берем только фреймы выбранной камеры (актуально для EXE файла).
                     if (f.camNumber == cam) {
-                        //App.log("Frame pos=" + pos + " cam=" + f.camNumber + " VSz=" + f.videoSize + " ASz=" + f.audioSize);
                         // Если это не ключевой кадр и в выводе пусто - пропускаем.
                         // TODO Доработать логику! Т.к. может случится так, что первый кадр файла не ключевой,
                         // а продолжение предыдущего, но предыдущего нет, а есть предпредыдущий - будет 
                         // неверным добавлять этот кадр.
                         long time = f.time.getTime();
+                        App.log("Frame pos=" + pos + " cam=" + f.camNumber 
+                                + " VSz=" + f.videoSize + " ASz=" + f.audioSize
+                                + " step="+(time-timeMax));
                         // Отбрасываем кадры, которые ранее последнего записанного кадра 
                         // (направление времени только на увеличение, а т.к. 
                         // дискретность времени в DVR-секунды, то неравенство не строгое!)
@@ -255,7 +262,9 @@ public class DataProcessor {
                                 in.read(baFrame, f.videoSize + f.audioSize);
                                 int audio = (App.destAudioType != -1 ? f.audioSize : 0);
                                 processOut.write(baFrame, 0, f.videoSize + audio);
-                                rawOut.write(baFrame, f.videoSize, f.audioSize);
+                                rawVideo.write(baFrame, 0, f.videoSize);
+                                rawAudio.write(baFrame, f.videoSize, f.audioSize);
+                                rawAll.write(baFrame, 0, f.videoSize + f.audioSize);
                                 if (App.destSubType != -1) {
                                     //writeSub();
                                 }

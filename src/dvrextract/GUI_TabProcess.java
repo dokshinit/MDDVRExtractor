@@ -148,7 +148,9 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
         comboSubFormat.addItem(-1, "Не создавать");
         comboSubFormat.addItem(0, "Отдельный файл");
-        comboSubFormat.addItem(1, "Внедрённый поток");
+        if (App.isPipe) {
+            comboSubFormat.addItem(1, "Внедрённый поток");
+        }
         comboSubFormat.showData();
 
         comboVideoFormat.setSelectedId(0);
@@ -156,6 +158,8 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         comboSubFormat.setSelectedId(-1);
         //
         setDestination("/home/work/files/probe1.avi");
+        dateStart.setText("01.01.2011 00:00:00");
+        
         fireStartDateChange();
         fireEndDateChange();
         fireVideoFormatSelect();
@@ -165,8 +169,6 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
     /**
      * Возвращает строку с опциями для видео согласно выбранным опциям.
-     * @param origfps Оригинальное значение fps.
-     * @param origsize Оригинальное значение размера кадра вида WxH.
      * @return Строка опций.
      */
     private String getVideoOptions() {
@@ -344,7 +346,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         if (dateEnd.getTime().before(dateStart.getTime())) {
             dateStart.setTime(dateEnd.getTime());
         }
-        App.destTimeEnd = dateStart.getTime();
+        App.destTimeEnd = dateEnd.getTime();
     }
 
     /**
