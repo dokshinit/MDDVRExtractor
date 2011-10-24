@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Date;
 import javax.swing.JOptionPane;
 
 /**
@@ -18,10 +19,11 @@ public class DataProcessor {
 
     ////////////////////////////////////////////////////////////////////////////
     // Процесс FFMPEG обрабатывающий данные.
-    private static Process process;
-    //private static InputStream processIn;
-    private static OutputStream processOut;
-    private static OutputFile rawVideo,rawAudio,rawAll;
+    private static Process processVideo; // Основной процесс - обработка видео или всего через именованные потоки.
+    private static OutputStream processVideoOut;
+    private static Process processAudio; // Процесс для обработки аудио в отдельный файл.
+    private static OutputStream processAudioOut;
+    private static OutputFile subOut; // Вывод титров в отдельный файл.
     ////////////////////////////////////////////////////////////////////////////
     // Текущая инфа о камере.
     private static CamInfo camInfo;
@@ -45,7 +47,7 @@ public class DataProcessor {
      * Обработка данных.
      */
     public static void process() {
-        process = null;
+        processVideo = null;
         frameParsedCount = 0;
         frameProcessCount = 0;
         videoProcessSize = 0;
@@ -93,7 +95,7 @@ public class DataProcessor {
             // Останов процесса FFMpeg.
             App.log("Завершение процесса кодирования...");
             stopFFMpegProcess();
-            App.logupd("Процесс кодирования завершен.");
+            App.logupd("Процесс кодирования завершён.");
 
         } catch (FFMpegException ex) {
             App.log(ex.getMessage());
@@ -104,49 +106,118 @@ public class DataProcessor {
         App.log(msg);
         App.mainFrame.setProgressInfo(msg);
     }
+    
+    static String audioName, subName;
+    static boolean isAudioTemp, isSubTemp; //
 
     /**
      * Запуск процесса FFMpeg c параметрами для обработки.
      * @throws dvrextract.DataProcessor.FFMpegException Ошибка выполнения операции.
      */
     private static void startFFMpegProcess() throws FFMpegException {
-        if (process == null) {
+        if (processVideo == null) {
             // Оригинальный fps.
             String fps = String.valueOf(fileInfo.frameFirst.fps);
             // Оригинальный размер кадра.
             Dimension d = fileInfo.frameFirst.getResolution();
             String size = "" + d.width + "x" + d.height;
+            // Для истчника аудио.
+            String asrc = "-f g722 -acodec g722 -ar 8000 -ac 1 ";
+            String audioName = App.destAudioName;
+            String subName = App.destSubName;
+            // Уникальный идентификатор файла для каналов.
+            String fid = String.format("dvr%X", (int) (new Date()).getTime());
+
             // Компилируем командную строку для ffmpeg.
-            StringBuilder cmd = new StringBuilder("ffmpeg ");
-            cmd.append("-r ").append(fps).append(" ");
-            //cmd.append("-f pcm")
-            cmd.append(" -i - ");
-            cmd.append(App.destVideoOptions.replace("{origfps}", fps).replace("{origsize}", size));
-            cmd.append(" ");
-            cmd.append(App.destAudioOptions);
-            cmd.append(" ");
-            cmd.append(App.destName);
+            // Для видео.
+            StringBuilder vcmd = new StringBuilder("ffmpeg ");
+            // Для аудио.
+            StringBuilder acmd = new StringBuilder("ffmpeg ");
+
+            // Настройки источников...
+            // Видео.
+            vcmd.append(" -r ").append(fps).append(" -i - ");
+            // Аудио.
+            if (App.destAudioType == 0) {
+                // Отдельный файл.
+                acmd.append(asrc).append(" -i - ");
+                acmd.append(App.destAudioOptions).append(" ");
+                acmd.append(App.destAudioName);
+            } else if (App.destAudioType == 1) {
+                if (!App.isPipe) {
+                    // Отдельный промежуточный файл.
+                    audioName = App.destVideoName + ".audio.wav";
+                    acmd.append(asrc).append(" -i - ");
+                    acmd.append(App.destAudioOptions).append(" ");
+                    acmd.append(audioName);
+                } else {
+                    // Именованный поток.
+                    audioName = fid + ".audio.wav";
+                    vcmd.append(asrc).append(" -i ").append(audioName).append(" ");
+                }
+            }
+            // Субтитры.
+            if (App.destSubType == 1) {
+                if (!App.isPipe) {
+                    // Отдельный промежуточный файл.
+                    subName = App.destSubName + ".sub.srt";
+                } else {
+                    // Именованный поток.
+                    subName = fid + ".sub";
+                    vcmd.append("-f srt -i ").append(subName).append(" ");
+                }
+            }
+
+            // Настройки приёмника.
+            vcmd.append(App.destVideoOptions.replace("{origfps}", fps).replace("{origsize}", size));
+            vcmd.append(" ");
+            if (App.destAudioType == 1) {
+                vcmd.append(App.destAudioOptions).append(" ");
+            }
+            if (App.destSubType == 1) {
+                vcmd.append(App.destSubOptions).append(" ");
+            }
+            vcmd.append(App.destVideoName);
+
+            //
             if (!App.isDebug) {
-                App.log("FFMpeg = " + cmd.toString());
+                App.log("FFMpeg Video = " + vcmd.toString());
             }
-            try {
-                rawVideo = new OutputFile("/home/work/files/probe1.video");
-                rawAudio = new OutputFile("/home/work/files/probe1.audio");
-                rawAll = new OutputFile("/home/work/files/probe1.out");
-                File f = new File(App.destName);
-                if (f.exists()) f.delete();
-            } catch (FileNotFoundException ex) {
+
+            if (App.destSubType >= 0) {
+                try {
+                    subOut = new OutputFile(subName);
+                } catch (FileNotFoundException ex) {
+                    //throw new FileNotFoundException("Ошибка записи файла для субтитров!");
+                }
             }
+
+            // Если файл видео уже есть - стираем.
+            File f = new File(App.destVideoName);
+            if (f.exists()) {
+                f.delete();
+            }
+            // Если файл аудио уже есть - стираем.
+            f = new File(audioName);
+            if (f.exists()) {
+                f.delete();
+            }
+
+            f = new File(subName);
+            if (f.exists()) {
+                f.delete();
+            }
+
             // Стартуем процесс обработки.
             try {
-                process = Runtime.getRuntime().exec(cmd.toString());
+                processVideo = Runtime.getRuntime().exec(vcmd.toString());
                 //processIn = process.getInputStream();
-                processOut = process.getOutputStream();
+                processVideoOut = processVideo.getOutputStream();
 
             } catch (IOException ex) {
-                if (process != null) {
-                    process.destroy();
-                    process = null;
+                if (processVideo != null) {
+                    processVideo.destroy();
+                    processVideo = null;
                 }
                 Err.log(ex);
                 throw new FFMpegException("Ошибка запуска FFMpeg!");
@@ -162,13 +233,13 @@ public class DataProcessor {
      */
     @SuppressWarnings("SleepWhileInLoop")
     private static void stopFFMpegProcess() throws FFMpegException {
-        if (process != null) {
+        if (processVideo != null) {
             try {
                 rawVideo.close();
                 rawAudio.close();
                 rawAll.close();
-                processOut.flush();
-                processOut.close();
+                processVideoOut.flush();
+                processVideoOut.close();
             } catch (IOException ex) {
                 Err.log(ex);
             }
@@ -176,7 +247,7 @@ public class DataProcessor {
                 // 10 сек. ожидание выхода и запрос на форсированное снятие процесса!
                 for (int i = 0; i < 100; i++) {
                     try {
-                        process.exitValue();
+                        processVideo.exitValue();
                         return;
                     } catch (IllegalThreadStateException e) {
                         try {
@@ -192,7 +263,7 @@ public class DataProcessor {
                         JOptionPane.QUESTION_MESSAGE, null, options,
                         options[1]);
                 if (n == 0) {
-                    process.destroy();
+                    processVideo.destroy();
                     throw new FFMpegException("FFMpeg завершен принудительно!");
                 }
             }
@@ -213,7 +284,7 @@ public class DataProcessor {
 
         fileInfo = fileinfo; // Нужно для успешного старта FFMpeg (дефолтные фпс и размеры)
 
-        if (process == null) {
+        if (processVideo == null) {
             App.log("Запуск процесса кодирования...");
             startFFMpegProcess();
             App.logupd("Запущен процесс кодирования.");
@@ -230,7 +301,7 @@ public class DataProcessor {
                 FileInfo.CamData cd = fileInfo.getCamData(cam);
                 pos = cd.mainFrameOffset;
             }
-            App.log("File:"+fileInfo.fileName+" start="+pos+ " end=" + endpos + " size=" + fileInfo.fileSize);
+            App.log("File:" + fileInfo.fileName + " start=" + pos + " end=" + endpos + " size=" + fileInfo.fileSize);
 
             // Буфер чтения и парсинга данных.
             final byte[] baFrame = new byte[1000000];
@@ -249,9 +320,9 @@ public class DataProcessor {
                         // а продолжение предыдущего, но предыдущего нет, а есть предпредыдущий - будет 
                         // неверным добавлять этот кадр.
                         long time = f.time.getTime();
-                        App.log("Frame pos=" + pos + " cam=" + f.camNumber 
+                        App.log("Frame pos=" + pos + " cam=" + f.camNumber
                                 + " VSz=" + f.videoSize + " ASz=" + f.audioSize
-                                + " step="+(time-timeMax));
+                                + " step=" + (time - timeMax));
                         // Отбрасываем кадры, которые ранее последнего записанного кадра 
                         // (направление времени только на увеличение, а т.к. 
                         // дискретность времени в DVR-секунды, то неравенство не строгое!)
@@ -261,7 +332,7 @@ public class DataProcessor {
                             if (f.isMain || frameProcessCount > 0) {
                                 in.read(baFrame, f.videoSize + f.audioSize);
                                 int audio = (App.destAudioType != -1 ? f.audioSize : 0);
-                                processOut.write(baFrame, 0, f.videoSize + audio);
+                                processVideoOut.write(baFrame, 0, f.videoSize + audio);
                                 rawVideo.write(baFrame, 0, f.videoSize);
                                 rawAudio.write(baFrame, f.videoSize, f.audioSize);
                                 rawAll.write(baFrame, 0, f.videoSize + f.audioSize);

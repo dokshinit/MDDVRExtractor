@@ -150,7 +150,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         // Нет файлов для обработки (не должно быть по идее).
         if (!App.srcCams[App.srcCamSelect-1].isExists) return false;
         // Не выбран выходной файл.
-        if (App.destName.isEmpty()) return false;
+        if (App.destVideoName.isEmpty()) return false;
         return true;
     }
 

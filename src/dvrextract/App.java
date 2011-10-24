@@ -33,8 +33,9 @@ public class App {
     public static boolean isDebug = false;
     // Операционная система поддерживает именованные каналы (pipe).
     // Если да, то будет доступно в опциях - сливать всё в один файл!
+    // Если нет, то только в два захода!
     public static boolean isPipe = false;
-
+    
     /**
      * Вывод строки лога с типом.
      * @param type Тип сообщения.
@@ -147,9 +148,12 @@ public class App {
     ////////////////////////////////////////////////////////////////////////////
     public static Date destTimeStart;
     public static Date destTimeEnd;
-    public static String destName = "";
+    public static String destVideoName = "";
+    public static String destAudioName = "";
+    public static String destSubName = "";
     public static String destVideoOptions = "";
     public static String destAudioOptions = "";
+    public static String destSubOptions = "";
     public static int destAudioType;
     public static int destSubType;
 
@@ -165,6 +169,14 @@ public class App {
         // Инициализация переменных.
         for (int i = 0; i < MAXCAMS; i++) {
             srcCams[i] = new CamInfo();
+        }
+        // Определяем можно ли пользоваться именованными каналами.
+        // По умолчанию - нельзя.
+        String s = System.getProperty("os.name").toLowerCase();
+        if (s.substring(0, 3).equals("lin")) {
+            isPipe = true;
+        } else if (s.substring(0, 3).equals("win")) {
+            isPipe = false;
         }
 
         // Инициализация Look&Feel.

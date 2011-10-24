@@ -26,10 +26,11 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     private JDateTimeField dateStart, dateEnd;
     // Кнопка оценки объёмов.
     private JButton buttonEstimate;
+    ////////////////////////////////////////////////////////////////////////////
     // Путь к файлу-приёмнику.
-    private JTextField textDestination;
-    // Кнопка выбора файла-приёмника.
-    private JButton buttonSelect;
+    private JTextField textDestVideo;
+    // Кнопка выбора файла-приёмника видео.
+    private JButton buttonSelectVideo;
     // Список форматов видео.
     private JExtComboBox comboVideoFormat;
     // Список разрешений видео.
@@ -38,10 +39,24 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     private JExtComboBox comboVideoFPS;
     // Ручные настройки для кодирования.
     private JTextField textVideoCustom;
+    ////////////////////////////////////////////////////////////////////////////
+    // Список режима сохранения аудио.
+    private JExtComboBox comboAudioMode;
+    // Путь к файлу-приёмнику-аудио.
+    private JTextField textDestAudio;
+    // Кнопка выбора файла-приёмника аудио.
+    private JButton buttonSelectAudio;
     // Формат аудио.
     private JExtComboBox comboAudioFormat;
     // Ручные настройки для кодирования.
     private JTextField textAudioCustom;
+    ////////////////////////////////////////////////////////////////////////////
+    // Список режима сохранения субтитров.
+    private JExtComboBox comboSubMode;
+    // Путь к файлу-приёмнику-субтитров.
+    private JTextField textDestSub;
+    // Кнопка выбора файла-приёмника субтитров.
+    private JButton buttonSelectSub;
     // Список форматов субтитров.
     private JExtComboBox comboSubFormat;
 
@@ -56,6 +71,13 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         add(GUI.createSectionLabel(title), "spanx, growx, wrap");
     }
 
+    private JExtComboBox addCombo(String layparam) {
+        JExtComboBox c = GUI.createCombo(false);
+        add(c, layparam == null ? "" : layparam);
+        c.addActionListener(this);
+        return c;
+    }
+
     /**
      * Инициализация графических компонент.
      */
@@ -68,7 +90,6 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         textCam.setText("не выбрана");
 
         add(GUI.createLabel("Период c"), "skip");
-
         add(dateStart = GUI.createDTText(), "w 150, spanx, split 4");
         dateStart.addActionListener(this);
         add(GUI.createLabel("по"), "");
@@ -77,38 +98,43 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         add(buttonEstimate = GUI.createButton("Оценка"), "wrap");
         buttonEstimate.addActionListener(this);
 
-        addSection("Приёмник");
-        add(GUI.createLabel("Файл"), "skip");
-        add(textDestination = GUI.createText(300), "growx, span, split 2");
-        textDestination.setEditable(false);
-        add(buttonSelect = GUI.createButton("Выбор"), "wrap");
-        buttonSelect.addActionListener(this);
-
         addSection("Видео");
+        add(GUI.createLabel("Файл"), "skip");
+        add(textDestVideo = GUI.createText(300), "growx, spanx, split 2");
+        textDestVideo.setEditable(false);
+        add(buttonSelectVideo = GUI.createButton("Выбор"), "wrap");
+        buttonSelectVideo.addActionListener(this);
         add(GUI.createLabel("Кодек"), "skip");
-        add(comboVideoFormat = GUI.createCombo(false), "left, spanx, wrap");
-        comboVideoFormat.addActionListener(this);
+        comboVideoFormat = addCombo("left, spanx, wrap");
         add(GUI.createLabel("Размер"), "skip");
-        add(comboVideoSize = GUI.createCombo(false), "left, spanx, split 3");
-        comboVideoSize.addActionListener(this);
+        comboVideoSize = addCombo("left, spanx, split 3");
         add(GUI.createLabel("Кадр/сек"), "gap 20");
-        add(comboVideoFPS = GUI.createCombo(false), "wrap");
-        comboVideoFPS.addActionListener(this);
+        comboVideoFPS = addCombo("wrap");
         add(GUI.createLabel("Ручные настройки"), "skip");
         add(textVideoCustom = GUI.createText(300), "left, spanx, wrap");
         textVideoCustom.addActionListener(this);
 
         addSection("Аудио");
+        add(GUI.createLabel("Режим"), "skip");
+        comboAudioMode = addCombo("left, spanx, split 3");
+        add(textDestAudio = GUI.createText(300), "growx");
+        textDestAudio.setEditable(false);
+        add(buttonSelectAudio = GUI.createButton("Выбор"), "wrap");
+        buttonSelectAudio.addActionListener(this);
         add(GUI.createLabel("Кодек"), "skip");
-        add(comboAudioFormat = GUI.createCombo(false), "left, spanx, wrap");
-        comboAudioFormat.addActionListener(this);
+        comboAudioFormat = addCombo("left, spanx, wrap");
         add(GUI.createLabel("Ручные настройки"), "skip");
         add(textAudioCustom = GUI.createText(300), "left, spanx, wrap");
 
         addSection("Титры");
+        add(GUI.createLabel("Режим"), "skip");
+        comboSubMode = addCombo("left, spanx, split 3");
+        add(textDestSub = GUI.createText(300), "growx");
+        textDestSub.setEditable(false);
+        add(buttonSelectSub = GUI.createButton("Выбор"), "wrap");
+        buttonSelectSub.addActionListener(this);
         add(GUI.createLabel("Формат"), "skip");
-        add(comboSubFormat = GUI.createCombo(false), "left, spanx, wrap");
-        comboSubFormat.addActionListener(this);
+        comboSubFormat = addCombo("left, spanx, wrap");
 
         ArrayList<FFCodec> list = FFMpeg.getCodecs();
         comboVideoFormat.addItem(0, new Item("Без преобразования", "copy"));
@@ -132,10 +158,16 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         comboVideoSize.addItem(2, new Item("352x576"));
         comboVideoSize.addItem(3, new Item("704x288"));
         comboVideoSize.addItem(4, new Item("704x576"));
+        comboVideoSize.addItem(5, new Item("1280x720"));
+        comboVideoSize.addItem(6, new Item("1920x1080"));
         comboVideoSize.addItem(1000, new Item("Ручные настройки"));
         comboVideoSize.showData();
 
-        comboAudioFormat.addItem(-1, new Item("Не сохранять"));
+        comboAudioMode.addItem(-1, new Item("Не сохранять"));
+        comboAudioMode.addItem(0, new Item("В файл"));
+        comboAudioMode.addItem(1, new Item("В видео"));
+        comboAudioMode.showData();
+
         comboAudioFormat.addItem(0, new Item("Без преобразования", "copy"));
         n = 1;
         for (FFCodec i : list) {
@@ -146,20 +178,23 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         comboAudioFormat.addItem(1000, new Item("Ручные настройки"));
         comboAudioFormat.showData();
 
-        comboSubFormat.addItem(-1, "Не создавать");
-        comboSubFormat.addItem(0, "Отдельный файл");
-        if (App.isPipe) {
-            comboSubFormat.addItem(1, "Внедрённый поток");
-        }
+        comboSubMode.addItem(-1, new Item("Не сохранять"));
+        comboSubMode.addItem(0, new Item("В файл"));
+        comboSubMode.addItem(1, new Item("В видео"));
+        comboSubMode.showData();
+
+        comboSubFormat.addItem(0, new Item("SubRip", "srt"));
         comboSubFormat.showData();
 
         comboVideoFormat.setSelectedId(0);
-        comboAudioFormat.setSelectedId(-1);
-        comboSubFormat.setSelectedId(-1);
+        comboAudioMode.setSelectedId(-1);
+        comboAudioFormat.setSelectedId(0);
+        comboSubMode.setSelectedId(-1);
+        comboSubFormat.setSelectedId(0);
         //
-        setDestination("/home/work/files/probe1.avi");
+        setVideoDestination("/home/work/files/probe1.avi");
         dateStart.setText("01.01.2011 00:00:00");
-        
+
         fireStartDateChange();
         fireEndDateChange();
         fireVideoFormatSelect();
@@ -204,14 +239,29 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      */
     private String getAudioOptions() {
         StringBuilder s = new StringBuilder();
-        boolean isCustom = false;
-        ExtItem i = comboAudioFormat.getSelectedItem();
-        if (i.id == 1000) {
-            s.append(textAudioCustom.getText().trim());
-        } else if (i.id == -1) {
-            s.append("-an ");
+        ExtItem i = comboAudioMode.getSelectedItem();
+        if (i.id >= 0) {
+            i = comboAudioFormat.getSelectedItem();
+            if (i.id == 1000) {
+                s.append(textAudioCustom.getText().trim());
+            } else {
+                s.append("-acodec ").append(((Item) i.object).name).append(" ");
+            }
         } else {
-            s.append("-acodec ").append(((Item) i.object).name).append(" ");
+            s.append("-an ");
+        }
+        return s.toString().trim();
+    }
+
+    /**
+     * Возвращает строку с опциями для субтитров.
+     * @return Строка опций.
+     */
+    private String getSubOptions() {
+        StringBuilder s = new StringBuilder();
+        ExtItem i = comboSubFormat.getSelectedItem();
+        if (i.id >= 0) {
+            s.append("-scodec ").append(((Item) i.object).name).append(" ");
         }
         return s.toString().trim();
     }
@@ -220,9 +270,29 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      * Устанавливает имя выходного файла (без проверки!). 
      * @param text Путь и имя файла.
      */
-    public void setDestination(String text) {
-        App.destName = text;
-        textDestination.setText(text);
+    public void setVideoDestination(String text) {
+        App.destVideoName = text;
+        textDestVideo.setText(text);
+        setAudioDestination(Files.getNameWOExt(App.destVideoName) + ".wav");
+        setSubDestination(Files.getNameWOExt(App.destVideoName) + ".srt");
+    }
+
+    /**
+     * Устанавливает имя выходного файла (без проверки!). 
+     * @param text Путь и имя файла.
+     */
+    public void setAudioDestination(String text) {
+        App.destAudioName = text;
+        textDestAudio.setText(text);
+    }
+
+    /**
+     * Устанавливает имя выходного файла (без проверки!). 
+     * @param text Путь и имя файла.
+     */
+    public void setSubDestination(String text) {
+        App.destSubName = text;
+        textDestSub.setText(text);
     }
 
     /**
@@ -242,20 +312,24 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             dateStart.setEditable(false);
             dateEnd.setEditable(false);
             buttonEstimate.setEnabled(false);
-            buttonSelect.setEnabled(false);
+            buttonSelectVideo.setEnabled(false);
             comboVideoFormat.setEnabled(false);
             comboVideoSize.setEnabled(false);
             comboVideoFPS.setEnabled(false);
             textVideoCustom.setEnabled(false);
+            buttonSelectAudio.setEnabled(false);
+            comboAudioMode.setEnabled(false);
             comboAudioFormat.setEnabled(false);
-            comboSubFormat.setEnabled(false);
             textAudioCustom.setEnabled(false);
+            buttonSelectSub.setEnabled(false);
+            comboSubMode.setEnabled(false);
+            comboSubFormat.setEnabled(false);
         } else {
             // Задач нет.
             dateStart.setEditable(true);
             dateEnd.setEditable(true);
             buttonEstimate.setEnabled(App.srcCamSelect > 0);
-            buttonSelect.setEnabled(true);
+            buttonSelectVideo.setEnabled(true);
             comboVideoFormat.setEnabled(true);
             ExtItem i = comboVideoFormat.getSelectedItem();
             if (i != null && (i.id == 0 || i.id == 1000)) {
@@ -270,9 +344,21 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
                 comboVideoFPS.setEnabled(true);
                 textVideoCustom.setEnabled(false);
             }
+            i = comboAudioMode.getSelectedItem();
+            boolean m = i != null && i.id == 0 ? true : false;
+            buttonSelectAudio.setEnabled(m);
+            buttonSelectAudio.setVisible(m);
+            textDestAudio.setVisible(m);
+            comboAudioMode.setEnabled(true);
             comboAudioFormat.setEnabled(true);
             i = comboAudioFormat.getSelectedItem();
             textAudioCustom.setEnabled(i != null && i.id == 1000);
+            i = comboSubMode.getSelectedItem();
+            m = i != null && i.id == 0 ? true : false;
+            buttonSelectSub.setEnabled(m);
+            buttonSelectSub.setVisible(m);
+            textDestSub.setVisible(m);
+            comboSubMode.setEnabled(true);
             comboSubFormat.setEnabled(true);
         }
     }
@@ -285,14 +371,22 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             fireEndDateChange();
         } else if (e.getSource() == buttonEstimate) {
             fireEstimate();
-        } else if (e.getSource() == buttonSelect) {
-            fireSelectDestination();
+        } else if (e.getSource() == buttonSelectVideo) {
+            fireSelectVideoDestination();
         } else if (e.getSource() == comboVideoFormat
                 || e.getSource() == comboVideoSize
                 || e.getSource() == comboVideoFPS) {
             fireVideoFormatSelect();
+        } else if (e.getSource() == comboAudioMode) {
+            fireAudioModeSelect();
+        } else if (e.getSource() == buttonSelectAudio) {
+            fireSelectAudioDestination();
         } else if (e.getSource() == comboAudioFormat) {
             fireAudioFormatSelect();
+        } else if (e.getSource() == comboSubMode) {
+            fireSubModeSelect();
+        } else if (e.getSource() == buttonSelectSub) {
+            fireSelectSubDestination();
         } else if (e.getSource() == comboSubFormat) {
             fireSubFormatSelect();
         }
@@ -352,8 +446,8 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     /**
      * Обработка выбора приёмника (запуск диалога).
      */
-    private void fireSelectDestination() {
-        SelectDialog dlg = new SelectDialog();
+    private void fireSelectVideoDestination() {
+        SelectVideoDialog dlg = new SelectVideoDialog();
         dlg.center();
         dlg.setVisible(true);
     }
@@ -367,6 +461,23 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     }
 
     /**
+     * Обработка выбора приёмника (запуск диалога).
+     */
+    private void fireSelectAudioDestination() {
+        SelectAudioDialog dlg = new SelectAudioDialog();
+        dlg.center();
+        dlg.setVisible(true);
+    }
+
+    /**
+     * Обработка выбора аудио режима.
+     */
+    private void fireAudioModeSelect() {
+        setLocks();
+        App.destAudioType = comboAudioFormat.getSelectedItem().id;
+    }
+
+    /**
      * Обработка выбора аудиоформата.
      */
     private void fireAudioFormatSelect() {
@@ -376,11 +487,28 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     }
 
     /**
+     * Обработка выбора приёмника (запуск диалога).
+     */
+    private void fireSelectSubDestination() {
+        SelectSubDialog dlg = new SelectSubDialog();
+        dlg.center();
+        dlg.setVisible(true);
+    }
+
+    /**
+     * Обработка выбора режима субтитров.
+     */
+    private void fireSubModeSelect() {
+        setLocks();
+        App.destSubType = comboSubFormat.getSelectedItem().id;
+    }
+
+    /**
      * Обработка выбора субтитров.
      */
     private void fireSubFormatSelect() {
         setLocks();
-        App.destSubType = comboSubFormat.getSelectedItem().id;
+        App.destSubOptions = getSubOptions();
     }
 
     /**
@@ -412,17 +540,51 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     /**
      * Диалог выбора существующего файла/каталога источника.
      */
-    private class SelectDialog extends GUIFileSelectDialog {
+    private class SelectVideoDialog extends GUIFileSelectDialog {
 
-        private SelectDialog() {
+        private SelectVideoDialog() {
             super(App.mainFrame, "Выбор файла приёмника",
-                    textDestination.getText().trim(), Target.NEW_OR_EXIST, Mode.FILE);
+                    textDestVideo.getText().trim(), Target.NEW_OR_EXIST, Mode.FILE);
         }
 
         @Override
         public void fireApply(FileChooser fc) throws CancelActionExeption {
             final File f = fc.getSelectedFile();
-            setDestination(f.getAbsolutePath());
+            setVideoDestination(f.getAbsolutePath());
+        }
+    }
+
+    /**
+     * Диалог выбора существующего файла/каталога источника.
+     */
+    private class SelectAudioDialog extends GUIFileSelectDialog {
+
+        private SelectAudioDialog() {
+            super(App.mainFrame, "Выбор файла приёмника",
+                    textDestAudio.getText().trim(), Target.NEW_OR_EXIST, Mode.FILE);
+        }
+
+        @Override
+        public void fireApply(FileChooser fc) throws CancelActionExeption {
+            final File f = fc.getSelectedFile();
+            setAudioDestination(f.getAbsolutePath());
+        }
+    }
+
+    /**
+     * Диалог выбора существующего файла/каталога источника.
+     */
+    private class SelectSubDialog extends GUIFileSelectDialog {
+
+        private SelectSubDialog() {
+            super(App.mainFrame, "Выбор файла приёмника",
+                    textDestSub.getText().trim(), Target.NEW_OR_EXIST, Mode.FILE);
+        }
+
+        @Override
+        public void fireApply(FileChooser fc) throws CancelActionExeption {
+            final File f = fc.getSelectedFile();
+            setSubDestination(f.getAbsolutePath());
         }
     }
 }

@@ -368,4 +368,21 @@ public class Files {
             return null;
         }
     }
+
+    /**
+     * Возвращает имя файла/пути без расширения.
+     * @param name Имя файла.
+     * @return Имя файла без расширения.
+     */
+    public static String getNameWOExt(String name) {
+        // Пропускаем последний разделитель.
+        int n = name.lastIndexOf(File.separatorChar);
+        // Ищем последнюю точку.
+        int nd = name.lastIndexOf('.');
+        if (nd > -1 && nd > n) {
+            // Если точка есть и она до разделителя - режем до точки.
+            name = name.substring(0, nd);
+        }
+        return name;
+    }
 }
