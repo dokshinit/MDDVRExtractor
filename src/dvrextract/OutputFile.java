@@ -58,4 +58,14 @@ public class OutputFile {
             fout.close();
         }
     }
+
+    /**
+     * Безопасный вариант закрытия файла (не вызывает исключений).
+     */
+    public void closeSafe() {
+        try {
+            close();
+        } catch (IOException ex) {
+        }
+    }
 }

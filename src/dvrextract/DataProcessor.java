@@ -8,6 +8,8 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -19,11 +21,15 @@ public class DataProcessor {
 
     ////////////////////////////////////////////////////////////////////////////
     // Процесс FFMPEG обрабатывающий данные.
-    private static Process processVideo; // Основной процесс - обработка видео или всего через именованные потоки.
+    //
+    // Основной процесс - обработка видео или всего через именованные потоки.
+    private static Process processVideo;
     private static OutputStream processVideoOut;
-    private static Process processAudio; // Процесс для обработки аудио в отдельный файл.
+    // Процесс для обработки аудио в отдельный файл.
+    private static Process processAudio;
     private static OutputStream processAudioOut;
-    private static OutputFile subOut; // Вывод титров в отдельный файл.
+    // Вывод титров в отдельный файл.
+    private static OutputFile subOut;
     ////////////////////////////////////////////////////////////////////////////
     // Текущая инфа о камере.
     private static CamInfo camInfo;
@@ -106,9 +112,80 @@ public class DataProcessor {
         App.log(msg);
         App.mainFrame.setProgressInfo(msg);
     }
-    
-    static String audioName, subName;
-    static boolean isAudioTemp, isSubTemp; //
+    static String audioName, subName; // Имена файлов для сохранения аудио и субтитров.
+    static boolean isAudio, isSub;
+    static boolean isAudioFile, isSubFile;
+    static boolean isAudioTemp, isSubTemp; // Флаги временности файлов.
+
+    private static void setVars() {
+        // Уникальный идентификатор файла для каналов.
+        String fid = String.format("dvr%X", (int) (new Date()).getTime());
+
+        // Аудио.
+        isAudio = App.destAudioType == -1 ? false : true;
+        if (App.destAudioType == 0) { // Отдельный файл.
+            isAudioFile = true;
+            isAudioTemp = false;
+            audioName = App.destAudioName;
+        } else if (App.destAudioType == 1) { // Поток.
+            if (!App.isPipe) { // Отдельный промежуточный файл.
+                isAudioFile = true;
+                isAudioTemp = true;
+                audioName = App.destVideoName + ".audio.wav";
+            } else { // Именованный поток.
+                isAudioFile = false;
+                isAudioTemp = true;
+                audioName = fid + ".audio.wav";
+            }
+        }
+        // Субтитры.
+        isSub = App.destSubType == -1 ? false : true;
+        if (App.destSubType == 0) {
+            isSubFile = true;
+            isSubTemp = false;
+            subName = App.destSubName;
+        } else if (App.destSubType == 1) {
+            if (!App.isPipe) {
+                // Отдельный промежуточный файл.
+                isSubFile = true;
+                isSubTemp = true;
+                subName = App.destSubName + ".sub.srt";
+            } else {
+                // Именованный поток.
+                isSubFile = false;
+                isSubTemp = true;
+                subName = fid + ".sub.srt";
+            }
+        }
+    }
+
+    private static boolean createPipe(String name) {
+        Process p = null;
+        try {
+            p = Runtime.getRuntime().exec("mkfifo " + name);
+            p.waitFor();
+            try {
+                p.exitValue();
+            } catch (IllegalArgumentException ee) {
+                p.destroy();
+            }
+            return true;
+        } catch (InterruptedException ex) {
+            try {
+                p.exitValue();
+            } catch (IllegalArgumentException ee) {
+                p.destroy();
+            }
+            return false;
+        } catch (IOException ex) {
+            try {
+                p.exitValue();
+            } catch (IllegalArgumentException ee) {
+                p.destroy();
+            }
+            return false;
+        }
+    }
 
     /**
      * Запуск процесса FFMpeg c параметрами для обработки.
@@ -116,111 +193,127 @@ public class DataProcessor {
      */
     private static void startFFMpegProcess() throws FFMpegException {
         if (processVideo == null) {
-            // Оригинальный fps.
-            String fps = String.valueOf(fileInfo.frameFirst.fps);
-            // Оригинальный размер кадра.
-            Dimension d = fileInfo.frameFirst.getResolution();
-            String size = "" + d.width + "x" + d.height;
-            // Для истчника аудио.
-            String asrc = "-f g722 -acodec g722 -ar 8000 -ac 1 ";
-            String audioName = App.destAudioName;
-            String subName = App.destSubName;
-            // Уникальный идентификатор файла для каналов.
-            String fid = String.format("dvr%X", (int) (new Date()).getTime());
-
-            // Компилируем командную строку для ffmpeg.
-            // Для видео.
-            StringBuilder vcmd = new StringBuilder("ffmpeg ");
-            // Для аудио.
-            StringBuilder acmd = new StringBuilder("ffmpeg ");
-
-            // Настройки источников...
-            // Видео.
-            vcmd.append(" -r ").append(fps).append(" -i - ");
-            // Аудио.
-            if (App.destAudioType == 0) {
-                // Отдельный файл.
-                acmd.append(asrc).append(" -i - ");
-                acmd.append(App.destAudioOptions).append(" ");
-                acmd.append(App.destAudioName);
-            } else if (App.destAudioType == 1) {
-                if (!App.isPipe) {
-                    // Отдельный промежуточный файл.
-                    audioName = App.destVideoName + ".audio.wav";
-                    acmd.append(asrc).append(" -i - ");
-                    acmd.append(App.destAudioOptions).append(" ");
-                    acmd.append(audioName);
-                } else {
-                    // Именованный поток.
-                    audioName = fid + ".audio.wav";
-                    vcmd.append(asrc).append(" -i ").append(audioName).append(" ");
-                }
-            }
-            // Субтитры.
-            if (App.destSubType == 1) {
-                if (!App.isPipe) {
-                    // Отдельный промежуточный файл.
-                    subName = App.destSubName + ".sub.srt";
-                } else {
-                    // Именованный поток.
-                    subName = fid + ".sub";
-                    vcmd.append("-f srt -i ").append(subName).append(" ");
-                }
-            }
-
-            // Настройки приёмника.
-            vcmd.append(App.destVideoOptions.replace("{origfps}", fps).replace("{origsize}", size));
-            vcmd.append(" ");
-            if (App.destAudioType == 1) {
-                vcmd.append(App.destAudioOptions).append(" ");
-            }
-            if (App.destSubType == 1) {
-                vcmd.append(App.destSubOptions).append(" ");
-            }
-            vcmd.append(App.destVideoName);
-
-            //
-            if (!App.isDebug) {
-                App.log("FFMpeg Video = " + vcmd.toString());
-            }
-
-            if (App.destSubType >= 0) {
-                try {
-                    subOut = new OutputFile(subName);
-                } catch (FileNotFoundException ex) {
-                    //throw new FileNotFoundException("Ошибка записи файла для субтитров!");
-                }
-            }
+            setVars();
 
             // Если файл видео уже есть - стираем.
             File f = new File(App.destVideoName);
             if (f.exists()) {
                 f.delete();
             }
+
             // Если файл аудио уже есть - стираем.
-            f = new File(audioName);
-            if (f.exists()) {
-                f.delete();
+            if (isAudio) {
+                f = new File(audioName);
+                if (f.exists()) {
+                    f.delete();
+                }
+                // Создаём файл-канал для аудио.
+                if (!isAudioFile) {
+                    if (!createPipe(audioName)) {
+                        // Ошибка при создании канала.
+                        isAudio = false;
+                    }
+                }
             }
 
-            f = new File(subName);
-            if (f.exists()) {
-                f.delete();
+            // Создаём файл субтитров.
+            if (isSub) {
+                try {
+                    // Если файл уже есть - стираем.
+                    f = new File(subName);
+                    if (f.exists()) {
+                        f.delete();
+                    }
+                    // Создаём файл-канал для субтитров.
+                    if (!isSubFile) {
+                        if (!createPipe(subName)) {
+                            // Ошибка при создании канала.
+                            isSub = false;
+                        }
+                    }
+                    subOut = new OutputFile(subName);
+                } catch (FileNotFoundException ex) {
+                    //throw new FileNotFoundException("Ошибка записи файла для субтитров!");
+                    isSub = false;
+                }
             }
 
-            // Стартуем процесс обработки.
+            // Оригинальный fps.
+            String fps = String.valueOf(fileInfo.frameFirst.fps);
+            // Оригинальный размер кадра.
+            Dimension d = fileInfo.frameFirst.getResolution();
+            String size = "" + d.width + "x" + d.height;
+
+            // Для истчника аудио дефолтные параметры.
+            String asrc = "-f g722 -acodec g722 -ar 8000 -ac 1 ";
+
+            // Компилируем командную строку для ffmpeg.
+            // Для видео.
+            StringBuilder vcmd = new StringBuilder("ffmpeg ");
+            // Настройки источников...
+            vcmd.append(" -r ").append(fps).append(" -i - ");
+            if (isAudio && !isAudioFile) { // Отдельный файл.
+                vcmd.append(asrc).append(" -i ").append(audioName).append(" ");
+            }
+            if (isSub && !isSubFile) {
+                vcmd.append("-f srt -i ").append(subName).append(" ");
+            }
+            // Настройки приёмника.
+            vcmd.append(App.destVideoOptions.replace("{origfps}", fps).replace("{origsize}", size));
+            vcmd.append(" ");
+            if (isAudio && !isAudioFile) { // Поток.
+                vcmd.append(App.destAudioOptions).append(" ");
+            }
+            if (isSub && !isSubFile) { // Поток.
+                vcmd.append(App.destSubOptions).append(" ");
+            }
+            vcmd.append(App.destVideoName);
+
+            // Для аудио.
+            StringBuilder acmd = new StringBuilder("ffmpeg ");
+            if (isAudio && isAudioFile) {
+                acmd.append(asrc).append(" -i - ");
+                acmd.append(App.destAudioOptions).append(" ");
+                acmd.append(audioName);
+            }
+
+            if (!App.isDebug) {
+                App.log("FFMpeg Video = " + vcmd.toString());
+                App.log("FFMpeg Audio = " + acmd.toString());
+            }
+
+
+            // Стартуем процесс обработки видео.
             try {
                 processVideo = Runtime.getRuntime().exec(vcmd.toString());
-                //processIn = process.getInputStream();
                 processVideoOut = processVideo.getOutputStream();
-
             } catch (IOException ex) {
                 if (processVideo != null) {
                     processVideo.destroy();
                     processVideo = null;
                 }
                 Err.log(ex);
-                throw new FFMpegException("Ошибка запуска FFMpeg!");
+                throw new FFMpegException("Ошибка запуска FFMpeg-video!");
+            }
+
+            // Стартуем процесс обработки аудио.
+            if (isAudio) {
+                try {
+                    processAudio = Runtime.getRuntime().exec(acmd.toString());
+                    processAudioOut = processAudio.getOutputStream();
+                } catch (IOException ex) {
+                    processVideo.destroy();
+                    processVideo = null;
+                    if (processAudio != null) {
+                        processAudio.destroy();
+                        processAudio = null;
+                    }
+                    if (subOut != null) {
+                        subOut.closeSafe();
+                    }
+                    Err.log(ex);
+                    throw new FFMpegException("Ошибка запуска FFMpeg-audio!");
+                }
             }
         }
     }
