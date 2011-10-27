@@ -187,9 +187,9 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         comboSubFormat.showData();
 
         comboVideoFormat.setSelectedId(0);
-        comboAudioMode.setSelectedId(-1);
+        comboAudioMode.setSelectedId(0);
         comboAudioFormat.setSelectedId(0);
-        comboSubMode.setSelectedId(-1);
+        comboSubMode.setSelectedId(0);
         comboSubFormat.setSelectedId(0);
         //
         setVideoDestination("/home/work/files/probe1.avi");
@@ -247,8 +247,6 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             } else {
                 s.append("-acodec ").append(((Item) i.object).name).append(" ");
             }
-        } else {
-            s.append("-an ");
         }
         return s.toString().trim();
     }
@@ -474,7 +472,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      */
     private void fireAudioModeSelect() {
         setLocks();
-        App.destAudioType = comboAudioFormat.getSelectedItem().id;
+        App.destAudioType = comboAudioMode.getSelectedItem().id;
     }
 
     /**
@@ -500,7 +498,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      */
     private void fireSubModeSelect() {
         setLocks();
-        App.destSubType = comboSubFormat.getSelectedItem().id;
+        App.destSubType = comboSubMode.getSelectedItem().id;
     }
 
     /**

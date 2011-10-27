@@ -3,13 +3,13 @@ package dvrextract;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -29,8 +29,8 @@ public class DataProcessor {
     private static Process processAudio;
     private static OutputStream processAudioOut;
     // Процесс для обработки субтитров в отдельный файл.
-    private static Process processSub;
-    private static OutputStream processSubOut;
+    //private static Process processSub;
+    private static PrintStream processSubOut;
     ////////////////////////////////////////////////////////////////////////////
     // Текущая инфа о камере.
     private static CamInfo camInfo;
@@ -55,6 +55,7 @@ public class DataProcessor {
      */
     public static void process() {
         processVideo = null;
+        subTimeLast = null;
         frameParsedCount = 0;
         frameProcessCount = 0;
         videoProcessSize = 0;
@@ -125,6 +126,7 @@ public class DataProcessor {
     private static void setVars() {
         // Уникальный идентификатор файла для каналов.
         String fid = String.format("dvr%X", (int) (new Date()).getTime());
+        fps = fileInfo.frameFirst.fps;
 
         // Аудио.
         isAudio = App.destAudioType == -1 ? false : true;
@@ -194,17 +196,18 @@ public class DataProcessor {
     }
 
     /**
-     * Удаление канала.
-     * @param name Имя файла канала.
+     * Удаление канала/файла.
+     * @param name Имя файла.
      * @return true - успешно, false - ошибка.
      */
-    private static boolean deletePipe(String name) {
+    private static boolean deleteFile(String name) {
         File f = new File(name);
         if (f.exists()) {
             return f.delete();
         }
         return true;
     }
+    private static int fps;
 
     /**
      * Запуск процесса FFMpeg c параметрами для обработки.
@@ -215,17 +218,11 @@ public class DataProcessor {
             setVars();
 
             // Если файл видео уже есть - стираем.
-            File f = new File(videoName);
-            if (f.exists()) {
-                f.delete();
-            }
+            deleteFile(videoName);
 
             // Если файл аудио уже есть - стираем.
             if (isAudio) {
-                f = new File(audioName);
-                if (f.exists()) {
-                    f.delete();
-                }
+                deleteFile(audioName);
                 // Создаём файл-канал для аудио.
                 if (!isAudioFile) {
                     if (!createPipe(audioName)) {
@@ -238,10 +235,7 @@ public class DataProcessor {
 
             // Если файл субтитров уже есть - стираем.
             if (isSub) {
-                f = new File(subName);
-                if (f.exists()) {
-                    f.delete();
-                }
+                deleteFile(subName);
                 // Создаём файл-канал для субтитров.
                 if (!isSubFile) {
                     if (!createPipe(subName)) {
@@ -262,12 +256,12 @@ public class DataProcessor {
             // Для видео.
             StringBuilder vcmd = new StringBuilder("ffmpeg ");
             // Оригинальный fps.
-            String fps = String.valueOf(fileInfo.frameFirst.fps);
+            String sfps = String.valueOf(fps);
             // Оригинальный размер кадра.
             Dimension d = fileInfo.frameFirst.getResolution();
             String size = "" + d.width + "x" + d.height;
             // Настройки источников...
-            vcmd.append(" -r ").append(fps).append(" -i - ");
+            vcmd.append(" -r ").append(sfps).append(" -i - ");
             if (isAudio && !isAudioFile) { // Отдельный файл.
                 vcmd.append(asrc).append(" -i ").append(audioName).append(" ");
             }
@@ -275,7 +269,7 @@ public class DataProcessor {
                 vcmd.append(ssrc).append(" -i ").append(subName).append(" ");
             }
             // Настройки приёмника.
-            vcmd.append(App.destVideoOptions.replace("{origfps}", fps).replace("{origsize}", size));
+            vcmd.append(App.destVideoOptions.replace("{origfps}", sfps).replace("{origsize}", size));
             vcmd.append(" ");
             if (isAudio && !isAudioFile) { // Поток.
                 vcmd.append(App.destAudioOptions).append(" ");
@@ -288,7 +282,7 @@ public class DataProcessor {
             ////////////////////////////////////////////////////////////////////
             // Для аудио.
             StringBuilder acmd = new StringBuilder("ffmpeg ");
-            if (isAudio && isAudioFile) {
+            if (isAudio) {
                 acmd.append(asrc).append(" -i - ");
                 acmd.append(App.destAudioOptions).append(" ");
                 acmd.append(audioName);
@@ -336,8 +330,7 @@ public class DataProcessor {
             // Стартуем процесс обработки субтитров.
             if (isSub) {
                 try {
-                    processSub = Runtime.getRuntime().exec(acmd.toString());
-                    processSubOut = processSub.getOutputStream();
+                    processSubOut = new PrintStream(new FileOutputStream(subName, true));
                 } catch (IOException ex) {
                     Err.log(ex);
                     cancelProcess();
@@ -363,16 +356,15 @@ public class DataProcessor {
             processAudio = null;
             processAudioOut = null;
         }
-        if (processSub != null) {
-            processSub.destroy();
-            processSub = null;
+        if (processSubOut != null) {
+            processSubOut.close();
             processSubOut = null;
         }
-        if (isAudio && !isAudioFile) {
-            deletePipe(audioName);
+        if (isAudio && (!isAudioFile || isAudioTemp)) {
+            deleteFile(audioName);
         }
-        if (isSub && !isSubFile) {
-            deletePipe(subName);
+        if (isSub && (!isSubFile || isSubTemp)) {
+            deleteFile(subName);
         }
     }
 
@@ -432,19 +424,20 @@ public class DataProcessor {
         // Остановка процессов.
         stopProcess(processVideo, "FFMpeg-video", 10000);
         stopProcess(processAudio, "FFMpeg-audio", 10000);
-        stopProcess(processSub, "FFMpeg-sub", 10000);
+        if (isSub && processSubOut != null) {
+            processSubOut.close();
+        }
         processVideo = null;
         processVideoOut = null;
         processAudio = null;
         processAudioOut = null;
-        processSub = null;
         processSubOut = null;
         // Удаление каналов.
-        if (isAudio && !isAudioFile) {
-            deletePipe(audioName);
+        if (isAudio && (!isAudioFile || isAudioTemp)) {
+            deleteFile(audioName);
         }
-        if (isSub && !isSubFile) {
-            deletePipe(subName);
+        if (isSub && (!isSubFile || isSubTemp)) {
+            deleteFile(subName);
         }
     }
 
@@ -514,14 +507,17 @@ public class DataProcessor {
                             // Если не было обработанных кадров - начинаем только с ключевого,
                             // если были - включаем любые.
                             if (f.isMain || frameProcessCount > 0) {
-                                
+
                                 in.read(baFrame, f.videoSize + f.audioSize);
+                                // Пишем видео в поток.
                                 processVideoOut.write(baFrame, 0, f.videoSize);
+                                // Пишем аудио в поток.
                                 if (isAudio) {
                                     processAudioOut.write(baFrame, f.videoSize, f.audioSize);
                                 }
+                                // Пишем субтитры в поток.
                                 if (isSub) {
-                                    writeSub();
+                                    writeSub(f.time, false); // Пишет при необходимости инфу.
                                 }
                                 frame = f;
                                 frameProcessCount++;
@@ -529,7 +525,7 @@ public class DataProcessor {
                                 audioProcessSize += isAudio ? f.audioSize : 0;
                                 timeMin = (timeMin == -1) ? time : timeMin;
                                 timeMax = time;
-                                
+
                             }
                         }
                     }
@@ -538,6 +534,10 @@ public class DataProcessor {
                     App.log("Frame pos=" + pos + " Not parsed!");
                 }
                 frameParsedCount++;
+            }
+            // Завершаем открытые субтитры.
+            if (isSub) {
+                writeSub(new Date(), true);
             }
             in.close();
             App.log("Frame parsed = " + frameParsedCount);
@@ -554,13 +554,52 @@ public class DataProcessor {
             }
         }
     }
+    private static Date subTimeLast = null; // Время последнего незаписанного субтитра.
+    private static long subFrameLast; // Номер кадра последнего незаписанного субтитра.
+    private static long subCount; // Кол-во записанных субтитров.
+
+    static String getFTime(long frames, int shift) {
+        // Вычисляем время в файле для пред.фрейма.
+        long msec1 = (long) ((double) frames * 1000 / fps) + shift;
+        long h1 = msec1 / 3600 / 1000;
+        msec1 -= h1 * 3600 * 1000;
+        long m1 = msec1 / 60 / 1000;
+        msec1 -= m1 * 60 * 1000;
+        long s1 = msec1 / 1000;
+        msec1 -= s1 * 1000;
+        return String.format("%1$02d:%2$02d:%3$02d,%4$03d", h1, m1, s1, msec1);
+    }
 
     /**
      * Если для текущего фрейма необходимо - формирует субтитры согласно 
-     * настройкам и сохраняет их в файл.
+     * настройкам и пишет их в поток.
      */
-    private static void writeSub() {
+    private static void writeSub(Date dt, boolean isend) {
         //
+        if (isSub) {
+            if (subTimeLast == null) { // Начало работы - установка начальных указателей.
+                subTimeLast = dt;
+                subFrameLast = 0;
+                subCount = 0;
+            }
+            long t1 = dt.getTime() / 1000;
+            long t2 = subTimeLast.getTime() / 1000;
+            if (t1 != t2 || isend) { // Отслеживаем смену секунды (как минимум).
+                subCount++;
+                processSubOut.printf("%d\n%s --> %s\n",
+                        subCount, getFTime(subFrameLast, 0), getFTime(frameProcessCount, -1));
+                processSubOut.printf("%1$td.%1$tm.%1$tY %1$tH:%1$tM:%1$tS\n", subTimeLast);
+                long nn = frameProcessCount - subFrameLast;
+                processSubOut.printf("st=%1$tM:%1$tS %2$tM:%2$tS sf=%3$d %4$d [%5$d]\n\n",
+                        subTimeLast, dt, subCount, frameProcessCount, nn);
+                if (nn != fps) {
+                    App.log(String.format("st=%1$tM:%1$tS %2$tM:%2$tS sf=%3$d %4$d [%5$d]",
+                            subTimeLast, dt, subCount, frameProcessCount, nn));
+                }
+                subTimeLast = dt;
+                subFrameLast = frameProcessCount;
+            }
+        }
     }
 
     public final static class FFMpegException extends Exception {
