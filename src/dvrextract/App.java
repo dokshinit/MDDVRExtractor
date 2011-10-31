@@ -166,14 +166,6 @@ public class App {
         for (int i = 0; i < MAXCAMS; i++) {
             srcCams[i] = new CamInfo();
         }
-        // Определяем можно ли пользоваться именованными каналами.
-        // По умолчанию - нельзя.
-        String s = System.getProperty("os.name").toLowerCase();
-        if (s.substring(0, 3).equals("lin")) {
-            //isPipe = true;
-        } else if (s.substring(0, 3).equals("win")) {
-            //isPipe = false;
-        }
 
         // Инициализация Look&Feel.
         initLAF();

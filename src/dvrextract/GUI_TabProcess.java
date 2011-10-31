@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import net.miginfocom.swing.MigLayout;
@@ -164,8 +165,10 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         comboVideoSize.showData();
 
         comboAudioMode.addItem(-1, new Item("Не сохранять"));
-        comboAudioMode.addItem(0, new Item("В файл"));
-        comboAudioMode.addItem(1, new Item("В видео"));
+        if (FFMpeg.isAudio_g722) {
+            comboAudioMode.addItem(0, new Item("В файл"));
+            comboAudioMode.addItem(1, new Item("В видео"));
+        }
         comboAudioMode.showData();
 
         comboAudioFormat.addItem(0, new Item("Без преобразования", "copy"));
@@ -178,18 +181,20 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         comboAudioFormat.addItem(1000, new Item("Ручные настройки"));
         comboAudioFormat.showData();
 
-        comboSubMode.addItem(-1, new Item("Не сохранять"));
+        comboSubMode.addItem(-1, new Item("Не создавать"));
         comboSubMode.addItem(0, new Item("В файл"));
-        comboSubMode.addItem(1, new Item("В видео"));
+        if (FFMpeg.isSub_srt) {
+            comboSubMode.addItem(1, new Item("В видео"));
+        }
         comboSubMode.showData();
 
         comboSubFormat.addItem(0, new Item("SubRip", "srt"));
         comboSubFormat.showData();
 
         comboVideoFormat.setSelectedId(0);
-        comboAudioMode.setSelectedId(1);
+        comboAudioMode.setSelectedId(FFMpeg.isAudio_g722 ? 1 : -1);
         comboAudioFormat.setSelectedId(0);
-        comboSubMode.setSelectedId(1);
+        comboSubMode.setSelectedId(FFMpeg.isSub_srt ? 1 : 0);
         comboSubFormat.setSelectedId(0);
         //
         setVideoDestination("/home/work/files/AZSVIDEO/1/probe1.mkv");
@@ -348,16 +353,23 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             buttonSelectAudio.setVisible(m);
             textDestAudio.setVisible(m);
             comboAudioMode.setEnabled(true);
-            comboAudioFormat.setEnabled(true);
-            i = comboAudioFormat.getSelectedItem();
-            textAudioCustom.setEnabled(i != null && i.id == 1000);
+            i = comboAudioMode.getSelectedItem();
+            if (i != null && i.id == -1) {
+                comboAudioFormat.setEnabled(false);
+                textAudioCustom.setEditable(false);
+            } else {
+                comboAudioFormat.setEnabled(true);
+                i = comboAudioFormat.getSelectedItem();
+                textAudioCustom.setEnabled(i != null && i.id == 1000);
+            }
             i = comboSubMode.getSelectedItem();
             m = i != null && i.id == 0 ? true : false;
             buttonSelectSub.setEnabled(m);
             buttonSelectSub.setVisible(m);
             textDestSub.setVisible(m);
             comboSubMode.setEnabled(true);
-            comboSubFormat.setEnabled(true);
+            i = comboSubMode.getSelectedItem();
+            comboSubFormat.setEnabled(i != null && i.id == -1 ? false : true);
         }
     }
 
@@ -404,6 +416,8 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
         @Override
         public void task() {
+            App.mainFrame.pack();
+            
             if (App.srcCamSelect < 0) {
                 return;
             }

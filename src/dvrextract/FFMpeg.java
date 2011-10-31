@@ -25,6 +25,9 @@ public final class FFMpeg {
     private static final Pattern patternCodec =
             Pattern.compile("^\\ ([D\\ ])([E\\ ])([VAS])([S\\ ])([D\\ ])([T\\ ])\\ "
             + "(\\w{1,})\\s{1,}((?:[\\S&&[^iJG]]|i(?!mage)|J(?!PEG)|G(?!IF)|\\s){1,})\\s*$");
+    // Наличие нужных для финальной сборки (а также процессинга аудио) кодеков.
+    public static boolean isAudio_g722 = false;
+    public static boolean isSub_srt = false;
 
     /**
      * Возвращает текущий списо кодеков.
@@ -85,9 +88,16 @@ public final class FFMpeg {
         // Отфильтровываем по схеме.
         if (m.matches()) {
             char c = m.group(3).trim().charAt(0);
-            codecs.add(new FFCodec(m.group(7), m.group(8),
+            String name = m.group(7);
+            codecs.add(new FFCodec(name, m.group(8),
                     !m.group(1).trim().isEmpty(), !m.group(2).trim().isEmpty(),
                     c == 'V', c == 'A', c == 'S'));
+            if (c=='A' && name.equals("g722")) {
+                isAudio_g722 = true;
+            }
+            if (c=='S' && name.equals("srt")) {
+                isSub_srt = true;
+            }
         }
     }
 

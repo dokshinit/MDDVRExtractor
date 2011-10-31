@@ -58,7 +58,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
     private void init() {
         setLayout(new BorderLayout());
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setPreferredSize(new Dimension(900, 600));
+        setPreferredSize(new Dimension(900, 640));
 
         GUITabPane tabPane = new GUITabPane();
 
