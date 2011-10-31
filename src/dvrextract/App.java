@@ -31,10 +31,6 @@ public class App {
     public static GUI_Main mainFrame; // Основное окно работы программы.
     // Для отладки, если true - подробный лог.
     public static boolean isDebug = false;
-    // Операционная система поддерживает именованные каналы (pipe).
-    // Если да, то будет доступно в опциях - сливать всё в один файл!
-    // Если нет, то только в два захода!
-    public static boolean isPipe = false;
     
     /**
      * Вывод строки лога с типом.
@@ -174,9 +170,9 @@ public class App {
         // По умолчанию - нельзя.
         String s = System.getProperty("os.name").toLowerCase();
         if (s.substring(0, 3).equals("lin")) {
-            isPipe = true;
+            //isPipe = true;
         } else if (s.substring(0, 3).equals("win")) {
-            isPipe = false;
+            //isPipe = false;
         }
 
         // Инициализация Look&Feel.

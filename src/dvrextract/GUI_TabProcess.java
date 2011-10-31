@@ -187,12 +187,12 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         comboSubFormat.showData();
 
         comboVideoFormat.setSelectedId(0);
-        comboAudioMode.setSelectedId(0);
+        comboAudioMode.setSelectedId(1);
         comboAudioFormat.setSelectedId(0);
-        comboSubMode.setSelectedId(0);
+        comboSubMode.setSelectedId(1);
         comboSubFormat.setSelectedId(0);
         //
-        setVideoDestination("/home/work/files/probe1.avi");
+        setVideoDestination("/home/work/files/AZSVIDEO/1/probe1.mkv");
         dateStart.setText("01.01.2011 00:00:00");
 
         fireStartDateChange();
@@ -481,7 +481,6 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     private void fireAudioFormatSelect() {
         setLocks();
         App.destAudioOptions = getAudioOptions();
-        App.destAudioType = comboAudioFormat.getSelectedItem().id;
     }
 
     /**

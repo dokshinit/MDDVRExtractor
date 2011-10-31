@@ -5,11 +5,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -31,6 +34,9 @@ public class DataProcessor {
     // Процесс для обработки субтитров в отдельный файл.
     //private static Process processSub;
     private static PrintStream processSubOut;
+    // Процесс для окончательной сборки видеофайла.
+    private static Process processMake;
+    private static OutputStream processMakeOut;
     ////////////////////////////////////////////////////////////////////////////
     // Текущая инфа о камере.
     private static CamInfo camInfo;
@@ -99,11 +105,13 @@ public class DataProcessor {
                 } catch (InterruptedException e) {
                 }
             }
+            // Останов процессов FFMpeg.
+            stopCoderProcess();
+            App.log("Процесс кодирования завершён.");
 
-            // Останов процесса FFMpeg.
-            App.log("Завершение процесса кодирования...");
-            stopFFMpegProcess();
-            App.logupd("Процесс кодирования завершён.");
+            // Завершающая сборка видео (если есть аудио или субтитры в поток).
+            finalMake();
+
 
         } catch (FFMpegException ex) {
             //App.log(ex.getMessage());
@@ -114,85 +122,99 @@ public class DataProcessor {
         App.log(msg);
         App.mainFrame.setProgressInfo(msg);
     }
+
+    private static void finalMake() throws FFMpegException {
+        if (!(isAudio && isAudioTemp) && !(isSub && isSubTemp)) {
+            return;
+        }
+        StringBuilder vcmd = new StringBuilder("ffmpeg");
+        vcmd.append("-f matroska -i - "); // Для контроля прогресса будем сами закидывать.
+        if (isAudio && isAudioTemp) {
+            vcmd.append("-i ").append(audioName);
+        }
+        if (isSub && isSubTemp) {
+            vcmd.append("-i ").append(subName);
+        }
+        vcmd.append("-vcodec copy ");
+        if (isAudio && isAudioTemp) {
+            vcmd.append("-acodec copy ");
+        }
+        if (isSub && isSubTemp) {
+            vcmd.append("-scodec copy ");
+        }
+        vcmd.append(App.destVideoName);
+
+        App.log("Запуск процесса сборки...");
+        try {
+            processMake = startProcess(vcmd.toString());
+            processMakeOut = processMake.getOutputStream();
+        } catch (IOException ex) {
+            Err.log(ex);
+            cancelAllProcess();
+            App.log("Ошибка запуска FFMpeg-video-make!");
+            App.log("Ошибка запуска процесса сборки!");
+            throw new FFMpegException("FFMpeg process start fail!");
+        }
+
+        App.log("Запущен процесс сборки.");
+        InputFile in;
+        try {
+            in = new InputFile(videoName);
+        } catch (FileNotFoundException ex) {
+            Err.log(ex);
+            throw new FFMpegException("FFMpeg process input not found!");
+        } catch (IOException ex) {
+            Err.log(ex);
+            throw new FFMpegException("FFMpeg process input fail!");
+        }
+
+        try {
+            long size = in.getSize();
+            long readsize = 0;
+            byte[] buf = new byte[1024*1024];
+            while (readsize < size) {
+                int len = (int)Math.min(size-readsize, buf.length);
+                in.read(buf, len);
+                processMakeOut.write(buf, 0, len);
+                readsize += len;
+            }
+        } catch (IOException ex) {
+            Err.log(ex);
+        }
+        in.closeSafe();
+    }
     // Имена файлов для сохранения аудио и субтитров.
     private static String videoName, audioName, subName;
     // Флаги сохранения аудио и субтитров.
     private static boolean isAudio, isSub;
-    // Флаги файловости вывода (иначе канал).
-    private static boolean isAudioFile, isSubFile;
     // Флаги временности файлов.
     private static boolean isAudioTemp, isSubTemp;
+    private static int fps;
 
     private static void setVars() {
-        // Уникальный идентификатор файла для каналов.
-        String fid = String.format("dvr%X", (int) (new Date()).getTime());
         fps = fileInfo.frameFirst.fps;
-
         // Аудио.
         isAudio = App.destAudioType == -1 ? false : true;
         if (App.destAudioType == 0) { // Отдельный файл.
-            isAudioFile = true;
             isAudioTemp = false;
             audioName = App.destAudioName;
         } else if (App.destAudioType == 1) { // Поток.
-            if (!App.isPipe) { // Отдельный промежуточный файл.
-                isAudioFile = true;
-                isAudioTemp = true;
-                audioName = App.destVideoName + ".audio.wav";
-            } else { // Именованный поток.
-                isAudioFile = false;
-                isAudioTemp = true;
-                audioName = fid + ".audio.wav";
-            }
+            isAudioTemp = true;
+            audioName = App.destVideoName + ".audio.wav";
         }
         // Субтитры.
         isSub = App.destSubType == -1 ? false : true;
         if (App.destSubType == 0) {
-            isSubFile = true;
             isSubTemp = false;
             subName = App.destSubName;
         } else if (App.destSubType == 1) {
-            if (!App.isPipe) {
-                // Отдельный промежуточный файл.
-                isSubFile = true;
-                isSubTemp = true;
-                subName = App.destSubName + ".sub.srt";
-            } else {
-                // Именованный поток.
-                isSubFile = false;
-                isSubTemp = true;
-                subName = fid + ".sub.srt";
-            }
+            // Отдельный промежуточный файл.
+            isSubTemp = true;
+            subName = App.destSubName + ".sub.srt";
         }
         // Если есть временные файлы - значит будет послед.слив в одно видео, 
         // значит сначала кодируем видео во временный файл.
         videoName = App.destVideoName + ((isAudio && isAudioTemp) || (isSub && isSubTemp) ? ".video.mkv" : "");
-    }
-
-    /**
-     * Создание канала.
-     * @param name Имя канала.
-     * @return true - удачно, false - ошбика.
-     */
-    private static boolean createPipe(String name) {
-        Process p = null;
-        try {
-            p = Runtime.getRuntime().exec("mkfifo " + name);
-            p.waitFor();
-            try {
-                p.exitValue();
-            } catch (IllegalArgumentException ee) {
-                p.destroy();
-            }
-            return true;
-        } catch (Exception ex) {
-            try {
-                p.exitValue();
-            } catch (IllegalArgumentException ee) {
-                p.destroy();
-            }
-            return false;
-        }
     }
 
     /**
@@ -207,7 +229,16 @@ public class DataProcessor {
         }
         return true;
     }
-    private static int fps;
+
+    private static Process startProcess(String cmd) throws IOException {
+        Process p = Runtime.getRuntime().exec(cmd);
+        int res = 0;
+        try {
+            res = p.exitValue();
+        } catch (IllegalThreadStateException ex) {
+        }
+        return res == 0 ? p : null;
+    }
 
     /**
      * Запуск процесса FFMpeg c параметрами для обработки.
@@ -219,39 +250,16 @@ public class DataProcessor {
 
             // Если файл видео уже есть - стираем.
             deleteFile(videoName);
-
             // Если файл аудио уже есть - стираем.
             if (isAudio) {
                 deleteFile(audioName);
-                // Создаём файл-канал для аудио.
-                if (!isAudioFile) {
-                    if (!createPipe(audioName)) {
-                        // Ошибка при создании канала.
-                        isAudio = false;
-                        App.log("Ошибка при создании канала аудио! Аудио не обрабатывается!");
-                    }
-                }
             }
-
             // Если файл субтитров уже есть - стираем.
             if (isSub) {
                 deleteFile(subName);
-                // Создаём файл-канал для субтитров.
-                if (!isSubFile) {
-                    if (!createPipe(subName)) {
-                        // Ошибка при создании канала.
-                        isSub = false;
-                        App.log("Ошибка при создании канала субтитров! Субтитры не обрабатываются!");
-                    }
-                }
             }
 
             ////////////////////////////////////////////////////////////////////
-            // Для истчника аудио дефолтные параметры.
-            String asrc = "-f g722 -acodec g722 -ar 8000 -ac 1 ";
-            // Для истчника субтитров дефолтные параметры.
-            String ssrc = "-f srt -scodec srt ";
-
             // Компилируем командную строку для ffmpeg.
             // Для видео.
             StringBuilder vcmd = new StringBuilder("ffmpeg ");
@@ -260,56 +268,32 @@ public class DataProcessor {
             // Оригинальный размер кадра.
             Dimension d = fileInfo.frameFirst.getResolution();
             String size = "" + d.width + "x" + d.height;
-            // Настройки источников...
-            vcmd.append(" -r ").append(sfps).append(" -i - ");
-            if (isAudio && !isAudioFile) { // Отдельный файл.
-                vcmd.append(asrc).append(" -i ").append(audioName).append(" ");
-            }
-            if (isSub && !isSubFile) {
-                vcmd.append(ssrc).append(" -i ").append(subName).append(" ");
-            }
             // Настройки приёмника.
+            vcmd.append(" -r ").append(sfps).append(" -i - ");
             vcmd.append(App.destVideoOptions.replace("{origfps}", sfps).replace("{origsize}", size));
-            vcmd.append(" ");
-            if (isAudio && !isAudioFile) { // Поток.
-                vcmd.append(App.destAudioOptions).append(" ");
-            }
-            if (isSub && !isSubFile) { // Поток.
-                vcmd.append(App.destSubOptions).append(" ");
-            }
-            vcmd.append(App.destVideoName);
+            vcmd.append(" ").append(App.destVideoName);
 
             ////////////////////////////////////////////////////////////////////
             // Для аудио.
             StringBuilder acmd = new StringBuilder("ffmpeg ");
             if (isAudio) {
-                acmd.append(asrc).append(" -i - ");
+                acmd.append("-f g722 -acodec g722 -ar 8000 -ac 1 -i - ");
                 acmd.append(App.destAudioOptions).append(" ");
                 acmd.append(audioName);
-            }
-
-            ////////////////////////////////////////////////////////////////////
-            // Для субтитров.
-            StringBuilder scmd = new StringBuilder("ffmpeg ");
-            if (isSub && isSubFile) {
-                scmd.append(ssrc).append(" -i - ");
-                scmd.append(App.destSubOptions).append(" ");
-                scmd.append(subName);
             }
 
             if (!App.isDebug) {
                 App.log("FFMpeg Video = " + vcmd.toString());
                 App.log("FFMpeg Audio = " + acmd.toString());
-                App.log("FFMpeg Sub   = " + scmd.toString());
             }
 
             // Стартуем процесс обработки видео.
             try {
-                processVideo = Runtime.getRuntime().exec(vcmd.toString());
+                processVideo = startProcess(vcmd.toString());
                 processVideoOut = processVideo.getOutputStream();
             } catch (IOException ex) {
                 Err.log(ex);
-                cancelProcess();
+                cancelAllProcess();
                 App.log("Ошибка запуска FFMpeg-video!");
                 return false;
             }
@@ -317,11 +301,11 @@ public class DataProcessor {
             // Стартуем процесс обработки аудио.
             if (isAudio) {
                 try {
-                    processAudio = Runtime.getRuntime().exec(acmd.toString());
+                    processAudio = startProcess(acmd.toString());
                     processAudioOut = processAudio.getOutputStream();
                 } catch (IOException ex) {
                     Err.log(ex);
-                    cancelProcess();
+                    cancelAllProcess();
                     App.log("Ошибка запуска FFMpeg-audio!");
                     return false;
                 }
@@ -333,7 +317,7 @@ public class DataProcessor {
                     processSubOut = new PrintStream(new FileOutputStream(subName, true));
                 } catch (IOException ex) {
                     Err.log(ex);
-                    cancelProcess();
+                    cancelAllProcess();
                     App.log("Ошибка запуска FFMpeg-sub!");
                     return false;
                 }
@@ -345,7 +329,7 @@ public class DataProcessor {
     /**
      * Принудительное сворачивание процессов и удаление каналов при ошибке.
      */
-    private static void cancelProcess() {
+    private static void cancelAllProcess() {
         if (processVideo != null) {
             processVideo.destroy();
             processVideo = null;
@@ -360,12 +344,12 @@ public class DataProcessor {
             processSubOut.close();
             processSubOut = null;
         }
-        if (isAudio && (!isAudioFile || isAudioTemp)) {
-            deleteFile(audioName);
+        if (processMake != null) {
+            processMake.destroy();
+            processMake = null;
+            processMake = null;
         }
-        if (isSub && (!isSubFile || isSubTemp)) {
-            deleteFile(subName);
-        }
+        deleteTempFiles();
     }
 
     /**
@@ -420,7 +404,7 @@ public class DataProcessor {
     /**
      * Завершение процессов FFMpeg. Удаление каналов.
      */
-    private static void stopFFMpegProcess() {
+    private static void stopCoderProcess() {
         // Остановка процессов.
         stopProcess(processVideo, "FFMpeg-video", 10000);
         stopProcess(processAudio, "FFMpeg-audio", 10000);
@@ -432,11 +416,13 @@ public class DataProcessor {
         processAudio = null;
         processAudioOut = null;
         processSubOut = null;
-        // Удаление каналов.
-        if (isAudio && (!isAudioFile || isAudioTemp)) {
+    }
+    
+    private static void deleteTempFiles() {
+        if (isAudio && isAudioTemp) {
             deleteFile(audioName);
         }
-        if (isSub && (!isSubFile || isSubTemp)) {
+        if (isSub && isSubTemp) {
             deleteFile(subName);
         }
     }
