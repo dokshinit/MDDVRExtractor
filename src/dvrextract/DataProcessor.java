@@ -11,10 +11,10 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Date;
 import javax.swing.JOptionPane;
-import org.jcp.xml.dsig.internal.dom.ApacheCanonicalizer;
 
 /**
  * Процесс обработки данных.
+ * TODO: Сделать при ошибках - развертку и вывод err потока ffmpeg.
  * 
  * @author lex
  */
@@ -156,7 +156,7 @@ public class DataProcessor {
         }
         vcmd.append(App.destVideoName);
 
-        if (!App.isDebug) {
+        if (App.isDebug) {
             App.log("FFMpeg Make = " + vcmd.toString());
         }
 
@@ -189,7 +189,7 @@ public class DataProcessor {
             long size = in.getSize();
             App.mainFrame.startProgress(0, 500);
             App.mainFrame.setProgressText(App.destVideoName);
-            
+
             long readsize = 0;
             int n = 0;
             byte[] buf = new byte[1024 * 1024];
@@ -290,7 +290,7 @@ public class DataProcessor {
             subName = App.destSubName;
         } else if (App.destSubType == 1) { // Поток (врем.файл + сборка).
             isSubTemp = true;
-            subName = App.destSubName + ".sub.srt";
+            subName = App.destVideoName + ".sub.srt";
         }
 
         // Если есть временные файлы - значит будет послед.слив в одно видео, 
@@ -333,7 +333,7 @@ public class DataProcessor {
             acmd.append(audioName);
         }
 
-        if (!App.isDebug) {
+        if (App.isDebug) {
             App.log("FFMpeg Video = " + vcmd.toString());
             App.log("FFMpeg Audio = " + acmd.toString());
         }
@@ -405,7 +405,15 @@ public class DataProcessor {
             processMake = null;
             processMake = null;
         }
-        deleteTempFiles();
+        Object[] options = {"Удалить", "Оставить как есть"};
+        int n = JOptionPane.showOptionDialog(App.mainFrame,
+                "Что делать с временными файлами?",
+                "Подтверждение", JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE, null, options,
+                options[0]);
+        if (n == 0) {
+            deleteTempFiles();
+        }
     }
 
     /**
@@ -519,8 +527,9 @@ public class DataProcessor {
                 FileInfo.CamData cd = fileInfo.getCamData(cam);
                 pos = cd.mainFrameOffset;
             }
-            App.log("File:" + fileInfo.fileName + " start=" + pos + " end=" + endpos + " size=" + fileInfo.fileSize);
-
+            if (App.isDebug) {
+                App.log("File:" + fileInfo.fileName + " start=" + pos + " end=" + endpos + " size=" + fileInfo.fileSize);
+            }
             // Буфер чтения и парсинга данных.
             final byte[] baFrame = new byte[1000000];
             final ByteBuffer bbF = ByteBuffer.wrap(baFrame);
@@ -593,9 +602,11 @@ public class DataProcessor {
                 writeSub(new Date(), true);
             }
             in.close();
-            App.log("Frame parsed = " + frameParsedCount);
-            App.log("Frame processed = " + frameProcessCount);
-            App.log("Video size = " + videoProcessSize);
+            if (App.isDebug) {
+                App.log("Frame parsed = " + frameParsedCount);
+                App.log("Frame processed = " + frameProcessCount);
+                App.log("Video size = " + videoProcessSize);
+            }
 
         } catch (IOException ioe) {
             Err.log("File name = " + fileinfo.fileName);

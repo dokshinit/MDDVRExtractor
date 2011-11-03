@@ -77,6 +77,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         ////////////////////////////////////////////////////////////////////////
         JPanel panelTab3 = new JPanel(new MigLayout());
         tabPane.addTab("Состояние", panelTab3);
+        tabPane.setEnable(panelTab3, false);
 
         ////////////////////////////////////////////////////////////////////////
         // Вкладка "Лог"

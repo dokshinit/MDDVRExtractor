@@ -30,7 +30,7 @@ public class App {
     ////////////////////////////////////////////////////////////////////////////
     public static GUI_Main mainFrame; // Основное окно работы программы.
     // Для отладки, если true - подробный лог.
-    public static boolean isDebug = false;
+    public static boolean isDebug = true;
     
     /**
      * Вывод строки лога с типом.
