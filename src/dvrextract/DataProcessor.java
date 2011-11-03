@@ -488,11 +488,11 @@ public class DataProcessor {
      * @throws dvrextract.DataProcessor.FFMpegException Ошибка ffmpeg/крит.ошибка.
      */
     private static void processFile(FileInfo fileinfo) throws SourceException, FatalException {
-        //InputBufferedFile in = null;
-        InputFile in = null;
+        InputBufferedFile in = null;
+        //InputFile in = null;
         try {
-            //in = new InputBufferedFile(fileinfo.fileName, 1000000, 100);
-            in = new InputFile(fileinfo.fileName);
+            in = new InputBufferedFile(fileinfo.fileName, 1000000, 100);
+            //in = new InputFile(fileinfo.fileName);
         } catch (FileNotFoundException ex) {
             throw new SourceException("File not found = " + fileinfo.fileName);
         } catch (IOException ex) {

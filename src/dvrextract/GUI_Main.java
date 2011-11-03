@@ -24,6 +24,8 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
     public GUI_TabSource tabSource;
     public GUI_TabProcess tabProcess;
     public GUI_TabLog tabLog;
+    public GUI_TabAbout tabAbout;
+    
     ////////////////////////////////////////////////////////////////////////////
     // Закладка: Обработка
     ////////////////////////////////////////////////////////////////////////////
@@ -56,6 +58,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
      * Инициализация графических компонент.
      */
     private void init() {
+        setTitle("DVR Extractor v0.9b");
         setLayout(new BorderLayout());
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setPreferredSize(new Dimension(900, 640));
@@ -84,6 +87,11 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         ////////////////////////////////////////////////////////////////////////
         tabPane.addTab("Лог", tabLog = new GUI_TabLog());
 
+        ////////////////////////////////////////////////////////////////////////
+        // Вкладка "О программе"
+        ////////////////////////////////////////////////////////////////////////
+        tabPane.addTab("Справка", tabAbout = new GUI_TabAbout());
+        
         textVideo = new JTextField(50);
         buttonVideo = GUI.createButton("Выбор");
 
@@ -108,6 +116,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         panelButton.add(progressBar, "spanx 2, growx");
         add(panelButton, BorderLayout.SOUTH);
 
+        
         pack();
         setLocks();
     }

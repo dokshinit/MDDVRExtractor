@@ -30,8 +30,8 @@ public class App {
     ////////////////////////////////////////////////////////////////////////////
     public static GUI_Main mainFrame; // Основное окно работы программы.
     // Для отладки, если true - подробный лог.
-    public static boolean isDebug = true;
-    
+    public static boolean isDebug = false;
+
     /**
      * Вывод строки лога с типом.
      * @param type Тип сообщения.
