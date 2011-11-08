@@ -92,10 +92,10 @@ public final class FFMpeg {
             codecs.add(new FFCodec(name, m.group(8),
                     !m.group(1).trim().isEmpty(), !m.group(2).trim().isEmpty(),
                     c == 'V', c == 'A', c == 'S'));
-            if (c=='A' && name.equals("g722")) {
+            if (c == 'A' && name.equals("g722")) {
                 isAudio_g722 = true;
             }
-            if (c=='S' && name.equals("srt")) {
+            if (c == 'S' && name.equals("srt")) {
                 isSub_srt = true;
             }
         }
@@ -119,7 +119,7 @@ public final class FFMpeg {
         public FFCodec(String name, String title, boolean isDecode, boolean isEncode,
                 boolean isVideo, boolean isAudio, boolean isSub) {
             this.name = name;
-            this.title = title;
+            this.title = (title == null || title.trim().length() == 0) ? name : title;
             this.isDecode = isDecode;
             this.isEncode = isEncode;
             this.isVideo = isVideo;
@@ -147,15 +147,20 @@ public final class FFMpeg {
                 in.close();
                 Dimension d = info.frameFirst.getResolution();
 
-                pr = Runtime.getRuntime().exec("ffmpeg -i - -r 1 -s " + d.width + "x" + d.height + " -f image2 -");
+                pr = Runtime.getRuntime().exec("ffmpeg -dframes 1 -r 1 -s " + d.width + "x" + d.height + " -i - -f image2 -");
                 InputStream is = pr.getInputStream();
                 OutputStream os = pr.getOutputStream();
                 os.write(ba, 0, ba.length);
                 // Вынуждаем обработать данные (если не закрыть - во вх.потоке 
                 // данные не появляются, даже если делать flush()!).
+                os.flush();
                 os.close();
+                if (App.isWindows) {
+                    pr.getErrorStream().close(); // Без этого не начинается процессинг в винде!!!
+                }
                 // Поток тормознут, если exitValue не вызывает исключение!
                 image = ImageIO.read(is);
+                is.close();
             } catch (IOException e) {
                 Err.log(e);
             } finally {

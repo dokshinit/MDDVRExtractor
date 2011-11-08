@@ -53,13 +53,13 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
         buttonSource.addActionListener(this);
 
         // Отображение типа источника.
-        add(GUI.createLabel("Тип:"), "right");
+        add(GUI.createLabel("Тип"), "right");
         add(textType = GUI.createText("не определён", 10), "span, split 3");
         textType.setEditable(false);
         textType.setHorizontalAlignment(JTextField.CENTER);
 
         // Выбор камеры для обработки.
-        add(GUI.createLabel("Камера:"), "");
+        add(GUI.createLabel("Камера"), "gapleft 20");
         add(comboCam = GUI.createCombo(false), "w 110, wrap");
         comboCam.addActionListener(this);
         comboCam.addItem(0, "не выбрана");
@@ -173,7 +173,7 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
      */
     private void fireSelectSource() {
         GUI_SourceSelect dlg = new GUI_SourceSelect();
-        dlg.center();
+        GUI.centerizeFrame(dlg, App.mainFrame);
         dlg.setVisible(true);
     }
 

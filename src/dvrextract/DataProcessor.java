@@ -2,6 +2,7 @@ package dvrextract;
 
 import java.awt.Dimension;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -10,6 +11,8 @@ import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -108,7 +111,8 @@ public class DataProcessor {
 
             // Завершающая сборка видео (если есть аудио или субтитры в поток).
             finalMake();
-
+            // Удаление временных файлов.
+            deleteTempFiles();
 
         } catch (FatalException ex) {
             Err.log(ex);
@@ -246,6 +250,23 @@ public class DataProcessor {
     }
 
     /**
+     * Проверяем на валидность файл (на то, что его можно создать и открыть).
+     * @return true - можно использовать файл для вывода, false - нельзя.
+     */
+    private static boolean allowOutFile(String name) {
+        deleteFile(name);
+        try {
+            FileOutputStream fos = new FileOutputStream(name);
+            fos.close();
+            deleteFile(name);
+            return true;
+        } catch (Exception ex) {
+        }
+        deleteFile(name);
+        return false;
+    }
+
+    /**
      * Старт процесса выполнения команды.
      * @param cmd Текст команды.
      * @return Процесс выполнения команды.
@@ -299,15 +320,32 @@ public class DataProcessor {
         fps = fileInfo.frameFirst.fps;
 
         ////////////////////////////////////////////////////////////////////
-        // Если файл видео уже есть - стираем.
-        deleteFile(videoName);
-        // Если файл аудио уже есть - стираем.
-        if (isAudio) {
-            deleteFile(audioName);
+        // Проверка имён файлов на возможность их содания и записи в них.
+        // Существующие файлы стираются!
+
+        // Проверка файла видео результирующего!
+        if ((isAudio && isAudioTemp) || (isSub && isSubTemp)) {
+            if (!allowOutFile(App.destVideoName)) {
+                throw new FatalException("Неверное имя файла-приёмника видео! [" + App.destVideoName + "]");
+            }
         }
-        // Если файл субтитров уже есть - стираем.
+
+        // Проверка файла видео.
+        if (!allowOutFile(videoName)) {
+            throw new FatalException("Неверное имя файла-приёмника видео! [" + videoName + "]");
+        }
+
+        // Проверка файла аудио.
+        if (isAudio) {
+            if (!allowOutFile(audioName)) {
+                throw new FatalException("Неверное имя файла-приёмника аудио! [" + audioName + "]");
+            }
+        }
+        // Проверка файла субтитров.
         if (isSub) {
-            deleteFile(subName);
+            if (!allowOutFile(subName)) {
+                throw new FatalException("Неверное имя файла-приёмника субтитров! [" + subName + "]");
+            }
         }
 
         ////////////////////////////////////////////////////////////////////
@@ -433,6 +471,9 @@ public class DataProcessor {
             OutputStream out = p.getOutputStream();
             out.flush();
             out.close();
+            if (App.isWindows) {
+                p.getErrorStream().close(); // Без этого не начинается процессинг в винде!!!
+            }
         } catch (IOException ex) {
             Err.log(ex);
         }

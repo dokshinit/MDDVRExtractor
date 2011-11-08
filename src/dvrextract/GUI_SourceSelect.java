@@ -44,14 +44,14 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         setLayout(new MigLayout("fill"));
 
         // Источник:
-        add(GUI.createLabel("Источник:"), "right");
+        add(GUI.createLabel("Источник"), "right");
         add(textSource = GUI.createText(30), "span, growx, split 2");
         textSource.setText(App.srcName);
         textSource.setEditable(false);
         add(buttonSelect = GUI.createButton("Выбор"), "wrap");
         buttonSelect.addActionListener(this);
         // Тип источника:
-        add(GUI.createLabel("Тип:"), "right");
+        add(GUI.createLabel("Тип"), "right");
         add(textType = GUI.createText("не определён", 10), "");
         textType.setEditable(false);
         textType.setHorizontalAlignment(JTextField.CENTER);
@@ -59,7 +59,7 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         JLabel l = GUI.createNoteLabel("Выбор конкретной камеры может существенно<br>уменьшить время сканирования источника при<br>больших объёмах данных!");
         add(l, "spany 2, wrap");
         // Выбор камеры:
-        add(GUI.createLabel("Камера:"), "right");
+        add(GUI.createLabel("Камера"), "right");
         add(comboCam = GUI.createCombo(true), "growx, wrap");
         comboCam.addItem(0, "< все >");
         for (int i = 0; i < App.MAXCAMS; i++) {
@@ -100,7 +100,7 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
      */
     private void fireSelect() {
         SelectDialog dlg = new SelectDialog();
-        dlg.center();
+        GUI.centerizeFrame(dlg, App.mainFrame);
         dlg.setVisible(true);
     }
 

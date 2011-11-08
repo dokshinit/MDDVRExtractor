@@ -1,9 +1,7 @@
 package dvrextract.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -137,6 +135,7 @@ public class GUITabPane extends JPanel implements ActionListener {
      * Для проверки - демо.
      * @param args 
      */
+    /*
     public static void main(String[] args) {
 
         JFrame frm = new JFrame();
@@ -174,5 +173,6 @@ public class GUITabPane extends JPanel implements ActionListener {
 
         frm.setVisible(true);
     }
+    */
     // </editor-fold>
 }

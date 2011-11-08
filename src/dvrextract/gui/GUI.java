@@ -1,6 +1,10 @@
 package dvrextract.gui;
 
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Point;
+import java.awt.Toolkit;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.text.MaskFormatter;
@@ -177,4 +181,20 @@ public class GUI {
         //combo.setBackground(bgButton);
         //combo.setBorder(new LineBorder(new Color(0x0)));
     }
+    
+    public static void centerizeFrame(Component frame) {
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        frame.setLocation(new Point(
+                (screenSize.width - frame.getWidth()) / 2,
+                (screenSize.height - frame.getHeight()) / 2));
+    }
+    
+    public static void centerizeFrame(Component frame, Component parent) {
+        Point loc = parent.getLocationOnScreen();
+        Dimension size = parent.getSize();
+        frame.setLocation(new Point(
+                loc.x + size.width / 2 - (frame.getWidth()) / 2,
+                loc.y + size.height / 2 - (frame.getHeight()) / 2));
+    }
+    
 }

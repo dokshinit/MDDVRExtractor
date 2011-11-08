@@ -5,6 +5,8 @@ import dvrextract.gui.GUI;
 import dvrextract.gui.JDateTimeField;
 import dvrextract.gui.JExtComboBox;
 import dvrextract.gui.JExtComboBox.ExtItem;
+import dvrextract.gui.JVScrolledPanel;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -12,6 +14,7 @@ import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import net.miginfocom.swing.MigLayout;
 
@@ -68,74 +71,111 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         init();
     }
 
-    private void addSection(String title) {
-        add(GUI.createSectionLabel(title), "spanx, growx, wrap");
-    }
-
-    private JExtComboBox addCombo(String layparam) {
+    private JExtComboBox addCombo(JPanel p, String layparam) {
         JExtComboBox c = GUI.createCombo(false);
-        add(c, layparam == null ? "" : layparam);
+        p.add(c, layparam == null ? "" : layparam);
         c.addActionListener(this);
         return c;
     }
+
+    private static final TitleBorder titleBorder = new TitleBorder(new Color(0x808080));
+    private static final Color panelBg = new Color(0xfffef6);
+    private static final Color titleBg = new Color(0xC0C0C0);
+    private static final Color scrollBg = new Color(0xD8D8D0); //0xe8e5d9
+    
+    JPanel addPanel(String s, String pBcond) {
+        JPanel p = new JPanel(new MigLayout("ins 0", "grow", "[]5[]"));
+        //p.setBackground(panelBg);
+
+        JPanel pT = new JPanel(new MigLayout("ins 3", "grow"));
+        pT.add(GUI.createLabel("<html><font color=#202020 style='font-size: 12pt; font-weight: bold'>" + s + "</font></html>"), "gapleft 5, left");
+        pT.setBorder(titleBorder);
+        pT.setBackground(titleBg);
+
+        JPanel pB = new JPanel(new MigLayout("ins 0", "[120:120:120, right][]"));
+        //pB.setBackground(panelBg);
+
+        p.add(pT, "growx, wrap");
+        p.add(pB, "gapleft 10, gapright 10, gapbottom 5, growx");
+        panel.add(p, "spanx, grow, gapbottom 5, wrap");
+        return pB;
+    }
+
+    void addLine(JPanel p, String s1, String s2) {
+        p.add(GUI.createLabel("<html><b>" + s1 + "</b></html>"), "right, top");
+        p.add(GUI.createLabel("<html>" + s2 + "</html>"), "left, top, wrap");
+    }
+
+    void addLine(JPanel p, String s) {
+        p.add(GUI.createLabel("<html>" + s + "</html>"), "spanx, top, wrap");
+    }
+    JScrollPane scroll;
+    JVScrolledPanel panel;
 
     /**
      * Инициализация графических компонент.
      */
     private void init() {
-        setLayout(new MigLayout("", "[10:10:10][right][]", ""));
-        addSection("Источник");
-        add(GUI.createLabel("Камера"), "skip");
-        add(textCam = GUI.createText(10), "spanx, wrap");
+        setLayout(new MigLayout("ins 5, fill"));
+        panel = new JVScrolledPanel(new MigLayout("ins 5, gap 0, fill", "grow"));
+        panel.setOpaque(false); // Не отрисовываем фон - заполнение фоном вьюпорта.
+        scroll = new JScrollPane(panel);
+        //panel.setBackground(new Color(0xE0E0E0));
+        //scroll.getViewport().setBackground(scrollBg);
+        add(scroll, "grow");
+        
+        JPanel p1 = addPanel("Источник", "");
+        p1.add(GUI.createLabel("Камера"), "");
+        p1.add(textCam = GUI.createText(10), "spanx, wrap");
         textCam.setEditable(false);
         textCam.setText("не выбрана");
 
-        add(GUI.createLabel("Период c"), "skip");
-        add(dateStart = GUI.createDTText(), "w 150, spanx, split 4");
+        p1.add(GUI.createLabel("Период c"), "");
+        p1.add(dateStart = GUI.createDTText(), "w 150, spanx, split 4");
         dateStart.addActionListener(this);
-        add(GUI.createLabel("по"), "");
-        add(dateEnd = GUI.createDTText(), "w 150");
+        p1.add(GUI.createLabel("по"), "");
+        p1.add(dateEnd = GUI.createDTText(), "w 150");
         dateEnd.addActionListener(this);
-        add(buttonEstimate = GUI.createButton("Оценка"), "wrap");
+        p1.add(buttonEstimate = GUI.createButton("Оценка"));
         buttonEstimate.addActionListener(this);
-
-        addSection("Видео");
-        add(GUI.createLabel("Файл"), "skip");
-        add(textDestVideo = GUI.createText(300), "growx, spanx, split 2");
+        
+        JPanel p2 = addPanel("Видео", "");
+        p2.add(GUI.createLabel("Файл"), "");
+        p2.add(textDestVideo = GUI.createText(300), "growx, spanx, split 2");
         textDestVideo.setEditable(false);
-        add(buttonSelectVideo = GUI.createButton("Выбор"), "wrap");
+        p2.add(buttonSelectVideo = GUI.createButton("Выбор"), "wrap");
         buttonSelectVideo.addActionListener(this);
-        add(GUI.createLabel("Кодек"), "skip");
-        comboVideoFormat = addCombo("left, spanx, wrap");
-        add(GUI.createLabel("Размер"), "skip");
-        comboVideoSize = addCombo("left, spanx, split 3");
-        add(GUI.createLabel("Кадр/сек"), "gap 20");
-        comboVideoFPS = addCombo("wrap");
-        add(GUI.createLabel("Ручные настройки"), "skip");
-        add(textVideoCustom = GUI.createText(300), "left, spanx, wrap");
+        p2.add(GUI.createLabel("Кодек"), "");
+        comboVideoFormat = addCombo(p2, "left, spanx, wrap");
+        p2.add(GUI.createLabel("Размер"), "");
+        comboVideoSize = addCombo(p2, "left, spanx, split 3");
+        p2.add(GUI.createLabel("Кадр/сек"), "gapleft 20");
+        comboVideoFPS = addCombo(p2, "wrap");
+        p2.add(GUI.createLabel("Ручные настройки"), "");
+        p2.add(textVideoCustom = GUI.createText(300), "left, spanx");
         textVideoCustom.addActionListener(this);
 
-        addSection("Аудио");
-        add(GUI.createLabel("Режим"), "skip");
-        comboAudioMode = addCombo("left, spanx, split 3");
-        add(textDestAudio = GUI.createText(300), "growx");
+        JPanel p3 = addPanel("Аудио", "");
+        p3.add(GUI.createLabel("Режим"), "");
+        comboAudioMode = addCombo(p3, "left, spanx, split 3");
+        p3.add(textDestAudio = GUI.createText(300), "growx");
         textDestAudio.setEditable(false);
-        add(buttonSelectAudio = GUI.createButton("Выбор"), "wrap");
+        p3.add(buttonSelectAudio = GUI.createButton("Выбор"), "wrap");
         buttonSelectAudio.addActionListener(this);
-        add(GUI.createLabel("Кодек"), "skip");
-        comboAudioFormat = addCombo("left, spanx, wrap");
-        add(GUI.createLabel("Ручные настройки"), "skip");
-        add(textAudioCustom = GUI.createText(300), "left, spanx, wrap");
+        p3.add(GUI.createLabel("Кодек"), "");
+        comboAudioFormat = addCombo(p3, "left, spanx, wrap");
+        p3.add(GUI.createLabel("Ручные настройки"), "");
+        p3.add(textAudioCustom = GUI.createText(300), "left, spanx");
 
-        addSection("Титры");
-        add(GUI.createLabel("Режим"), "skip");
-        comboSubMode = addCombo("left, spanx, split 3");
-        add(textDestSub = GUI.createText(300), "growx");
+        JPanel p4 = addPanel("Титры", "");
+        p4.add(GUI.createLabel("Режим"), "");
+        comboSubMode = addCombo(p4, "left, spanx, split 3");
+        p4.add(textDestSub = GUI.createText(300), "growx");
         textDestSub.setEditable(false);
-        add(buttonSelectSub = GUI.createButton("Выбор"), "wrap");
+        p4.add(buttonSelectSub = GUI.createButton("Выбор"), "wrap");
         buttonSelectSub.addActionListener(this);
-        add(GUI.createLabel("Формат"), "skip");
-        comboSubFormat = addCombo("left, spanx, wrap");
+        p4.add(GUI.createLabel("Формат"), "");
+        comboSubFormat = addCombo(p4, "left, spanx");
 
         ArrayList<FFCodec> list = FFMpeg.getCodecs();
         comboVideoFormat.addItem(0, new Item("Без преобразования", "copy"));
@@ -460,7 +500,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      */
     private void fireSelectVideoDestination() {
         SelectVideoDialog dlg = new SelectVideoDialog();
-        dlg.center();
+        GUI.centerizeFrame(dlg, App.mainFrame);
         dlg.setVisible(true);
     }
 
@@ -477,7 +517,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      */
     private void fireSelectAudioDestination() {
         SelectAudioDialog dlg = new SelectAudioDialog();
-        dlg.center();
+        GUI.centerizeFrame(dlg, App.mainFrame);
         dlg.setVisible(true);
     }
 
@@ -502,7 +542,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      */
     private void fireSelectSubDestination() {
         SelectSubDialog dlg = new SelectSubDialog();
-        dlg.center();
+        GUI.centerizeFrame(dlg, App.mainFrame);
         dlg.setVisible(true);
     }
 

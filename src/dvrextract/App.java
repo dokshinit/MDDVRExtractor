@@ -9,10 +9,6 @@ import javax.swing.UIManager;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
 
-// TODO: Добавить определение операционной системы - давать соответствующий выбор сохранения результатов.
-// TODO: Для линукса - запись видео\аудио\титров через три именованых канала в один файл, для винды - в три разных (два потока ffmpeg + файл srt).
-// TODO: Проверка наличия нужных кодеков (g722 и srt)?
-//
 // TODO: Зависает обновление таблицы после долгого скролла.
 /**
  *
@@ -31,6 +27,8 @@ public class App {
     public static GUI_Main mainFrame; // Основное окно работы программы.
     // Для отладки, если true - подробный лог.
     public static boolean isDebug = false;
+    public static boolean isLinux = false;
+    public static boolean isWindows = false;
 
     /**
      * Вывод строки лога с типом.
@@ -166,6 +164,13 @@ public class App {
         for (int i = 0; i < MAXCAMS; i++) {
             srcCams[i] = new CamInfo();
         }
+        // Определяем тип ОС.
+        String s = System.getProperty("os.name").toLowerCase();
+        if (s.substring(0, 3).equals("lin")) {
+            isLinux = true;
+        } else if (s.substring(0, 3).equals("win")) {
+            isWindows = true;
+        }
 
         // Инициализация Look&Feel.
         initLAF();
@@ -180,7 +185,7 @@ public class App {
             public void run() {
                 // Позиционируем по центру экрана
                 mainFrame = new GUI_Main();
-                mainFrame.center();
+                GUI.centerizeFrame(mainFrame);
                 mainFrame.setVisible(true);
                 if (!FFMpeg.isWork()) {
                     JOptionPane.showMessageDialog(mainFrame,
@@ -193,9 +198,6 @@ public class App {
 
         //TODO: Два режима работы - графический и консольный.
         //TODO: Прикрутить ключи для консольного использования.
-        //TODO: Сделать просмотр или просто первые кадры камер? Средства?
-        //TODO: Сделать процедуру считывающую первый заголовок и последний и выдающую инфу наверх.
-
         /*
          * Ориентировочный синтаксис использования из консоли:
          * 
