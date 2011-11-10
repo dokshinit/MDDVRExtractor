@@ -3,10 +3,12 @@ package dvrextract;
 import dvrextract.gui.GUI;
 import dvrextract.gui.JVScrolledPanel;
 import java.awt.Color;
+import java.net.URI;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import net.miginfocom.swing.MigLayout;
+import org.jdesktop.swingx.JXHyperlink;
 
 /**
  * Вкладка "О программе".
@@ -14,16 +16,19 @@ import net.miginfocom.swing.MigLayout;
  */
 public final class GUI_TabAbout extends JPanel {
 
+    private static final TitleBorder titleBorder = new TitleBorder(new Color(0x404080));
+    private static final Color panelBg = new Color(0xfffef6);
+    private static final Color titleBg = new Color(0xBFCFFF);
+    private static final Color scrollBg = new Color(0xe8e5d9);
+    private JScrollPane scroll;
+    private JVScrolledPanel panel;
+
     /**
      * Конструктор.
      */
     public GUI_TabAbout() {
         init();
     }
-    private static final TitleBorder titleBorder = new TitleBorder(new Color(0x404080));
-    private static final Color panelBg = new Color(0xfffef6);
-    private static final Color titleBg = new Color(0xBFCFFF);
-    private static final Color scrollBg = new Color(0xe8e5d9);
 
     JPanel addPanel(String s, String pBcond) {
         JPanel p = new JPanel(new MigLayout("ins 0", "grow", "[]5[]"));
@@ -53,13 +58,17 @@ public final class GUI_TabAbout extends JPanel {
     void addLine(JPanel p, String s) {
         p.add(GUI.createLabel("<html>" + s + "</html>"), "spanx, left, top, wrap");
     }
-    
-    void addLink(JPanel p, String s, String url) {
-        
-    }
-    JScrollPane scroll;
-    JVScrolledPanel panel;
 
+    class Link extends JXHyperlink {
+        
+        Link(String title, String url) {
+            super();
+            setURI(URI.create(url));
+            setText(title);
+            this.setToolTipText(url);
+        }
+    }
+    
     /**
      * Инициализация графических компонент.
      */
@@ -77,13 +86,19 @@ public final class GUI_TabAbout extends JPanel {
 
         JPanel p1 = addPanel("О программе", "[right][]");
         addLine(p1, "Назначение", "Конвертация/извлечение данных видеонаблюдения регистраторов Microdigital.");
-        addLine(p1, "Версия", "0.9b от 07.11.2011");
+        addLine(p1, "Версия", App.version+" от 10.11.2011");
         addLine(p1, "Автор", "Докшин Алексей");
         addLine(p1, "Контакты", "dant.it@gmail.com");
 
         JPanel p2 = addPanel("Системные требования", "[10:10:10, right][]");
-        addLine(p2, "*", "Для запуска программы необходим Java SE (JRE/JDK) v1.6.x (<a href=\"http://www.oracle.com/technetwork/java/javase/downloads/index.html\">ссылка</a>).");
-        addLine(p2, "*", "Для обработки и транскодирования требуется ffmpeg v0.8.5 (при более ранних версиях возможно будет недоступно сохранение аудио и внедрение аудио/субтитров в видео). ");
+        addLine(p2, "*", "Для запуска программы необходим Java SE (JRE/JDK) v1.6.x.");
+        p2.add(GUI.createLabel("Страница загрузки:"), "skip, spanx, split 2, left, bottom");
+        p2.add(new Link("Oracle Java SE (JRE/JDK)", "http://www.oracle.com/technetwork/java/javase/downloads/index.html"), "wrap");
+        addLine(p2, "*", "Для обработки и транскодирования требуется ffmpeg v0.8.x (при более ранних версиях возможно будет недоступно сохранение аудио и внедрение аудио/субтитров в видео). ");
+        p2.add(GUI.createLabel("Страница загрузки:"), "skip, spanx, split 3, left, bottom");
+        p2.add(new Link("Linux", "http://ffmpeg.org/download.html"), "bottom");
+        p2.add(new Link("Windows", "http://ffmpeg.zeranoe.com/builds/"), "bottom, wrap");
+        addLine(p2, "*", "Детальная информация по установке, настройкам и работе содержится в файле <b>readme.txt</b>. Также освещён процесс извлечения данных с HDD регистратора.");
 
         JPanel p3 = addPanel("Возможности", "[10:10:10, right][]");
         addLine(p3, "<b>Исходные данные:</b>");

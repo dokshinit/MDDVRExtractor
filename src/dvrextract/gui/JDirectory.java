@@ -40,7 +40,7 @@ public class JDirectory extends JPanel {
         tableModel = m;
         columnModel = tm;
         tm.linkToData(m); // Обязательно для корректного сопоставления!!!
-        
+
         scrolled = false;
         table = new JXTable(tableModel, columnModel);
         table.setColumnControlVisible(true);
@@ -65,7 +65,7 @@ public class JDirectory extends JPanel {
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
-                    ListSelectionModel l = (ListSelectionModel)e.getSource();
+                    ListSelectionModel l = (ListSelectionModel) e.getSource();
                     // Номер текущей строки таблицы
                     fireSelect(e, l);
                 }
@@ -197,5 +197,18 @@ public class JDirectory extends JPanel {
         this.columnModel = columnModel;
         this.table.setColumnModel(columnModel);
         columnModel.linkToData(tableModel);
+    }
+
+    /**
+     * Делает указанную строку таблицы (не модели!!!) видимой в видимом окне 
+     * скролла (прокручивает таблицу если нужно).
+     * TODO допилисть чтобы это был номер строки модели!
+     * @param index Номер строки.
+     */
+    public void displayTableRow(int index) {
+        if (index >= 0 && index < table.getRowCount()) {
+            Rectangle r = table.getCellRect(index, 0, true);
+            scroll.getViewport().scrollRectToVisible(r);
+        }
     }
 }

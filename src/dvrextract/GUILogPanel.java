@@ -76,6 +76,15 @@ public class GUILogPanel extends JPanel {
      */
     public void add(LogTableModel.Type type, String text) {
         model.add(type, text);
+        // Позиционируем в конец лога.
+        java.awt.EventQueue.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                dir.displayTableRow(model.getRowCount()-1);
+            }
+        });
+        
     }
 
     /**

@@ -371,7 +371,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             // Задач нет.
             dateStart.setEditable(true);
             dateEnd.setEditable(true);
-            buttonEstimate.setEnabled(App.srcCamSelect > 0);
+            buttonEstimate.setEnabled(false); //App.srcCamSelect > 0 TODO убрать когда реализую вычисления.
             buttonSelectVideo.setEnabled(true);
             comboVideoFormat.setEnabled(true);
             ExtItem i = comboVideoFormat.getSelectedItem();

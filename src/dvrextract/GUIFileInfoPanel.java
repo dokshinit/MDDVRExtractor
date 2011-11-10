@@ -36,6 +36,7 @@ public final class GUIFileInfoPanel extends JPanel {
     private JTextField textType;
     private JTextField textCams;
     private JTextField textResolution;
+    private JTextField textFPS;
     private JTextField textFirstTime;
     private JTextField textLastTime;
     private JTextField textAmountTime;
@@ -91,6 +92,7 @@ public final class GUIFileInfoPanel extends JPanel {
         textType = createInfo("Тип", 10, null);
         textCams = createInfo("Камеры", 30, null);
         textResolution = createInfo("Разрешение", 12, null);
+        textFPS = createInfo("Частота", 10, null);
         textFirstTime = createInfo("Начало", 15, null);
         textLastTime = createInfo("Конец", 15, null);
         textAmountTime = createInfo("Длительность", 22, null);
@@ -123,11 +125,14 @@ public final class GUIFileInfoPanel extends JPanel {
                 textSize.setText(NumberTools.doubleToFormatString((double) info.fileSize, NumberTools.format0, "", "") + " байт");
                 textType.setText(info.fileType.title);
                 textCams.setText(info.getCamsToString());
-                Dimension d = info.frameFirst.getResolution();
-                textResolution.setText(String.format("%d x %d", d.width, d.height));
                 if (info.frameFirst != null) {
+                    Dimension d = info.frameFirst.getResolution();
+                    textResolution.setText(String.format("%d x %d", d.width, d.height));
+                    textFPS.setText(String.format("%d кадр./сек.", info.frameFirst.fps));
                     textFirstTime.setText(df.format(info.frameFirst.time));
                 } else {
+                    textResolution.setText("");
+                    textFPS.setText("");
                     textFirstTime.setText("");
                 }
                 if (info.frameLast != null) {
