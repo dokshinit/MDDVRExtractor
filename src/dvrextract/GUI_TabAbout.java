@@ -3,6 +3,7 @@ package dvrextract;
 import dvrextract.gui.GUI;
 import dvrextract.gui.JVScrolledPanel;
 import java.awt.Color;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import net.miginfocom.swing.MigLayout;
@@ -19,18 +20,19 @@ public final class GUI_TabAbout extends JPanel {
     public GUI_TabAbout() {
         init();
     }
-
     private static final TitleBorder titleBorder = new TitleBorder(new Color(0x404080));
     private static final Color panelBg = new Color(0xfffef6);
     private static final Color titleBg = new Color(0xBFCFFF);
     private static final Color scrollBg = new Color(0xe8e5d9);
-    
+
     JPanel addPanel(String s, String pBcond) {
         JPanel p = new JPanel(new MigLayout("ins 0", "grow", "[]5[]"));
         p.setBackground(panelBg);
 
         JPanel pT = new JPanel(new MigLayout("ins 3", "grow"));
-        pT.add(GUI.createLabel("<html><font color=#4040BF style='font-size: 16pt; font-weight: bold'>" + s + "</font></html>"), "center");
+        JLabel l;
+        pT.add(l = GUI.createLabel("<html><font color=#4040BF style='font-size: 16pt; font-weight: bold'>" + s + "</font></html>"), "center");
+        
         pT.setBorder(titleBorder);
         pT.setBackground(titleBg);
 
@@ -44,17 +46,20 @@ public final class GUI_TabAbout extends JPanel {
     }
 
     void addLine(JPanel p, String s1, String s2) {
-        p.add(GUI.createLabel("<html><b>" + s1 + "</b></html>"), "right, top");
-        p.add(GUI.createLabel("<html>" + s2 + "</html>"), "left, top, wrap");
+        p.add(GUI.createLabel("<html><b>" + s1 + "</b></html>"), "top");
+        p.add(GUI.createLabel("<html>" + s2 + "</html>"), "top, wrap");
     }
 
     void addLine(JPanel p, String s) {
-        p.add(GUI.createLabel("<html>" + s + "</html>"), "spanx, top, wrap");
+        p.add(GUI.createLabel("<html>" + s + "</html>"), "spanx, left, top, wrap");
+    }
+    
+    void addLink(JPanel p, String s, String url) {
+        
     }
     JScrollPane scroll;
     JVScrolledPanel panel;
 
-    
     /**
      * Инициализация графических компонент.
      */
@@ -62,7 +67,7 @@ public final class GUI_TabAbout extends JPanel {
 
         //setBackground(new Color(0xF0F0F0));
         setLayout(new MigLayout("ins 5, fill"));
-        
+
         panel = new JVScrolledPanel(new MigLayout("ins 20, gap 10", "grow"));
         panel.setOpaque(false);
         scroll = new JScrollPane(panel);
@@ -70,15 +75,17 @@ public final class GUI_TabAbout extends JPanel {
         add(scroll, "grow");
         //scroll.setBorder(new LineBorder(new Color(0xA0A0C0)));
 
-        JPanel p1 = addPanel("О программе", "");
+        JPanel p1 = addPanel("О программе", "[right][]");
+        addLine(p1, "Назначение", "Конвертация/извлечение данных видеонаблюдения регистраторов Microdigital.");
         addLine(p1, "Версия", "0.9b от 07.11.2011");
         addLine(p1, "Автор", "Докшин Алексей");
         addLine(p1, "Контакты", "dant.it@gmail.com");
 
-        JPanel p2 = addPanel("Назначение", "");
-        addLine(p2, "Конвертация/извлечение данных видеонаблюдения регистраторов Microdigital.");
+        JPanel p2 = addPanel("Системные требования", "[10:10:10, right][]");
+        addLine(p2, "*", "Для запуска программы необходим Java SE (JRE/JDK) v1.6.x (<a href=\"http://www.oracle.com/technetwork/java/javase/downloads/index.html\">ссылка</a>).");
+        addLine(p2, "*", "Для обработки и транскодирования требуется ffmpeg v0.8.5 (при более ранних версиях возможно будет недоступно сохранение аудио и внедрение аудио/субтитров в видео). ");
 
-        JPanel p3 = addPanel("Возможности", "[10:10:10][]");
+        JPanel p3 = addPanel("Возможности", "[10:10:10, right][]");
         addLine(p3, "<b>Исходные данные:</b>");
         addLine(p3, "*", "Файлы архивов выгружаемые видеорегистратором (*.exe).");
         addLine(p3, "*", "Файлы файловой системы видеорегистратора (da#####).");
@@ -95,5 +102,17 @@ public final class GUI_TabAbout extends JPanel {
         addLine(p3, "*", "При повреждении файла битые кадры исключаются из ряда, возможно появление артефактов.");
         addLine(p3, "<b>В планах:</b>");
         addLine(p3, "*", "Расширенная обработка повреждённых файлов.");
+
+        JPanel p4 = addPanel("Типовый порядок работы", "[20:20:20, left][]");
+        addLine(p4, "1", "На закладке <b><i>Источник</i></b>:");
+        addLine(p4, "1.1", "Выбирается источник после чего происходит его предварительное сканирование.");
+        addLine(p4, "1.2", "Выбирается обрабатываемая камера из списка доступных.");
+        addLine(p4, "2", "На закладке <b><i>Обработка</i></b>:");
+        addLine(p4, "2.1", "Выбирается период сохраняемых данных.");
+        addLine(p4, "2.2", "Выбирается файл-приёмник для видео и если нужно - формат кодирования, размер кадра, частоту кадров.");
+        addLine(p4, "2.3", "Выбирается режим обработки аудио и если нужно - файл-приёмник, формат кодирования.");
+        addLine(p4, "2.4", "Выбирается режим создания субтитров и если нужно - файл-приёмник, формат кодирования.");
+        addLine(p4, "3", "Переход на закладку <b><i>Лог</i></b> для контроля (не обязательно).");
+        addLine(p4, "4", "Запуск обработки (возможно сделать находясь на любой закладке).");
     }
 }

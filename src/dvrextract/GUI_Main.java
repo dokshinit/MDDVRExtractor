@@ -25,7 +25,6 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
     public GUI_TabProcess tabProcess;
     public GUI_TabLog tabLog;
     public GUI_TabAbout tabAbout;
-    
     ////////////////////////////////////////////////////////////////////////////
     // Закладка: Обработка
     ////////////////////////////////////////////////////////////////////////////
@@ -91,7 +90,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         // Вкладка "О программе"
         ////////////////////////////////////////////////////////////////////////
         tabPane.addTab("Справка", tabAbout = new GUI_TabAbout());
-        
+
         textVideo = new JTextField(50);
         buttonVideo = GUI.createButton("Выбор");
 
@@ -116,7 +115,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         panelButton.add(progressBar, "spanx 2, growx");
         add(panelButton, BorderLayout.SOUTH);
 
-        
+
         pack();
         setLocks();
     }
@@ -151,16 +150,24 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         } catch (Exception ex) {
         }
     }
-    
+
     private boolean isPossibleProcess() {
         // ffmpeg не найден.
-        if (!FFMpeg.isWork()) return false;
+        if (!FFMpeg.isWork()) {
+            return false;
+        }
         // Не выбрана камера.
-        if (App.srcCamSelect <= 0) return false;
+        if (App.srcCamSelect <= 0) {
+            return false;
+        }
         // Нет файлов для обработки (не должно быть по идее).
-        if (!App.srcCams[App.srcCamSelect-1].isExists) return false;
+        if (!App.srcCams[App.srcCamSelect - 1].isExists) {
+            return false;
+        }
         // Не выбран выходной файл.
-        if (App.destVideoName.isEmpty()) return false;
+        if (App.destVideoName.isEmpty()) {
+            return false;
+        }
         return true;
     }
 
@@ -257,18 +264,17 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
     @Override
     protected void processWindowEvent(WindowEvent e) {
         if (e.getID() == WindowEvent.WINDOW_CLOSING) {
-            /*
-            Object[] options = {"Да", "Нет!"};
+
+            Object[] options = {"Да", "Нет"};
             int n = JOptionPane.showOptionDialog(e.getWindow(), "Выйти из программы?",
-            "Подтверждение", JOptionPane.YES_NO_OPTION,
-            JOptionPane.QUESTION_MESSAGE, null, options,
-            options[0]);
+                    "Подтверждение", JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE, null, options,
+                    options[1]);
             if (n == 0) {
-            dispose();
-            System.exit(0);
+                dispose();
+                System.exit(0);
             }
-             */
-            System.exit(0);
+
         } else {
             super.processWindowEvent(e);
         }
@@ -286,7 +292,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
             }
         }
     }
-    
+
     /**
      * Процесс обработки данных.
      */
