@@ -17,7 +17,8 @@ import java.util.logging.Logger;
 public final class Err {
 
     private static final Logger errLog = Logger.getLogger(App.class.getName());
-
+    public static String x_InitError = "";
+            
     /**
      * Инициализация.
      */
@@ -28,7 +29,7 @@ public final class Err {
             handler.setLevel(Level.ALL);
             errLog.addHandler(handler);
         } catch (Exception ex) {
-            App.log(Type.ERROR, "Ошибка инициализации лога!"); // Лог ошибок будет выключен!
+            App.log(Type.ERROR, x_InitError); // Лог ошибок будет выключен!
         }
     }
 

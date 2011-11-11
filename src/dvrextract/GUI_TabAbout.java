@@ -1,5 +1,6 @@
 package dvrextract;
 
+import dvrextract.gui.TitleBorder;
 import dvrextract.gui.GUI;
 import dvrextract.gui.JVScrolledPanel;
 import java.awt.Color;

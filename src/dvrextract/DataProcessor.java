@@ -1,8 +1,8 @@
 package dvrextract;
 
+import dvrextract.FFMpeg.Cmd;
 import java.awt.Dimension;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -11,8 +11,6 @@ import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Date;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 
 /**
@@ -55,6 +53,20 @@ public class DataProcessor {
     // Минимальное и максимальное время среди обработанных кадров.
     public static long timeMin, timeMax;
     ////////////////////////////////////////////////////////////////////////////
+    public static String x_ProcessSource = "", x_ProcessFile = "",
+            x_ProcessEnd = "", x_ProcessSourceEnd = "",
+            x_FinalMakeStart = "", x_ErrorFinalMakeStart = "",
+            x_FinalMakeStarted = "", x_FFMpegVideoInputNotFound = "";
+    public static String x_FFMpegProcessVideoInputFail = "";
+    public static String x_UserPorcessCancel = "", x_ErrorMakeIO = "",
+            x_FinalMakeEnd = "", x_WrongOutVideoFile = "",
+            x_WrongOutAudioFile = "", x_WrongOutSubFile = "",
+            x_ErrorFFMpegVideoStart = "", x_ErrorFFMpegAudioStart = "",
+            x_ErrorFFMpegSubStart = "", x_Delete = "", x_LeaveAsIs = "",
+            x_WhatDoTemp = "", x_Confirmation = "", x_Finish = "",
+            x_WaitFinish = "", x_FinishProcess1 = "", x_FinishProcess2 = "",
+            x_FinishProcess3 = "", x_FinishedProcess1 = "",
+            x_FinishedProcess2 = "", x_CoderStarting = "", x_CoderStarted = "";
 
     /**
      * Обработка данных.
@@ -72,7 +84,7 @@ public class DataProcessor {
         int cam = App.srcCamSelect - 1;
         camInfo = App.srcCams[cam];
 
-        String msg = "Обработка источника...";
+        String msg = x_ProcessSource;
         App.log(msg);
         App.mainFrame.setProgressInfo(msg);
         App.mainFrame.startProgress(0, 100);
@@ -84,7 +96,7 @@ public class DataProcessor {
                 }
                 FileInfo fi = camInfo.files.get(i);
 
-                msg = String.format("Обработка файла (%d из %d)", i + 1, camInfo.files.size());
+                msg = String.format(x_ProcessFile, i + 1, camInfo.files.size());
                 App.log(msg + ": " + fi.fileName);
                 App.mainFrame.setProgressInfo(msg);
                 App.mainFrame.setProgressText(fi.fileName);
@@ -107,7 +119,7 @@ public class DataProcessor {
             }
             // Останов процессов FFMpeg.
             stopCoderProcess();
-            App.log("Процесс кодирования завершён.");
+            App.log(x_ProcessEnd);
 
             // Завершающая сборка видео (если есть аудио или субтитры в поток).
             finalMake();
@@ -121,7 +133,7 @@ public class DataProcessor {
         }
         App.mainFrame.stopProgress();
 
-        msg = "Обработка источника завершена.";
+        msg = x_ProcessSourceEnd;
         App.log(msg);
         App.mainFrame.setProgressInfo(msg);
     }
@@ -142,41 +154,40 @@ public class DataProcessor {
         deleteFile(App.destVideoName);
 
         // Построение команды для сборки.
-        StringBuilder vcmd = new StringBuilder("ffmpeg ");
         // Для контроля прогресса будем сами закидывать данные видео.
-        vcmd.append("-f matroska -i - ");
+        Cmd vcmd = new Cmd("-f", "matroska", "-i", "-");
         if (isAudio && isAudioTemp) {
-            vcmd.append("-f wav -i ").append(audioName).append(" ");
+            vcmd.add("-f", "wav", "-i", audioName);
         }
         if (isSub && isSubTemp) {
-            vcmd.append("-f srt -i ").append(subName).append(" ");
+            vcmd.add("-f", "srt", "-i", subName);
         }
-        vcmd.append("-vcodec copy ");
+        vcmd.add("-vcodec", "copy");
         if (isAudio && isAudioTemp) {
-            vcmd.append("-acodec copy ");
+            vcmd.add("-acodec", "copy");
         }
         if (isSub && isSubTemp) {
-            vcmd.append("-scodec copy ");
+            vcmd.add("-scodec", "copy");
         }
-        vcmd.append(App.destVideoName);
+        vcmd.add(App.destVideoName);
 
         if (App.isDebug) {
             App.log("FFMpeg Make = " + vcmd.toString());
         }
 
-        String msg = "Запуск процесса сборки...";
+        String msg = x_FinalMakeStart;
         App.log(msg);
         App.mainFrame.setProgressInfo(msg);
         App.mainFrame.startProgress(0, 100);
 
         try {
-            processMake = startProcess(vcmd.toString());
+            processMake = startProcess(vcmd);
             processMakeOut = processMake.getOutputStream();
         } catch (IOException ex) {
-            throw new FatalException("Ошибка запуска процесса сборки!");
+            throw new FatalException(x_ErrorFinalMakeStart);
         }
 
-        msg = "Запущен процесс сборки.";
+        msg = x_FinalMakeStarted;
         App.log(msg);
         App.mainFrame.setProgressInfo(msg);
 
@@ -184,9 +195,9 @@ public class DataProcessor {
         try {
             in = new InputFile(videoName);
         } catch (FileNotFoundException ex) {
-            throw new FatalException("FFMpeg process video input not found!");
+            throw new FatalException(x_FFMpegVideoInputNotFound + " [" + videoName + "]");
         } catch (IOException ex) {
-            throw new FatalException("FFMpeg process video input fail!");
+            throw new FatalException(x_FFMpegProcessVideoInputFail);
         }
 
         try {
@@ -199,7 +210,7 @@ public class DataProcessor {
             byte[] buf = new byte[1024 * 1024];
             while (readsize < size) {
                 if (Task.isTerminate()) {
-                    throw new FatalException("Прерывание процесса пользователем!");
+                    throw new FatalException(x_UserPorcessCancel);
                 }
                 int len = (int) Math.min(size - readsize, buf.length);
                 in.read(buf, len);
@@ -216,7 +227,7 @@ public class DataProcessor {
         } catch (IOException ex) {
             Err.log(ex);
             in.closeSafe();
-            throw new FatalException("Ошибка IO при сборке!");
+            throw new FatalException(x_ErrorMakeIO);
         }
         in.closeSafe();
 
@@ -225,7 +236,7 @@ public class DataProcessor {
         processMake = null;
         processMakeOut = null;
 
-        App.log("Процесс сборки завершён.");
+        App.log(x_FinalMakeEnd);
     }
     // Имена файлов для сохранения аудио и субтитров.
     private static String videoName, audioName, subName;
@@ -272,8 +283,8 @@ public class DataProcessor {
      * @return Процесс выполнения команды.
      * @throws IOException Ошибка выполнения команды.
      */
-    private static Process startProcess(String cmd) throws IOException {
-        Process p = Runtime.getRuntime().exec(cmd);
+    private static Process startProcess(Cmd cmd) throws IOException {
+        Process p = Runtime.getRuntime().exec(cmd.getArray());
         int res = 0;
         try {
             res = p.exitValue();
@@ -326,49 +337,48 @@ public class DataProcessor {
         // Проверка файла видео результирующего!
         if ((isAudio && isAudioTemp) || (isSub && isSubTemp)) {
             if (!allowOutFile(App.destVideoName)) {
-                throw new FatalException("Неверное имя файла-приёмника видео! [" + App.destVideoName + "]");
+                throw new FatalException(x_WrongOutVideoFile + " [" + App.destVideoName + "]");
             }
         }
 
         // Проверка файла видео.
         if (!allowOutFile(videoName)) {
-            throw new FatalException("Неверное имя файла-приёмника видео! [" + videoName + "]");
+            throw new FatalException(x_WrongOutVideoFile + " [" + videoName + "]");
         }
 
         // Проверка файла аудио.
         if (isAudio) {
             if (!allowOutFile(audioName)) {
-                throw new FatalException("Неверное имя файла-приёмника аудио! [" + audioName + "]");
+                throw new FatalException(x_WrongOutAudioFile + " [" + audioName + "]");
             }
         }
         // Проверка файла субтитров.
         if (isSub) {
             if (!allowOutFile(subName)) {
-                throw new FatalException("Неверное имя файла-приёмника субтитров! [" + subName + "]");
+                throw new FatalException(x_WrongOutSubFile + " [" + subName + "]");
             }
         }
 
         ////////////////////////////////////////////////////////////////////
         // Компилируем командную строку для ffmpeg.
         // Для видео.
-        StringBuilder vcmd = new StringBuilder("ffmpeg ");
         // Оригинальный fps.
         String sfps = String.valueOf(fps);
         // Оригинальный размер кадра.
         Dimension d = fileInfo.frameFirst.getResolution();
-        String size = "" + d.width + "x" + d.height;
+        String ssize = "" + d.width + "x" + d.height;
         // Настройки приёмника.
-        vcmd.append(" -r ").append(sfps).append(" -i - ");
-        vcmd.append(App.destVideoOptions.replace("{origfps}", sfps).replace("{origsize}", size));
-        vcmd.append(" ").append(videoName);
+        Cmd vcmd = new Cmd("-r", sfps, "-i", "-");
+        vcmd.add(App.destVideoOptions).add(videoName);
+        vcmd.replaceOrigs(sfps, ssize);
+        //
 
         ////////////////////////////////////////////////////////////////////
         // Для аудио.
-        StringBuilder acmd = new StringBuilder("ffmpeg ");
+        Cmd acmd = new Cmd();
         if (isAudio) {
-            acmd.append("-f g722 -acodec g722 -ar 8000 -ac 1 -i - ");
-            acmd.append(App.destAudioOptions).append(" ");
-            acmd.append(audioName);
+            acmd.add("-f", "g722", "-acodec", "g722", "-ar", "8000", "-ac", "1", "-i", "-");
+            acmd.add(App.destAudioOptions).add(audioName);
         }
 
         if (App.isDebug) {
@@ -379,19 +389,19 @@ public class DataProcessor {
         ////////////////////////////////////////////////////////////////////
         // Стартуем процесс обработки видео.
         try {
-            processVideo = startProcess(vcmd.toString());
+            processVideo = startProcess(vcmd);
             processVideoOut = processVideo.getOutputStream();
         } catch (IOException ex) {
-            throw new FatalException("Ошибка запуска FFMpeg-video!");
+            throw new FatalException(x_ErrorFFMpegVideoStart);
         }
 
         // Стартуем процесс обработки аудио.
         if (isAudio) {
             try {
-                processAudio = startProcess(acmd.toString());
+                processAudio = startProcess(acmd);
                 processAudioOut = processAudio.getOutputStream();
             } catch (IOException ex) {
-                throw new FatalException("Ошибка запуска FFMpeg-audio!");
+                throw new FatalException(x_ErrorFFMpegAudioStart);
             }
         }
 
@@ -400,7 +410,7 @@ public class DataProcessor {
             try {
                 processSubOut = new PrintStream(new FileOutputStream(subName, true));
             } catch (IOException ex) {
-                throw new FatalException("Ошибка запуска FFMpeg-sub!");
+                throw new FatalException(x_ErrorFFMpegSubStart);
             }
         }
     }
@@ -443,10 +453,10 @@ public class DataProcessor {
             processMake = null;
             processMake = null;
         }
-        Object[] options = {"Удалить", "Оставить как есть"};
+        Object[] options = {x_Delete, x_LeaveAsIs};
         int n = JOptionPane.showOptionDialog(App.mainFrame,
-                "Что делать с временными файлами?",
-                "Подтверждение", JOptionPane.YES_NO_OPTION,
+                x_WhatDoTemp,
+                x_Confirmation, JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE, null, options,
                 options[0]);
         if (n == 0) {
@@ -491,15 +501,15 @@ public class DataProcessor {
                     }
                 }
             }
-            Object[] options = {"Завершить", "Ожидать завершения"};
+            Object[] options = {x_Finish, x_WaitFinish};
             int n = JOptionPane.showOptionDialog(App.mainFrame,
-                    "Завершить процесс '" + title + "' принудительно или ожидать ещё " + timeout + " мсек.?",
-                    "Подтверждение", JOptionPane.YES_NO_OPTION,
+                    x_FinishProcess1 + title + x_FinishProcess2 + timeout + x_FinishProcess3,
+                    x_Confirmation, JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE, null, options,
                     options[1]);
             if (n == 0) {
                 p.destroy();
-                App.log("Процесс '" + title + "' завершен принудительно!");
+                App.log(x_FinishedProcess1 + title + x_FinishedProcess2);
                 return false;
             }
         }
@@ -543,7 +553,7 @@ public class DataProcessor {
         fileInfo = fileinfo; // Нужно для успешного старта FFMpeg (дефолтные фпс и размеры)
 
         if (processVideo == null) {
-            App.log("Запуск процесса кодирования...");
+            App.log(x_CoderStarting);
             try {
                 startFFMpegProcess();
             } catch (FatalException ex) {
@@ -552,7 +562,7 @@ public class DataProcessor {
                 }
                 throw ex;
             }
-            App.log("Запущен процесс кодирования.");
+            App.log(x_CoderStarted);
         }
 
         try {
@@ -580,7 +590,7 @@ public class DataProcessor {
             // Идём по кадрам от начала к концу.
             for (; pos < endpos - frameSize; pos++) {
                 if (Task.isTerminate()) {
-                    throw new FatalException("Прерывание процесса пользователем!");
+                    throw new FatalException(x_UserPorcessCancel);
                 }
                 in.seek(pos);
                 in.read(baFrame, frameSize);

@@ -1,5 +1,7 @@
 package dvrextract;
 
+import dvrextract.gui.TitleBorder;
+import dvrextract.FFMpeg.Cmd;
 import dvrextract.FFMpeg.FFCodec;
 import dvrextract.gui.GUI;
 import dvrextract.gui.JDateTimeField;
@@ -77,12 +79,11 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         c.addActionListener(this);
         return c;
     }
-
     private static final TitleBorder titleBorder = new TitleBorder(new Color(0x808080));
     private static final Color panelBg = new Color(0xfffef6);
     private static final Color titleBg = new Color(0xC0C0C0);
     private static final Color scrollBg = new Color(0xD8D8D0); //0xe8e5d9
-    
+
     JPanel addPanel(String s, String pBcond) {
         JPanel p = new JPanel(new MigLayout("ins 0", "grow", "[]5[]"));
         //p.setBackground(panelBg);
@@ -123,7 +124,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         //panel.setBackground(new Color(0xE0E0E0));
         //scroll.getViewport().setBackground(scrollBg);
         add(scroll, "grow");
-        
+
         JPanel p1 = addPanel("Источник", "");
         p1.add(GUI.createLabel("Камера"), "");
         p1.add(textCam = GUI.createText(10), "spanx, wrap");
@@ -138,7 +139,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         dateEnd.addActionListener(this);
         p1.add(buttonEstimate = GUI.createButton("Оценка"));
         buttonEstimate.addActionListener(this);
-        
+
         JPanel p2 = addPanel("Видео", "");
         p2.add(GUI.createLabel("Файл"), "");
         p2.add(textDestVideo = GUI.createText(300), "growx, spanx, split 2");
@@ -251,62 +252,62 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      * Возвращает строку с опциями для видео согласно выбранным опциям.
      * @return Строка опций.
      */
-    private String getVideoOptions() {
-        StringBuilder s = new StringBuilder();
+    private Cmd getVideoOptions() {
+        Cmd s = new Cmd(false);
         boolean isCustom = false;
         ExtItem i = comboVideoFormat.getSelectedItem();
         if (i.id == 1000) {
             isCustom = true;
         } else {
-            s.append("-vcodec ").append(((Item) i.object).name).append(" ");
+            s.add("-vcodec", ((Item) i.object).name);
         }
         i = comboVideoFPS.getSelectedItem();
         if (i.id == 1000) {
             isCustom = true;
         } else {
-            s.append("-r ").append(((Item) i.object).name).append(" ");
+            s.add("-r", ((Item) i.object).name);
         }
         i = comboVideoSize.getSelectedItem();
         if (i.id == 1000) {
             isCustom = true;
         } else {
-            s.append("-s ").append(((Item) i.object).name).append(" ");
+            s.add("-s", ((Item) i.object).name);
         }
         if (isCustom) {
-            s.append(textVideoCustom.getText().trim());
+            s.add(textVideoCustom.getText().trim());
         }
-        return s.toString().trim();
+        return s;
     }
 
     /**
      * Возвращает строку с опциями для аудио.
      * @return Строка опций.
      */
-    private String getAudioOptions() {
-        StringBuilder s = new StringBuilder();
+    private Cmd getAudioOptions() {
+        Cmd s = new Cmd(false);
         ExtItem i = comboAudioMode.getSelectedItem();
         if (i.id >= 0) {
             i = comboAudioFormat.getSelectedItem();
             if (i.id == 1000) {
-                s.append(textAudioCustom.getText().trim());
+                s.add(textAudioCustom.getText().trim());
             } else {
-                s.append("-acodec ").append(((Item) i.object).name).append(" ");
+                s.add("-acodec", ((Item) i.object).name);
             }
         }
-        return s.toString().trim();
+        return s;
     }
 
     /**
      * Возвращает строку с опциями для субтитров.
      * @return Строка опций.
      */
-    private String getSubOptions() {
-        StringBuilder s = new StringBuilder();
+    private Cmd getSubOptions() {
+        Cmd s = new Cmd(false);
         ExtItem i = comboSubFormat.getSelectedItem();
         if (i.id >= 0) {
-            s.append("-scodec ").append(((Item) i.object).name).append(" ");
+            s.add("-scodec", ((Item) i.object).name);
         }
-        return s.toString().trim();
+        return s;
     }
 
     /**
@@ -457,7 +458,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         @Override
         public void task() {
             App.mainFrame.pack();
-            
+
             if (App.srcCamSelect < 0) {
                 return;
             }

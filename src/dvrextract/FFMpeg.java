@@ -8,6 +8,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
@@ -52,7 +54,7 @@ public final class FFMpeg {
         Process pr = null;
         try {
             codecs.clear();
-            pr = Runtime.getRuntime().exec("ffmpeg -codecs -");
+            pr = Runtime.getRuntime().exec(new Cmd("-codecs", "-").getArray());
             InputStream is = pr.getInputStream();
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
             String s = null;
@@ -170,5 +172,107 @@ public final class FFMpeg {
             }
         }
         return image;
+    }
+
+    /**
+     * Воспомогательный класс для удобной "постройки" команд для ffmpeg.
+     */
+    public static class Cmd {
+        // Токены команды (неделимые параметры).
+
+        private ArrayList<String> tokens = new ArrayList<String>();
+
+        /**
+         * Конструктор - создаёт команду по умолчанию с токеном для запуска ffmpeg.
+         */
+        public Cmd() {
+            this(true);
+        }
+
+        /**
+         * Конструктор - создаёт команду (с токеном для запуска ffmpeg или пустую).
+         * @param isAddFfmpeg Флаг создания токена: true - создать, false - не создавать.
+         */
+        public Cmd(boolean isAddFfmpeg) {
+            if (isAddFfmpeg) {
+                tokens.add("ffmpeg");
+            }
+        }
+
+        /**
+         * Конструктор - создаёт команду с токеном запуска ffmpeg и добавляет
+         * все токены из аргументов.
+         * @param ar Токены.
+         */
+        public Cmd(String... ar) {
+            this();
+            tokens.addAll(Arrays.asList(ar));
+        }
+
+        /**
+         * Добавление перечисленных токенов в команду.
+         * @param ar Токены.
+         * @return Ссылка на себя для сцепки.
+         */
+        public Cmd add(String... ar) {
+            tokens.addAll(Arrays.asList(ar));
+            return this;
+        }
+
+        /**
+         * Добавление токенов из указанной команды.
+         * @param c Команда.
+         * @return Ссылка на себя для сцепки.
+         */
+        public Cmd add(Cmd c) {
+            tokens.addAll(c.getCollection());
+            return this;
+        }
+
+        /**
+         * Возвращает массив строк токенов.
+         * @return Массив строк токенов.
+         */
+        public String[] getArray() {
+            return tokens.toArray(new String[1]);
+        }
+
+        /**
+         * Возвращает токены в виде коллекции строк.
+         * @return Коллекция строк.
+         */
+        public Collection<String> getCollection() {
+            return tokens;
+        }
+
+        /**
+         * Замещение в токенах команды параметров помещенных оригинальными маркерами.
+         * @param sfps Строка для подстановки - частота.
+         * @param ssize Строка для подстановки - размеры.
+         * @return Ссылка на себя для сцепки.
+         */
+        public Cmd replaceOrigs(String sfps, String ssize) {
+            for (int i = 0; i < tokens.size(); i++) {
+                if (tokens.get(i).equals("{origfps}")) {
+                    tokens.set(i, sfps);
+                } else if (tokens.get(i).equals("{origsize}")) {
+                    tokens.set(i, ssize);
+                }
+            }
+            return this;
+        }
+
+        /**
+         * Переопределение представления в качестве строки.
+         * @return Строка состоящая из токенов разделённых пробелами.
+         */
+        @Override
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            for (String t : tokens) {
+                sb.append(t).append(" ");
+            }
+            return sb.toString().trim();
+        }
     }
 }

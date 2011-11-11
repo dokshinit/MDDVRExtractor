@@ -138,9 +138,10 @@ public class GUIFileSelectDialog extends GUIDialog {
                             "Ошибка", JOptionPane.ERROR_MESSAGE);
                 } else {
                     try {
-                        f.createNewFile();
                         try {
-                            f.delete();
+                            if (f.createNewFile()) { // Если не было и был создан - удаляем.
+                                f.delete();
+                            }
                             fireApply(fileChooser);
                             super.approveSelection();
                             dispose();

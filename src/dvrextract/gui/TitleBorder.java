@@ -1,4 +1,4 @@
-package dvrextract;
+package dvrextract.gui;
 
 import java.awt.Color;
 import java.awt.Component;

@@ -1,6 +1,8 @@
 package dvrextract;
 
+import dvrextract.FFMpeg.Cmd;
 import dvrextract.gui.GUI;
+import dvrextract.lang.Lang;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -16,6 +18,9 @@ import javax.swing.plaf.metal.OceanTheme;
  */
 public class App {
 
+    public static String x_LAFNotFound = "", x_LAFError = "", x_FFMpegWrong = "", x_CodecsWrong = "";
+    //
+    //
     public static final String version = "0.9b2";
     ////////////////////////////////////////////////////////////////////////////
     // Константы.
@@ -116,9 +121,9 @@ public class App {
             //MetalLookAndFeel.setCurrentTheme(new DefaultMetalTheme());
             MetalLookAndFeel.setCurrentTheme(new OceanTheme());
         } catch (java.lang.ClassNotFoundException e) {
-            App.log("Не найден L&F (" + laf + ")! " + e);
+            App.log(x_LAFNotFound + " [" + laf + "]! " + e);
         } catch (Exception e) {
-            App.log("Ошибка включения L&F (" + laf + ")!" + e);
+            App.log(x_LAFError+" [" + laf + "]! " + e);
         }
     }
     ////////////////////////////////////////////////////////////////////////////
@@ -146,9 +151,9 @@ public class App {
     public static String destVideoName = "";
     public static String destAudioName = "";
     public static String destSubName = "";
-    public static String destVideoOptions = "";
-    public static String destAudioOptions = "";
-    public static String destSubOptions = "";
+    public static Cmd destVideoOptions = new Cmd(false);
+    public static Cmd destAudioOptions = new Cmd(false);
+    public static Cmd destSubOptions = new Cmd(false);
     public static int destAudioType;
     public static int destSubType;
 
@@ -157,6 +162,9 @@ public class App {
      * @param Аргументы.
      */
     public static void main(String[] args) {
+
+        // Инициализация интернационализации.
+        Lang.init(1); // ru
 
         // Инициализация лога ошибок.
         Err.init();
@@ -190,8 +198,8 @@ public class App {
                 mainFrame.setVisible(true);
                 if (!FFMpeg.isWork()) {
                     JOptionPane.showMessageDialog(mainFrame,
-                            "Некорректная работа FFMPEG!",
-                            "Ошибка запроса кодеков",
+                            x_FFMpegWrong,
+                            x_CodecsWrong,
                             JOptionPane.WARNING_MESSAGE);
                 }
             }
