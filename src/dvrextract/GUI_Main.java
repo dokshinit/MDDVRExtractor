@@ -46,7 +46,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
      * Инициализация графических компонент.
      */
     private void init() {
-        setTitle("DVR Extractor v" + App.version);
+        setTitle("DVR Extractor v" + App.version + " (ознакомительная версия)");
         setLayout(new BorderLayout());
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setPreferredSize(new Dimension(890, 640));

@@ -88,8 +88,9 @@ public final class GUI_TabAbout extends JPanel {
         JPanel p1 = addPanel("О программе", "[right][]");
         addLine(p1, "Назначение", "Конвертация/извлечение данных видеонаблюдения регистраторов Microdigital.");
         addLine(p1, "Версия", App.version + " от 14.11.2011");
-        addLine(p1, "Автор", "Докшин Алексей");
+        addLine(p1, "Автор", "Докшин Алексей (все права принадлежат автору)");
         addLine(p1, "Контакты", "dant.it@gmail.com");
+        addLine(p1, "Лицензия", "Ограниченная ознакомительная версия для ООО \"ЭМ ДИ РУС\"");
 
         JPanel p2 = addPanel("Системные требования", "[10:10:10, right][]");
         addLine(p2, "*", "Для запуска программы необходим Java SE (JRE/JDK) v1.6.x.");
