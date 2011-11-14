@@ -53,20 +53,16 @@ public class DataProcessor {
     // Минимальное и максимальное время среди обработанных кадров.
     public static long timeMin, timeMax;
     ////////////////////////////////////////////////////////////////////////////
-    public static String x_ProcessSource = "", x_ProcessFile = "",
-            x_ProcessEnd = "", x_ProcessSourceEnd = "",
-            x_FinalMakeStart = "", x_ErrorFinalMakeStart = "",
-            x_FinalMakeStarted = "", x_FFMpegVideoInputNotFound = "";
-    public static String x_FFMpegProcessVideoInputFail = "";
-    public static String x_UserPorcessCancel = "", x_ErrorMakeIO = "",
-            x_FinalMakeEnd = "", x_WrongOutVideoFile = "",
-            x_WrongOutAudioFile = "", x_WrongOutSubFile = "",
-            x_ErrorFFMpegVideoStart = "", x_ErrorFFMpegAudioStart = "",
-            x_ErrorFFMpegSubStart = "", x_Delete = "", x_LeaveAsIs = "",
-            x_WhatDoTemp = "", x_Confirmation = "", x_Finish = "",
-            x_WaitFinish = "", x_FinishProcess1 = "", x_FinishProcess2 = "",
-            x_FinishProcess3 = "", x_FinishedProcess1 = "",
-            x_FinishedProcess2 = "", x_CoderStarting = "", x_CoderStarted = "";
+    public static String x_ProcessSource, x_ProcessFile, x_ProcessEnd,
+            x_ProcessSourceEnd, x_FinalMakeStart, x_ErrorFinalMakeStart,
+            x_FinalMakeStarted, x_FFMpegVideoInputNotFound,
+            x_FFMpegProcessVideoInputFail, x_UserPorcessCancel, x_ErrorMakeIO,
+            x_FinalMakeEnd, x_WrongOutVideoFile, x_WrongOutAudioFile,
+            x_WrongOutSubFile, x_ErrorFFMpegVideoStart, x_ErrorFFMpegAudioStart,
+            x_ErrorFFMpegSubStart, x_Delete, x_LeaveAsIs, x_WhatDoTemp,
+            x_Confirmation, x_Finish, x_WaitFinish, x_FinishProcess1,
+            x_FinishProcess2, x_FinishProcess3, x_FinishedProcess1,
+            x_FinishedProcess2, x_CoderStarting, x_CoderStarted;
 
     /**
      * Обработка данных.

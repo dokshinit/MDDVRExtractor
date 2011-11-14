@@ -18,6 +18,9 @@ import net.miginfocom.swing.MigLayout;
  */
 public final class GUI_Main extends GUIFrame implements ActionListener {
 
+    public static String x_Confirmation, x_ExitQuest, x_Help, x_Info, x_Log,
+            x_No, x_Process, x_Source, x_State, x_Yes, x_Interrupt;
+    //
     ////////////////////////////////////////////////////////////////////////////
     // Закладка: Источник
     ////////////////////////////////////////////////////////////////////////////
@@ -25,20 +28,6 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
     public GUI_TabProcess tabProcess;
     public GUI_TabLog tabLog;
     public GUI_TabAbout tabAbout;
-    ////////////////////////////////////////////////////////////////////////////
-    // Закладка: Обработка
-    ////////////////////////////////////////////////////////////////////////////
-    private JCheckBox checkRaw; // Создавать сырой файл?
-    private JTextField textRaw; // Путь и имя файла.
-    private JButton buttonRaw; // Выбор файла.
-    //
-    private JCheckBox checkVideo; // Создавать видео?
-    private JTextField textVideo; // Путь и имя файла.
-    private JButton buttonVideo; // Выбор файла.
-    private JCheckBox checkSub; // Делать субтитры к видео?
-    //
-    private JComboBox comboCams; // Выбор камеры из списка.
-    private JCheckBox checkAudio; // Обрабатывать аудио поток.
     ////////////////////////////////////////////////////////////////////////////
     // На всех вкладках
     ////////////////////////////////////////////////////////////////////////////
@@ -57,7 +46,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
      * Инициализация графических компонент.
      */
     private void init() {
-        setTitle("DVR Extractor v"+App.version);
+        setTitle("DVR Extractor v" + App.version);
         setLayout(new BorderLayout());
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setPreferredSize(new Dimension(890, 640));
@@ -67,37 +56,31 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         ////////////////////////////////////////////////////////////////////////
         // Вкладка "Источник"
         ////////////////////////////////////////////////////////////////////////
-        tabPane.addTab("Источник", tabSource = new GUI_TabSource());
+        tabPane.addTab(x_Source, tabSource = new GUI_TabSource());
 
         ////////////////////////////////////////////////////////////////////////
         // Вкладка "Обработка"
         ////////////////////////////////////////////////////////////////////////
-        tabPane.addTab("Обработка", tabProcess = new GUI_TabProcess());
+        tabPane.addTab(x_Process, tabProcess = new GUI_TabProcess());
 
         ////////////////////////////////////////////////////////////////////////
         // Вкладка "Состояние" (обработки)
         ////////////////////////////////////////////////////////////////////////
         JPanel panelTab3 = new JPanel(new MigLayout());
-        tabPane.addTab("Состояние", panelTab3);
+        tabPane.addTab(x_State, panelTab3);
         tabPane.setEnable(panelTab3, false);
 
         ////////////////////////////////////////////////////////////////////////
         // Вкладка "Лог"
         ////////////////////////////////////////////////////////////////////////
-        tabPane.addTab("Лог", tabLog = new GUI_TabLog());
+        tabPane.addTab(x_Log, tabLog = new GUI_TabLog());
 
         ////////////////////////////////////////////////////////////////////////
         // Вкладка "О программе"
         ////////////////////////////////////////////////////////////////////////
-        tabPane.addTab("Справка", tabAbout = new GUI_TabAbout());
+        tabPane.addTab(x_Help, tabAbout = new GUI_TabAbout());
 
-        textVideo = new JTextField(50);
-        buttonVideo = GUI.createButton("Выбор");
-
-        comboCams = new JComboBox();
-        checkAudio = new JCheckBox("Включать аудиоданные.");
-
-        buttonProcess = GUI.createButton("Обработка");
+        buttonProcess = GUI.createButton(x_Process);
         buttonProcess.addActionListener(this);
 
         progressBar = new JProgressBar();
@@ -107,7 +90,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
 
         JPanel panelButton = new JPanel(new MigLayout("", "[][grow,fill][10px]"));
 
-        panelButton.add(GUI.createLabel("Инфо:"));
+        panelButton.add(GUI.createLabel(x_Info));
         panelButton.add(textInfo = GUI.createText(100), "");
         textInfo.setEditable(false);
         textInfo.setBackground(new Color(0xE0E0E0));
@@ -135,12 +118,12 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
                     if (Task.isAlive()) {
                         // Выполняется задача.
                         buttonProcess.setEnabled(true);
-                        buttonProcess.setText("Прервать");
+                        buttonProcess.setText(x_Interrupt);
                         cancelState = true;
                     } else {
                         // Задач нет.
                         buttonProcess.setEnabled(isPossibleProcess());
-                        buttonProcess.setText("Обработка");
+                        buttonProcess.setText(x_Process);
                         cancelState = false;
                     }
                     tabSource.setLocks();
@@ -265,9 +248,9 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
     protected void processWindowEvent(WindowEvent e) {
         if (e.getID() == WindowEvent.WINDOW_CLOSING) {
 
-            Object[] options = {"Да", "Нет"};
-            int n = JOptionPane.showOptionDialog(e.getWindow(), "Выйти из программы?",
-                    "Подтверждение", JOptionPane.YES_NO_OPTION,
+            Object[] options = {x_Yes, x_No};
+            int n = JOptionPane.showOptionDialog(e.getWindow(), x_ExitQuest,
+                    x_Confirmation, JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE, null, options,
                     options[1]);
             if (n == 0) {

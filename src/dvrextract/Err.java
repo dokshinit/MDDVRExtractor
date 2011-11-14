@@ -17,7 +17,7 @@ import java.util.logging.Logger;
 public final class Err {
 
     private static final Logger errLog = Logger.getLogger(App.class.getName());
-    public static String x_InitError = "";
+    public static String x_InitError;
             
     /**
      * Инициализация.

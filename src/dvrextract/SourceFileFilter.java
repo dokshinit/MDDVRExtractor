@@ -20,7 +20,7 @@ public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
     // Маска фильтрации файлов.
     private Pattern pattern; 
     // Описание.
-    private String description; 
+    public String description; 
 
     /**
      * Конструктор.
@@ -53,7 +53,7 @@ public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
     public String getDescription() {
         return description;
     }
-
+    
     /**
      * Возвращает тип файла.
      * @param f Файл.

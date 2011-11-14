@@ -24,6 +24,8 @@ import org.jdesktop.swingx.table.TableColumnExt;
  */
 public class GUILogPanel extends JPanel {
 
+    public static String x_Date, x_Message;
+    //
     // Панель - лог.
     private JDirectory dir;
     // Модель лога.
@@ -54,9 +56,9 @@ public class GUILogPanel extends JPanel {
         TableColumnExt c;
         c = cm.add(model.getColumnName(0), "", 0, 0, 0);
         c.setVisible(false);
-        c = cm.add(ID_DT = model.getColumnName(1), "Дата/время", 150, 150, 150);
+        c = cm.add(ID_DT = model.getColumnName(1), x_Date, 150, 150, 150);
         c.setCellRenderer(cr);
-        c = cm.add(ID_TEXT = model.getColumnName(2), "Сообщение", -1, 150, -1);
+        c = cm.add(ID_TEXT = model.getColumnName(2), x_Message, -1, 150, -1);
         c.setCellRenderer(cr);
 
         dir = new JDirectory(model, cm);
@@ -81,10 +83,10 @@ public class GUILogPanel extends JPanel {
 
             @Override
             public void run() {
-                dir.displayTableRow(model.getRowCount()-1);
+                dir.displayTableRow(model.getRowCount() - 1);
             }
         });
-        
+
     }
 
     /**

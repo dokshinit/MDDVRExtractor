@@ -17,6 +17,9 @@ import net.miginfocom.swing.MigLayout;
  */
 public final class GUI_SourceSelect extends GUIDialog implements ActionListener {
 
+    public static String x_All, x_Cam, x_GoScan, x_Hint, x_NotIndent, x_Select,
+            x_Source, x_SourceScan, x_Type, x_SelectSource;
+    //
     // Отображение пути и имени файла.
     private JTextField textSource;
     // Кнопка выбора источника.
@@ -40,35 +43,35 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
      * Инициализация графических компонетов.
      */
     private void init() {
-        setTitle("Сканирование источника");
+        setTitle(x_SourceScan);
         setLayout(new MigLayout("fill"));
 
         // Источник:
-        add(GUI.createLabel("Источник"), "right");
+        add(GUI.createLabel(x_Source), "right");
         add(textSource = GUI.createText(30), "span, growx, split 2");
         textSource.setText(App.srcName);
         textSource.setEditable(false);
-        add(buttonSelect = GUI.createButton("Выбор"), "wrap");
+        add(buttonSelect = GUI.createButton(x_Select), "wrap");
         buttonSelect.addActionListener(this);
         // Тип источника:
-        add(GUI.createLabel("Тип"), "right");
-        add(textType = GUI.createText("не определён", 10), "");
+        add(GUI.createLabel(x_Type), "right");
+        add(textType = GUI.createText(x_NotIndent, 10), "");
         textType.setEditable(false);
         textType.setHorizontalAlignment(JTextField.CENTER);
         // Примечание:
-        JLabel l = GUI.createNoteLabel("Выбор конкретной камеры может существенно<br>уменьшить время сканирования источника при<br>больших объёмах данных!");
+        JLabel l = GUI.createNoteLabel(x_Hint);
         add(l, "spany 2, wrap");
         // Выбор камеры:
-        add(GUI.createLabel("Камера"), "right");
+        add(GUI.createLabel(x_Cam), "right");
         add(comboCam = GUI.createCombo(true), "growx, wrap");
-        comboCam.addItem(0, "< все >");
+        comboCam.addItem(0, x_All);
         for (int i = 0; i < App.MAXCAMS; i++) {
             comboCam.addItem(i + 1, "CAM" + (i + 1));
         }
         comboCam.showData();
         comboCam.addActionListener(this);
         // Кнопка начала сканиования:
-        add(buttonScan = GUI.createButton("Сканировать"), "gapy 15, h 30, span, center, wrap");
+        add(buttonScan = GUI.createButton(x_GoScan), "gapy 15, h 30, span, center, wrap");
         buttonScan.addActionListener(this);
 
         pack();
@@ -131,7 +134,7 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
     private class SelectDialog extends GUIFileSelectDialog {
 
         private SelectDialog() {
-            super(GUI_SourceSelect.this, "Выбор файла/каталога источника",
+            super(GUI_SourceSelect.this, x_SelectSource,
                     textSource.getText().trim(), Target.EXIST_ONLY, Mode.ALL);
         }
 

@@ -20,6 +20,9 @@ import net.miginfocom.swing.MigLayout;
  */
 public final class GUI_TabSource extends JPanel implements ActionListener {
 
+    public static String x_Cam, x_NotIndent, x_NotSelect, x_Select,
+            x_Source, x_Type;
+    //
     // Путь к источнику.
     private JTextField textSource;
     // Кнопка вызова диалога выбора источника.
@@ -46,23 +49,23 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
     private void init() {
         setLayout(new MigLayout("", "", "[]2[][fill, grow]"));
 
-        add(GUI.createLabel("Источник"));
+        add(GUI.createLabel(x_Source));
         add(textSource = GUI.createText(300), "growx, span, split 2");
         textSource.setEditable(false);
-        add(buttonSource = GUI.createButton("Выбор"), "wrap");
+        add(buttonSource = GUI.createButton(x_Select), "wrap");
         buttonSource.addActionListener(this);
 
         // Отображение типа источника.
-        add(GUI.createLabel("Тип"), "right");
-        add(textType = GUI.createText("не определён", 10), "span, split 3");
+        add(GUI.createLabel(x_Type), "right");
+        add(textType = GUI.createText(x_NotIndent, 10), "span, split 3");
         textType.setEditable(false);
         textType.setHorizontalAlignment(JTextField.CENTER);
 
         // Выбор камеры для обработки.
-        add(GUI.createLabel("Камера"), "gapleft 20");
+        add(GUI.createLabel(x_Cam), "gapleft 20");
         add(comboCam = GUI.createCombo(false), "w 110, wrap");
         comboCam.addActionListener(this);
-        comboCam.addItem(0, "не выбрана");
+        comboCam.addItem(0, x_NotSelect);
         comboCam.showData();
 
         JPanel panel = new JPanel(new BorderLayout());
@@ -105,10 +108,10 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
                     comboCam.removeItems();
                     if (cams != null) {
                         if (cams.isEmpty()) {
-                            comboCam.addItem(0, "не выбрана");
+                            comboCam.addItem(0, x_NotSelect);
                         }
                         for (int i : cams) {
-                            comboCam.addItem(i, i == 0 ? "не выбрана" : "CAM" + i);
+                            comboCam.addItem(i, i == 0 ? x_NotSelect : "CAM" + i);
                         }
                     }
                     comboCam.showData();

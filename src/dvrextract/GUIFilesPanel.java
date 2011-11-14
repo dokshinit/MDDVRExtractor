@@ -24,6 +24,8 @@ import org.jdesktop.swingx.table.TableColumnExt;
  */
 public final class GUIFilesPanel extends JPanel {
 
+    public static String x_End, x_Name, x_Size, x_Start, x_Type;
+    //
     // Панель - каталог.
     private JFilesDirectory dir;
     // Номер камеры отображаемых файлов.
@@ -36,7 +38,7 @@ public final class GUIFilesPanel extends JPanel {
     private static TableCellRenderer cr = new FilesTableCellRenderer();
     // Связь на панель отображения инфы выбранного файла.
     private GUIFileInfoPanel infoPanel;
-    
+
     /**
      * Конструктор.
      */
@@ -59,13 +61,13 @@ public final class GUIFilesPanel extends JPanel {
         TableColumnExt c;
         c = cm.add(m.getColumnName(0), "", 0, 0, 0);
         c.setVisible(false);
-        cm.add(m.getColumnName(1), "Имя", -1, 300, -1);
-        c = cm.add(ID_TYPE = m.getColumnName(2), "Тип", 100, 100, 100);
+        cm.add(m.getColumnName(1), x_Name, -1, 300, -1);
+        c = cm.add(ID_TYPE = m.getColumnName(2), x_Type, 100, 100, 100);
         c.setCellRenderer(cr);
-        cm.add(m.getColumnName(3), "Размер", 120, 120, 120);
-        c = cm.add(ID_START = m.getColumnName(4), "Начало", 150, 150, 150);
+        cm.add(m.getColumnName(3), x_Size, 120, 120, 120);
+        c = cm.add(ID_START = m.getColumnName(4), x_Start, 150, 150, 150);
         c.setCellRenderer(cr);
-        c = cm.add(ID_END = m.getColumnName(5), "Конец", 150, 150, 150);
+        c = cm.add(ID_END = m.getColumnName(5), x_End, 150, 150, 150);
         c.setCellRenderer(cr);
 
         dir = new JFilesDirectory(m, cm);

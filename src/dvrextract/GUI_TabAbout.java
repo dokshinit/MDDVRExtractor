@@ -38,7 +38,7 @@ public final class GUI_TabAbout extends JPanel {
         JPanel pT = new JPanel(new MigLayout("ins 3", "grow"));
         JLabel l;
         pT.add(l = GUI.createLabel("<html><font color=#4040BF style='font-size: 16pt; font-weight: bold'>" + s + "</font></html>"), "center");
-        
+
         pT.setBorder(titleBorder);
         pT.setBackground(titleBg);
 
@@ -61,7 +61,7 @@ public final class GUI_TabAbout extends JPanel {
     }
 
     class Link extends JXHyperlink {
-        
+
         Link(String title, String url) {
             super();
             setURI(URI.create(url));
@@ -69,7 +69,7 @@ public final class GUI_TabAbout extends JPanel {
             this.setToolTipText(url);
         }
     }
-    
+
     /**
      * Инициализация графических компонент.
      */
@@ -87,7 +87,7 @@ public final class GUI_TabAbout extends JPanel {
 
         JPanel p1 = addPanel("О программе", "[right][]");
         addLine(p1, "Назначение", "Конвертация/извлечение данных видеонаблюдения регистраторов Microdigital.");
-        addLine(p1, "Версия", App.version+" от 10.11.2011");
+        addLine(p1, "Версия", App.version + " от 14.11.2011");
         addLine(p1, "Автор", "Докшин Алексей");
         addLine(p1, "Контакты", "dant.it@gmail.com");
 

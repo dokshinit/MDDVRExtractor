@@ -34,6 +34,9 @@ import java.util.Collections;
  */
 public class Files {
 
+    public static String x_BuildFileList, x_FileScaning, x_ScanFinish,
+            x_ScanFinishBreak, x_SourceScaning;
+    //
     // Размер инфоблока в конце EXE файла.
     private static final int exeInfoSize =
             4 + 4 + 4 * 16 + 8 * 16 * 101 + 4 * 16 * 101
@@ -51,7 +54,7 @@ public class Files {
      */
     public static void scan(String startpath, int cam) {
         // Сканирование источника.
-        String msg = "Построение списка файлов источника...";
+        String msg = x_BuildFileList;
         App.log(msg);
         App.mainFrame.setProgressInfo(msg);
         App.mainFrame.startProgress();
@@ -75,7 +78,7 @@ public class Files {
         // Построение списка файлов для сканирования.
         scanDir(startpath, cam);
 
-        msg = "Сканирование источника...";
+        msg = x_SourceScaning;
         App.log(msg);
         App.mainFrame.setProgressInfo(msg);
         if (files.size() > 0) {
@@ -86,7 +89,7 @@ public class Files {
                 if (Task.isTerminate()) {
                     break;
                 }
-                final String msg1 = String.format("Сканирование файла (%d из %d)", n + 1, files.size());
+                final String msg1 = String.format(x_FileScaning, n + 1, files.size());
                 final String msg2 = files.get(n).getPath();
                 App.mainFrame.setProgressInfo(msg1);
                 App.mainFrame.setProgressText(msg2);
@@ -104,8 +107,7 @@ public class Files {
         files.clear();
 
         App.mainFrame.stopProgress();
-        msg = "Сканирование источника завершено"
-                + (Task.isTerminate() ? " (прервано)." : ".");
+        msg = x_ScanFinish + (Task.isTerminate() ? x_ScanFinishBreak : "") + ".";
         App.mainFrame.setProgressInfo(msg);
         App.log(msg);
         App.mainFrame.tabSource.displayCams();
@@ -238,7 +240,7 @@ public class Files {
                     long frameOffs = in.readLong(exepos + 72 + (808 * n));
                     info.addCamData(n + 1, frameOffs, null);
                     if (App.isDebug) {
-                        App.log(Type.INFO, "CAM" + (n + 1) + " данные в наличии!");
+                        App.log(Type.INFO, "CAM" + (n + 1) + " data exist!");
                     }
                 }
                 // Позиции начала и конца данных в файле.
@@ -254,7 +256,7 @@ public class Files {
                 endpos = info.endDataPos; // Конец.
             }
             if (App.isDebug) {
-                App.log(Type.INFO, "Общий размер данных = " + (endpos - pos));
+                App.log(Type.INFO, "Summary data size = " + (endpos - pos));
             }
 
             // Ищем первый кадр (от начала к концу).

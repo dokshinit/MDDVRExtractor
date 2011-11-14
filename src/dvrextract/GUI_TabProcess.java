@@ -14,7 +14,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -26,6 +25,12 @@ import net.miginfocom.swing.MigLayout;
  */
 public final class GUI_TabProcess extends JPanel implements ActionListener {
 
+    public static String x_Audio, x_Cam, x_Codec, x_CustomOption, x_Evaluate,
+            x_File, x_Format, x_FramePerSec, x_Mode, x_NotIndent, x_NotSave,
+            x_Period1, x_Period2, x_Select, x_Size, x_Source, x_Sub, x_ToFile,
+            x_ToVideo, x_Video, x_WOConvert, x_CalcEnd, x_CalcStart,
+            x_SelectDestFile;
+    //
     // Выбранная камера.
     private JTextField textCam;
     // Период
@@ -125,107 +130,107 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         //scroll.getViewport().setBackground(scrollBg);
         add(scroll, "grow");
 
-        JPanel p1 = addPanel("Источник", "");
-        p1.add(GUI.createLabel("Камера"), "");
+        JPanel p1 = addPanel(x_Source, "");
+        p1.add(GUI.createLabel(x_Cam), "");
         p1.add(textCam = GUI.createText(10), "spanx, wrap");
         textCam.setEditable(false);
-        textCam.setText("не выбрана");
+        textCam.setText(x_NotIndent);
 
-        p1.add(GUI.createLabel("Период c"), "");
+        p1.add(GUI.createLabel(x_Period1), "");
         p1.add(dateStart = GUI.createDTText(), "w 150, spanx, split 4");
         dateStart.addActionListener(this);
-        p1.add(GUI.createLabel("по"), "");
+        p1.add(GUI.createLabel(x_Period2), "");
         p1.add(dateEnd = GUI.createDTText(), "w 150");
         dateEnd.addActionListener(this);
-        p1.add(buttonEstimate = GUI.createButton("Оценка"));
+        p1.add(buttonEstimate = GUI.createButton(x_Evaluate));
         buttonEstimate.addActionListener(this);
 
-        JPanel p2 = addPanel("Видео", "");
-        p2.add(GUI.createLabel("Файл"), "");
+        JPanel p2 = addPanel(x_Video, "");
+        p2.add(GUI.createLabel(x_File), "");
         p2.add(textDestVideo = GUI.createText(300), "growx, spanx, split 2");
         textDestVideo.setEditable(false);
-        p2.add(buttonSelectVideo = GUI.createButton("Выбор"), "wrap");
+        p2.add(buttonSelectVideo = GUI.createButton(x_Select), "wrap");
         buttonSelectVideo.addActionListener(this);
-        p2.add(GUI.createLabel("Кодек"), "");
+        p2.add(GUI.createLabel(x_Codec), "");
         comboVideoFormat = addCombo(p2, "left, spanx, wrap");
-        p2.add(GUI.createLabel("Размер"), "");
+        p2.add(GUI.createLabel(x_Size), "");
         comboVideoSize = addCombo(p2, "left, spanx, split 3");
-        p2.add(GUI.createLabel("Кадр/сек"), "gapleft 20");
+        p2.add(GUI.createLabel(x_FramePerSec), "gapleft 20");
         comboVideoFPS = addCombo(p2, "wrap");
-        p2.add(GUI.createLabel("Ручные настройки"), "");
+        p2.add(GUI.createLabel(x_CustomOption), "");
         p2.add(textVideoCustom = GUI.createText(300), "left, spanx");
         textVideoCustom.addActionListener(this);
 
-        JPanel p3 = addPanel("Аудио", "");
-        p3.add(GUI.createLabel("Режим"), "");
+        JPanel p3 = addPanel(x_Audio, "");
+        p3.add(GUI.createLabel(x_Mode), "");
         comboAudioMode = addCombo(p3, "left, spanx, split 3");
         p3.add(textDestAudio = GUI.createText(300), "growx");
         textDestAudio.setEditable(false);
-        p3.add(buttonSelectAudio = GUI.createButton("Выбор"), "wrap");
+        p3.add(buttonSelectAudio = GUI.createButton(x_Select), "wrap");
         buttonSelectAudio.addActionListener(this);
-        p3.add(GUI.createLabel("Кодек"), "");
+        p3.add(GUI.createLabel(x_Codec), "");
         comboAudioFormat = addCombo(p3, "left, spanx, wrap");
-        p3.add(GUI.createLabel("Ручные настройки"), "");
+        p3.add(GUI.createLabel(x_CustomOption), "");
         p3.add(textAudioCustom = GUI.createText(300), "left, spanx");
 
-        JPanel p4 = addPanel("Титры", "");
-        p4.add(GUI.createLabel("Режим"), "");
+        JPanel p4 = addPanel(x_Sub, "");
+        p4.add(GUI.createLabel(x_Mode), "");
         comboSubMode = addCombo(p4, "left, spanx, split 3");
         p4.add(textDestSub = GUI.createText(300), "growx");
         textDestSub.setEditable(false);
-        p4.add(buttonSelectSub = GUI.createButton("Выбор"), "wrap");
+        p4.add(buttonSelectSub = GUI.createButton(x_Select), "wrap");
         buttonSelectSub.addActionListener(this);
-        p4.add(GUI.createLabel("Формат"), "");
+        p4.add(GUI.createLabel(x_Format), "");
         comboSubFormat = addCombo(p4, "left, spanx");
 
         ArrayList<FFCodec> list = FFMpeg.getCodecs();
-        comboVideoFormat.addItem(0, new Item("Без преобразования", "copy"));
+        comboVideoFormat.addItem(0, new Item(x_WOConvert, "copy"));
         int n = 1;
         for (FFCodec i : list) {
             if (i.isEncode && i.isVideo) {
                 comboVideoFormat.addItem(n++, new Item(i.title, i.name));
             }
         }
-        comboVideoFormat.addItem(1000, new Item("Ручные настройки"));
+        comboVideoFormat.addItem(1000, new Item(x_CustomOption));
         comboVideoFormat.showData();
 
-        comboVideoFPS.addItem(0, new Item("Без преобразования", "{origfps}"));
+        comboVideoFPS.addItem(0, new Item(x_WOConvert, "{origfps}"));
         comboVideoFPS.addItem(1, new Item("12"));
         comboVideoFPS.addItem(2, new Item("25"));
-        comboVideoFPS.addItem(1000, new Item("Ручные настройки"));
+        comboVideoFPS.addItem(1000, new Item(x_CustomOption));
         comboVideoFPS.showData();
 
-        comboVideoSize.addItem(0, new Item("Без преобразования", "{origsize}"));
+        comboVideoSize.addItem(0, new Item(x_WOConvert, "{origsize}"));
         comboVideoSize.addItem(1, new Item("352x288"));
         comboVideoSize.addItem(2, new Item("352x576"));
         comboVideoSize.addItem(3, new Item("704x288"));
         comboVideoSize.addItem(4, new Item("704x576"));
         comboVideoSize.addItem(5, new Item("1280x720"));
         comboVideoSize.addItem(6, new Item("1920x1080"));
-        comboVideoSize.addItem(1000, new Item("Ручные настройки"));
+        comboVideoSize.addItem(1000, new Item(x_CustomOption));
         comboVideoSize.showData();
 
-        comboAudioMode.addItem(-1, new Item("Не сохранять"));
+        comboAudioMode.addItem(-1, new Item(x_NotSave));
         if (FFMpeg.isAudio_g722) {
-            comboAudioMode.addItem(0, new Item("В файл"));
-            comboAudioMode.addItem(1, new Item("В видео"));
+            comboAudioMode.addItem(0, new Item(x_ToFile));
+            comboAudioMode.addItem(1, new Item(x_ToVideo));
         }
         comboAudioMode.showData();
 
-        comboAudioFormat.addItem(0, new Item("Без преобразования", "copy"));
+        comboAudioFormat.addItem(0, new Item(x_WOConvert, "copy"));
         n = 1;
         for (FFCodec i : list) {
             if (i.isEncode && i.isAudio) {
                 comboAudioFormat.addItem(n++, new Item(i.title, i.name));
             }
         }
-        comboAudioFormat.addItem(1000, new Item("Ручные настройки"));
+        comboAudioFormat.addItem(1000, new Item(x_CustomOption));
         comboAudioFormat.showData();
 
-        comboSubMode.addItem(-1, new Item("Не создавать"));
-        comboSubMode.addItem(0, new Item("В файл"));
+        comboSubMode.addItem(-1, new Item(x_NotSave));
+        comboSubMode.addItem(0, new Item(x_ToFile));
         if (FFMpeg.isSub_srt) {
-            comboSubMode.addItem(1, new Item("В видео"));
+            comboSubMode.addItem(1, new Item(x_ToVideo));
         }
         comboSubMode.showData();
 
@@ -463,7 +468,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
                 return;
             }
             App.mainFrame.startProgress();
-            String msg = "Подсчёт данных для обработки...";
+            String msg = x_CalcStart;
             App.mainFrame.setProgressInfo(msg);
             App.log(msg);
 
@@ -474,7 +479,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             }
 
             App.mainFrame.stopProgress();
-            msg = "Подсчёт данных для обработки завершён.";
+            msg = x_CalcEnd;
             App.mainFrame.setProgressInfo(msg);
             App.log(msg);
 
@@ -595,7 +600,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     private class SelectVideoDialog extends GUIFileSelectDialog {
 
         private SelectVideoDialog() {
-            super(App.mainFrame, "Выбор файла приёмника",
+            super(App.mainFrame, x_SelectDestFile,
                     textDestVideo.getText().trim(), Target.NEW_OR_EXIST, Mode.FILE);
         }
 
@@ -612,7 +617,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     private class SelectAudioDialog extends GUIFileSelectDialog {
 
         private SelectAudioDialog() {
-            super(App.mainFrame, "Выбор файла приёмника",
+            super(App.mainFrame, x_SelectDestFile,
                     textDestAudio.getText().trim(), Target.NEW_OR_EXIST, Mode.FILE);
         }
 
@@ -629,7 +634,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     private class SelectSubDialog extends GUIFileSelectDialog {
 
         private SelectSubDialog() {
-            super(App.mainFrame, "Выбор файла приёмника",
+            super(App.mainFrame, x_SelectDestFile,
                     textDestSub.getText().trim(), Target.NEW_OR_EXIST, Mode.FILE);
         }
 

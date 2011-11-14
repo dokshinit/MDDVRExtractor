@@ -2,8 +2,7 @@ package dvrextract;
 
 import dvrextract.FFMpeg.Cmd;
 import dvrextract.gui.GUI;
-import dvrextract.lang.I10n;
-import dvrextract.lang.I10n.Lang;
+import dvrextract.I10n.Lang;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -19,10 +18,10 @@ import javax.swing.plaf.metal.OceanTheme;
  */
 public class App {
 
-    public static String x_LAFNotFound = "", x_LAFError = "", x_FFMpegWrong = "", x_CodecsWrong = "";
+    public static String x_LAFNotFound, x_LAFError, x_FFMpegWrong, x_CodecsWrong;
     //
     //
-    public static final String version = "0.9b2";
+    public static final String version = "0.9b3";
     ////////////////////////////////////////////////////////////////////////////
     // Константы.
     ////////////////////////////////////////////////////////////////////////////
@@ -124,7 +123,7 @@ public class App {
         } catch (java.lang.ClassNotFoundException e) {
             App.log(x_LAFNotFound + " [" + laf + "]! " + e);
         } catch (Exception e) {
-            App.log(x_LAFError+" [" + laf + "]! " + e);
+            App.log(x_LAFError + " [" + laf + "]! " + e);
         }
     }
     ////////////////////////////////////////////////////////////////////////////
@@ -165,7 +164,7 @@ public class App {
     public static void main(String[] args) {
 
         // Инициализация интернационализации.
-        I10n.init(Lang.EN); // ru\en
+        I10n.init(Lang.RU); // ru\en
 
         // Инициализация лога ошибок.
         Err.init();

@@ -24,6 +24,10 @@ import util.NumberTools;
  */
 public final class GUIFileInfoPanel extends JPanel {
 
+    public static String x_Cams, x_Duration, x_DurationFormat, x_End,
+            x_FirstKeyFrame, x_Freq, x_FreqFormat, x_HintChangeZoom, x_NO,
+            x_Name, x_Resolution, x_ResolutionFormat, x_Size, x_Start, x_Type;
+    //
     // Скролл для всей инфо-панели (добавляется в панель - единственный компонет в ней).
     private JScrollPane scrollPane;
     // Панель со всей информацией (добавляется в скролл).
@@ -73,7 +77,7 @@ public final class GUIFileInfoPanel extends JPanel {
     private void init() {
         setLayout(new BorderLayout());
         //
-        panelImage = new GUIImagePanel("<html><center>НЕТ<br></html>");
+        panelImage = new GUIImagePanel("<html><center>" + x_NO + "<br></html>");
         JLabel l = panelImage.getLabel();
         l.setFont(new Font(l.getFont().getName(), Font.BOLD, 50));
         l.setForeground(new Color(0xA0A0B0));
@@ -81,25 +85,23 @@ public final class GUIFileInfoPanel extends JPanel {
         setImageSize();
         panelImage.setBorder(new LineBorder(Color.red));
         panelImage.addMouseListener(new ImageMouseAdapter());
-        panelImage.setToolTipText("Первый ключевой кадр.");
+        panelImage.setToolTipText(x_FirstKeyFrame);
         panelImage.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         //
         panelInfo = new JPanel(new MigLayout("", "[]10[right][grow,shrink]"));
-        panelInfo.add(panelImage, "id im1, spany, top");
+        panelInfo.add(panelImage, "spany, top");
         //
-        textName = createInfo("Имя", 30, "growx");
-        textSize = createInfo("Размер", 15, null);
-        textType = createInfo("Тип", 10, null);
-        textCams = createInfo("Камеры", 30, null);
-        textResolution = createInfo("Разрешение", 12, null);
-        textFPS = createInfo("Частота", 10, null);
-        textFirstTime = createInfo("Начало", 15, null);
-        textLastTime = createInfo("Конец", 15, null);
-        textAmountTime = createInfo("Длительность", 22, null);
-        panelInfo.add(GUI.createNoteLabel("Изменение масштаба происходит по нажатию кнопки мыши на кадре."),
-                "spanx, pushy, bottom"); 
-        //"pos im1.x2+10 im1.y2-pref"
-        //
+        textName = createInfo(x_Name, 30, "growx");
+        textSize = createInfo(x_Size, 15, null);
+        textType = createInfo(x_Type, 10, null);
+        textCams = createInfo(x_Cams, 30, null);
+        textResolution = createInfo(x_Resolution, 12, null);
+        textFPS = createInfo(x_Freq, 10, null);
+        textFirstTime = createInfo(x_Start, 15, null);
+        textLastTime = createInfo(x_End, 15, null);
+        textAmountTime = createInfo(x_Duration, 22, null);
+        panelInfo.add(GUI.createNoteLabel(x_HintChangeZoom),
+                "spanx, pushy, bottom");
         scrollPane = new JScrollPane(panelInfo);
         add(scrollPane, BorderLayout.CENTER);
     }
@@ -128,8 +130,8 @@ public final class GUIFileInfoPanel extends JPanel {
                 textCams.setText(info.getCamsToString());
                 if (info.frameFirst != null) {
                     Dimension d = info.frameFirst.getResolution();
-                    textResolution.setText(String.format("%d x %d", d.width, d.height));
-                    textFPS.setText(String.format("%d кадр./сек.", info.frameFirst.fps));
+                    textResolution.setText(String.format(x_ResolutionFormat, d.width, d.height));
+                    textFPS.setText(String.format(x_FreqFormat, info.frameFirst.fps));
                     textFirstTime.setText(df.format(info.frameFirst.time));
                 } else {
                     textResolution.setText("");
@@ -163,7 +165,7 @@ public final class GUIFileInfoPanel extends JPanel {
         long m = (period - h * 3600 * 1000) / (60 * 1000);
         long s = (period - h * 3600 * 1000 - m * 60 * 1000) / (1000);
         long ms = (period - h * 3600 * 1000 - m * 60 * 1000 - s * 1000);
-        return String.format("%d час. %d мин. %d сек. %d мсек.", h, m, s, ms);
+        return String.format(x_DurationFormat, h, m, s, ms);
     }
     // Размер картинки: true - маленький (x=352,y-сжат), false - полный кадр.
     private boolean isSmallView = true;
@@ -177,8 +179,8 @@ public final class GUIFileInfoPanel extends JPanel {
         }
         if (isSmallView) {
             double z = 352.0 / x;
-            x = (int)(z*x);
-            y = (int)(z*y);
+            x = (int) (z * x);
+            y = (int) (z * y);
         }
         Dimension d = new Dimension(x + 2, y + 2);
         panelImage.setPreferredSize(d);

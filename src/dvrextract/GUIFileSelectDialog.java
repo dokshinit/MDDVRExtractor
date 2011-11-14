@@ -15,6 +15,11 @@ import javax.swing.UIManager;
  */
 public class GUIFileSelectDialog extends GUIDialog {
 
+    public static String x_Cancel, x_CancelSelect, x_DatailView, x_Date,
+            x_Detail, x_Fefresh, x_FileName, x_FileType, x_GoUp, x_Home, x_List,
+            x_ListView, x_Name, x_Path, x_Select, x_SelectFile, x_Size, x_View,
+            x_CantCreate, x_Error, x_NotFound;
+    //
     // Компонент выбора файла.
     private FileChooser fileChooser;
     // Цель диалога.
@@ -51,7 +56,7 @@ public class GUIFileSelectDialog extends GUIDialog {
 
     protected GUIFileSelectDialog(Window owner, String title, String fname, Target tgt, Mode m) {
         super(owner);
-        
+
         setTitle(title);
 
         fname = fname != null ? fname : "";
@@ -59,28 +64,28 @@ public class GUIFileSelectDialog extends GUIDialog {
         mode = m;
 
         UIManager.put("FileChooser.readOnly", tgt == Target.EXIST_ONLY);
-        UIManager.put("FileChooser.cancelButtonText", "Отмена");
-        UIManager.put("FileChooser.cancelButtonToolTipText", "Отмена выбора");
-        UIManager.put("FileChooser.detailsViewButtonToolTipText", "Детальный вид");
-        UIManager.put("FileChooser.listViewButtonToolTipText", "В виде списка");
-        UIManager.put("FileChooser.fileNameLabelText", "Имя файла:");
-        UIManager.put("FileChooser.filesOfTypeLabelText", "Тип файлов:");
-        UIManager.put("FileChooser.homeFolderToolTipText", "Домашний каталог");
-        UIManager.put("FileChooser.lookInLabelText", "Каталог:");
-        UIManager.put("FileChooser.openButtonText", "Выбрать");
-        UIManager.put("FileChooser.openButtonToolTipText", "Выбрать файл");
-        UIManager.put("FileChooser.upFolderToolTipText", "На уровень вверх");
-        UIManager.put("FileChooser.fileDateHeaderText", "Дата/время");
-        UIManager.put("FileChooser.fileNameHeaderText", "Имя");
-        UIManager.put("FileChooser.fileSizeHeaderText", "Размер");
-        UIManager.put("FileChooser.detailsViewActionLabelText", "Детальный");
-        UIManager.put("FileChooser.listViewActionLabelText", "Списком");
-        UIManager.put("FileChooser.refreshActionLabelText", "Обновить");
-        UIManager.put("FileChooser.viewMenuLabelText", "Вид");
+        UIManager.put("FileChooser.cancelButtonText", x_Cancel);
+        UIManager.put("FileChooser.cancelButtonToolTipText", x_CancelSelect);
+        UIManager.put("FileChooser.detailsViewButtonToolTipText", x_DatailView);
+        UIManager.put("FileChooser.listViewButtonToolTipText", x_ListView);
+        UIManager.put("FileChooser.fileNameLabelText", x_FileName);
+        UIManager.put("FileChooser.filesOfTypeLabelText", x_FileType);
+        UIManager.put("FileChooser.homeFolderToolTipText", x_Home);
+        UIManager.put("FileChooser.lookInLabelText", x_Path);
+        UIManager.put("FileChooser.openButtonText", x_Select);
+        UIManager.put("FileChooser.openButtonToolTipText", x_SelectFile);
+        UIManager.put("FileChooser.upFolderToolTipText", x_GoUp);
+        UIManager.put("FileChooser.fileDateHeaderText", x_Date);
+        UIManager.put("FileChooser.fileNameHeaderText", x_Name);
+        UIManager.put("FileChooser.fileSizeHeaderText", x_Size);
+        UIManager.put("FileChooser.detailsViewActionLabelText", x_Detail);
+        UIManager.put("FileChooser.listViewActionLabelText", x_List);
+        UIManager.put("FileChooser.refreshActionLabelText", x_Fefresh);
+        UIManager.put("FileChooser.viewMenuLabelText", x_View);
 
         fileChooser = new FileChooser();
         add(fileChooser, BorderLayout.CENTER);
-        
+
         fileChooser.setFileSelectionMode(mode.id);
         fileChooser.setMultiSelectionEnabled(false);
 
@@ -134,8 +139,8 @@ public class GUIFileSelectDialog extends GUIDialog {
                 }
             } else {
                 if (target == Target.EXIST_ONLY) {
-                    JOptionPane.showMessageDialog(this, "Выбранный файл/каталог не существует!",
-                            "Ошибка", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, x_NotFound, x_Error,
+                            JOptionPane.ERROR_MESSAGE);
                 } else {
                     try {
                         try {
@@ -148,8 +153,8 @@ public class GUIFileSelectDialog extends GUIDialog {
                         } catch (CancelActionExeption ex) {
                         }
                     } catch (IOException ex) {
-                        JOptionPane.showMessageDialog(this, "Файл/каталог не может быть создан!",
-                            "Ошибка", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(this, x_CantCreate,
+                                x_Error, JOptionPane.ERROR_MESSAGE);
                     }
                 }
             }

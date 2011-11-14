@@ -8,6 +8,8 @@ import javax.swing.JOptionPane;
  */
 public final class Task {
 
+    public static String x_CanNotStarted, x_Error;
+    //
     // Для синхронизации доступа к задаче.
     private static final Object sync = new Object();
     // Флаг выставляемый для индикации задаче, что она должна быть остановлена
@@ -61,15 +63,13 @@ public final class Task {
      */
     public static boolean start(Thread t) {
         if (t == null) {
-            JOptionPane.showMessageDialog(App.mainFrame,
-                    "Задание не может быть запущено!", "Ошибка",
+            JOptionPane.showMessageDialog(App.mainFrame, x_CanNotStarted, x_Error,
                     JOptionPane.WARNING_MESSAGE);
             return false;
         }
         synchronized (sync) {
             if (task != null && task.isAlive()) {
-                JOptionPane.showMessageDialog(App.mainFrame, 
-                        "Задание не может быть запущено!", "Ошибка",
+                JOptionPane.showMessageDialog(App.mainFrame, x_CanNotStarted, x_Error,
                         JOptionPane.WARNING_MESSAGE);
                 return false;
             }
