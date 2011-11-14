@@ -148,8 +148,9 @@ public final class FFMpeg {
                 in.read(ba, frame.videoSize);
                 in.close();
                 Dimension d = info.frameFirst.getResolution();
-
-                pr = Runtime.getRuntime().exec("ffmpeg -dframes 1 -r 1 -s " + d.width + "x" + d.height + " -i - -f image2 -");
+                
+                Cmd cmd = new Cmd("-dframes","1","-r","1", "-s", ""+d.width + "x" + d.height, "-i", "-", "-f", "image2", "-");
+                pr = Runtime.getRuntime().exec(cmd.getArray());
                 InputStream is = pr.getInputStream();
                 OutputStream os = pr.getOutputStream();
                 os.write(ba, 0, ba.length);

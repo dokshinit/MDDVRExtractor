@@ -2,7 +2,8 @@ package dvrextract;
 
 import dvrextract.FFMpeg.Cmd;
 import dvrextract.gui.GUI;
-import dvrextract.lang.Lang;
+import dvrextract.lang.I10n;
+import dvrextract.lang.I10n.Lang;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -164,7 +165,7 @@ public class App {
     public static void main(String[] args) {
 
         // Инициализация интернационализации.
-        Lang.init(1); // ru
+        I10n.init(Lang.EN); // ru\en
 
         // Инициализация лога ошибок.
         Err.init();

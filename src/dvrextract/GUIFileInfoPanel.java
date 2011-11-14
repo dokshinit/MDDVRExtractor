@@ -115,6 +115,7 @@ public final class GUIFileInfoPanel extends JPanel {
             textType.setText("");
             textCams.setText("");
             textResolution.setText("");
+            textFPS.setText("");
             textFirstTime.setText("");
             textLastTime.setText("");
             textAmountTime.setText("");
