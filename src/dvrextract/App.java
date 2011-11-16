@@ -11,7 +11,6 @@ import javax.swing.UIManager;
 import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
 
-// TODO: Зависает обновление таблицы после долгого скролла.
 /**
  *
  * @author lex

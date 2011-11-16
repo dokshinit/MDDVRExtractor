@@ -14,6 +14,7 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.ArrayList;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -31,6 +32,8 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             x_ToVideo, x_Video, x_WOConvert, x_CalcEnd, x_CalcStart,
             x_SelectDestFile;
     //
+    // Выбор вида настроек "Простые" \ "Расширенные".
+    private JCheckBox checkExpert;
     // Выбранная камера.
     private JTextField textCam;
     // Период
@@ -75,7 +78,10 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      * Конструктор.
      */
     public GUI_TabProcess() {
-        init();
+        init(false);
+        //
+        setVideoDestination("/home/work/files/AZSVIDEO/1/probe1.mkv");
+        dateStart.setText("01.01.2011 00:00:00");
     }
 
     private JExtComboBox addCombo(JPanel p, String layparam) {
@@ -121,8 +127,9 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     /**
      * Инициализация графических компонент.
      */
-    private void init() {
+    private void init(boolean isExpert) {
         setLayout(new MigLayout("ins 5, fill"));
+        
         panel = new JVScrolledPanel(new MigLayout("ins 5, gap 0, fill", "grow"));
         panel.setOpaque(false); // Не отрисовываем фон - заполнение фоном вьюпорта.
         scroll = new JScrollPane(panel);
@@ -130,19 +137,25 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         //scroll.getViewport().setBackground(scrollBg);
         add(scroll, "grow");
 
+        textCam = GUI.createText(10);
+        dateStart = GUI.createDTText();
+        dateEnd = GUI.createDTText();
+        buttonEstimate = GUI.createButton(x_Evaluate);
+        
         JPanel p1 = addPanel(x_Source, "");
         p1.add(GUI.createLabel(x_Cam), "");
-        p1.add(textCam = GUI.createText(10), "spanx, wrap");
+        p1.add(textCam, "spanx, wrap");
         textCam.setEditable(false);
         textCam.setText(x_NotIndent);
 
         p1.add(GUI.createLabel(x_Period1), "");
-        p1.add(dateStart = GUI.createDTText(), "w 150, spanx, split 4");
-        dateStart.addActionListener(this);
+        p1.add(dateStart, "w 150, spanx, split 4");
         p1.add(GUI.createLabel(x_Period2), "");
-        p1.add(dateEnd = GUI.createDTText(), "w 150");
+        p1.add(dateEnd, "w 150");
+        p1.add(buttonEstimate);
+
+        dateStart.addActionListener(this);
         dateEnd.addActionListener(this);
-        p1.add(buttonEstimate = GUI.createButton(x_Evaluate));
         buttonEstimate.addActionListener(this);
 
         JPanel p2 = addPanel(x_Video, "");
@@ -183,6 +196,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         p4.add(GUI.createLabel(x_Format), "");
         comboSubFormat = addCombo(p4, "left, spanx");
 
+        
         ArrayList<FFCodec> list = FFMpeg.getCodecs();
         comboVideoFormat.addItem(0, new Item(x_WOConvert, "copy"));
         int n = 1;
@@ -242,9 +256,6 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         comboAudioFormat.setSelectedId(0);
         comboSubMode.setSelectedId(FFMpeg.isSub_srt ? 1 : 0);
         comboSubFormat.setSelectedId(0);
-        //
-        setVideoDestination("/home/work/files/AZSVIDEO/1/probe1.mkv");
-        dateStart.setText("01.01.2011 00:00:00");
 
         fireStartDateChange();
         fireEndDateChange();
