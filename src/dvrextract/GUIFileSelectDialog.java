@@ -54,16 +54,16 @@ public class GUIFileSelectDialog extends GUIDialog {
         }
     }
 
-    protected GUIFileSelectDialog(Window owner, String title, String fname, Target tgt, Mode m) {
+    protected GUIFileSelectDialog(Window owner, String title, String filename, String defname, Target target, Mode mode) {
         super(owner);
 
         setTitle(title);
 
-        fname = fname != null ? fname : "";
-        target = tgt;
-        mode = m;
+        filename = filename != null ? filename : "";
+        this.target = target;
+        this.mode = mode;
 
-        UIManager.put("FileChooser.readOnly", tgt == Target.EXIST_ONLY);
+        UIManager.put("FileChooser.readOnly", target == Target.EXIST_ONLY);
         UIManager.put("FileChooser.cancelButtonText", x_Cancel);
         UIManager.put("FileChooser.cancelButtonToolTipText", x_CancelSelect);
         UIManager.put("FileChooser.detailsViewButtonToolTipText", x_DatailView);
@@ -91,8 +91,12 @@ public class GUIFileSelectDialog extends GUIDialog {
 
         fireInit(fileChooser);
 
-        if (fname.length() > 0) {
-            File f = new File(fname);
+        if (filename.length() > 0) {
+            File f = new File(filename);
+            fileChooser.setCurrentDirectory(f);
+            fileChooser.setSelectedFile(f);
+        } else if (defname.length() > 0) {
+            File f = new File(defname);
             fileChooser.setCurrentDirectory(f);
             fileChooser.setSelectedFile(f);
         }

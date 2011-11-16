@@ -100,7 +100,7 @@ public final class Task {
         synchronized (sync) {
             isTerminate = false;
         }
-        App.mainFrame.setLocks();
+        App.mainFrame.invokeLocks();
     }
 
     /**
@@ -112,7 +112,7 @@ public final class Task {
             // Убрать чтобы вовне было видно что задачу тормознули?
             //isTerminate = false; 
         }
-        App.mainFrame.setLocks();
+        App.mainFrame.invokeLocks();
     }
 
     /**

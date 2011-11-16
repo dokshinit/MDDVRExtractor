@@ -63,7 +63,7 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
 
         // Выбор камеры для обработки.
         add(GUI.createLabel(x_Cam), "gapleft 20");
-        add(comboCam = GUI.createCombo(false), "w 110, wrap");
+        add(comboCam = GUI.createCombo(), "w 110, wrap");
         comboCam.addActionListener(this);
         comboCam.addItem(0, x_NotSelect);
         comboCam.showData();

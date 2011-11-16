@@ -39,7 +39,11 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
      * Конструктор.
      */
     public GUI_Main() {
-        init();
+    }
+
+    public static void create() {
+        App.mainFrame = new GUI_Main();
+        App.mainFrame.init();
     }
 
     /**
@@ -107,30 +111,39 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
     private boolean cancelState = true;
 
     /**
-     * Выставление блокировок элементов согласно текущему состоянию.
+     * Выставление блокировок всех элементов согласно текущему состоянию - 
+     * отложенный запуск.
      */
-    public void setLocks() {
+    public void invokeLocks() {
         try {
             java.awt.EventQueue.invokeLater(new Runnable() {
 
                 @Override
                 public void run() {
-                    if (Task.isAlive()) {
-                        // Выполняется задача.
-                        buttonProcess.setEnabled(true);
-                        buttonProcess.setText(x_Interrupt);
-                        cancelState = true;
-                    } else {
-                        // Задач нет.
-                        buttonProcess.setEnabled(isPossibleProcess());
-                        buttonProcess.setText(x_Process);
-                        cancelState = false;
-                    }
+                    setLocks();
                     tabSource.setLocks();
                     tabProcess.setLocks();
                 }
             });
         } catch (Exception ex) {
+        }
+    }
+
+    
+    /**
+     * Выставление блокировок элементов основного окна согласно текущему состоянию.
+     */
+    public void setLocks() {
+        if (Task.isAlive()) {
+            // Выполняется задача.
+            buttonProcess.setEnabled(true);
+            buttonProcess.setText(x_Interrupt);
+            cancelState = true;
+        } else {
+            // Задач нет.
+            buttonProcess.setEnabled(isPossibleProcess());
+            buttonProcess.setText(x_Process);
+            cancelState = false;
         }
     }
 

@@ -171,7 +171,7 @@ public class GUI {
         return b;
     }
 
-    public static JExtComboBox createCombo(boolean isAll) {
+    public static JExtComboBox createCombo() {
         JExtComboBox b = new JExtComboBox();
         configCombo(b);
         return b;
