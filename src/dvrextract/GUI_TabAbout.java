@@ -24,12 +24,19 @@ public final class GUI_TabAbout extends JPanel {
     private JScrollPane scroll;
     private JVScrolledPanel panel;
 
+    private static final GUI_TabAbout instance;
+    
     /**
      * Конструктор.
      */
-    public GUI_TabAbout() {
+    private GUI_TabAbout() {
         init();
     }
+    
+    public static GUI_TabAbout getInstance() {
+    }
+    
+    
 
     JPanel addPanel(String s, String pBcond) {
         JPanel p = new JPanel(new MigLayout("ins 0", "grow", "[]5[]"));
