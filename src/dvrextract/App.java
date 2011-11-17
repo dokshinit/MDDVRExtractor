@@ -192,7 +192,8 @@ public class App {
             @Override
             public void run() {
                 // Позиционируем по центру экрана
-                mainFrame = new GUI_Main();
+                //mainFrame = new GUI_Main();
+                GUI_Main.create();
                 GUI.centerizeFrame(mainFrame);
                 mainFrame.setVisible(true);
                 if (!FFMpeg.isWork()) {

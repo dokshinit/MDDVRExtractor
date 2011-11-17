@@ -63,7 +63,7 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         add(l, "spany 2, wrap");
         // Выбор камеры:
         add(GUI.createLabel(x_Cam), "right");
-        add(comboCam = GUI.createCombo(true), "growx, wrap");
+        add(comboCam = GUI.createCombo(), "growx, wrap");
         comboCam.addItem(0, x_All);
         for (int i = 0; i < App.MAXCAMS; i++) {
             comboCam.addItem(i + 1, "CAM" + (i + 1));
@@ -135,7 +135,7 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
 
         private SelectDialog() {
             super(GUI_SourceSelect.this, x_SelectSource,
-                    textSource.getText().trim(), Target.EXIST_ONLY, Mode.ALL);
+                    textSource.getText().trim(), "", Target.EXIST_ONLY, Mode.ALL);
         }
 
         @Override
