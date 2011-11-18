@@ -63,13 +63,13 @@ public final class Task {
      */
     public static boolean start(Thread t) {
         if (t == null) {
-            JOptionPane.showMessageDialog(App.mainFrame, x_CanNotStarted, x_Error,
+            JOptionPane.showMessageDialog(App.gui, x_CanNotStarted, x_Error,
                     JOptionPane.WARNING_MESSAGE);
             return false;
         }
         synchronized (sync) {
             if (task != null && task.isAlive()) {
-                JOptionPane.showMessageDialog(App.mainFrame, x_CanNotStarted, x_Error,
+                JOptionPane.showMessageDialog(App.gui, x_CanNotStarted, x_Error,
                         JOptionPane.WARNING_MESSAGE);
                 return false;
             }
@@ -100,7 +100,7 @@ public final class Task {
         synchronized (sync) {
             isTerminate = false;
         }
-        App.mainFrame.invokeLocks();
+        App.gui.validateLocks();
     }
 
     /**
@@ -112,7 +112,7 @@ public final class Task {
             // Убрать чтобы вовне было видно что задачу тормознули?
             //isTerminate = false; 
         }
-        App.mainFrame.invokeLocks();
+        App.gui.validateLocks();
     }
 
     /**

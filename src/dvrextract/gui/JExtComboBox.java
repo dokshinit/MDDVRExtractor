@@ -37,7 +37,7 @@ public class JExtComboBox extends JComboBox {
      * Конструктор.
      */
     public JExtComboBox() {
-        items = new ArrayList();
+        items = new ArrayList<ExtItem>();
         setEnabled(false);
     }
 
@@ -76,6 +76,14 @@ public class JExtComboBox extends JComboBox {
         items.clear();
     }
 
+    /**
+     * Возвращает кол-во позиций в подготовленном списке (не кол-во отображенных!).
+     * @return Кол-во позиций в списке.
+     */
+    public int getListItemCount() {
+        return items.size();
+    }
+    
     /**
      * Устанавливает компоненту постоянную ширину.
      * Имеет смысл если заполнение идет в отдельном потоке и необходимо 

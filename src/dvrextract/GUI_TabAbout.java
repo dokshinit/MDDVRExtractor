@@ -24,21 +24,13 @@ public final class GUI_TabAbout extends JPanel {
     private JScrollPane scroll;
     private JVScrolledPanel panel;
 
-    private static final GUI_TabAbout instance;
-    
     /**
      * Конструктор.
      */
-    private GUI_TabAbout() {
-        init();
+    public GUI_TabAbout() {
     }
-    
-    public static GUI_TabAbout getInstance() {
-    }
-    
-    
 
-    JPanel addPanel(String s, String pBcond) {
+    private JPanel addPanel(String s, String pBcond) {
         JPanel p = new JPanel(new MigLayout("ins 0", "grow", "[]5[]"));
         p.setBackground(panelBg);
 
@@ -58,12 +50,12 @@ public final class GUI_TabAbout extends JPanel {
         return pB;
     }
 
-    void addLine(JPanel p, String s1, String s2) {
+    private void addLine(JPanel p, String s1, String s2) {
         p.add(GUI.createLabel("<html><b>" + s1 + "</b></html>"), "top");
         p.add(GUI.createLabel("<html>" + s2 + "</html>"), "top, wrap");
     }
 
-    void addLine(JPanel p, String s) {
+    private void addLine(JPanel p, String s) {
         p.add(GUI.createLabel("<html>" + s + "</html>"), "spanx, left, top, wrap");
     }
 
@@ -80,7 +72,7 @@ public final class GUI_TabAbout extends JPanel {
     /**
      * Инициализация графических компонент.
      */
-    private void init() {
+    public void createUI() {
 
         //setBackground(new Color(0xF0F0F0));
         setLayout(new MigLayout("ins 5, fill"));

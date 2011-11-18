@@ -11,7 +11,6 @@ import dvrextract.gui.JVScrolledPanel;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -81,65 +80,17 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      * Конструктор.
      */
     public GUI_TabProcess() {
-
-        create();
-        init(); // По умолчанию инициализируется как "простой режим".
-        // TODO: В релизе убрать!
-        //setVideoDestination("/home/work/files/AZSVIDEO/1/probe1.mkv");
-        //dateStart.setText("01.01.2011 00:00:00");
-    }
-
-    /**
-     * Создание комбо компонента.
-     * @return Компонент.
-     */
-    private JExtComboBox createCombo() {
-        JExtComboBox combo = GUI.createCombo();
-        combo.addActionListener(this);
-        return combo;
-    }
-
-    /**
-     * Создание компонента кнопки.
-     * @param title Название.
-     * @return Компонент.
-     */
-    private JButton createButton(String title) {
-        JButton button = GUI.createButton(title);
-        button.addActionListener(this);
-        return button;
-    }
-
-    /**
-     * Создание компонента текстового поля.
-     * @param size Длина для расчета размеров.
-     * @return Компонент.
-     */
-    private JTextField createText(int size) {
-        JTextField text = GUI.createText(size);
-        text.setEditable(false);
-        return text;
-    }
-
-    /**
-     * Создание компонентов.
-     */
-    private void create() {
-        setLayout(new MigLayout("ins 5, fill", "", "[][grow]"));
-
         panel = new JVScrolledPanel(new MigLayout("ins 5, gap 0, fill", "grow"));
         panel.setOpaque(false); // Не отрисовываем фон - заполнение фоном вьюпорта.
         scroll = new JScrollPane(panel);
 
+        // По умолчанию инициализируется как "простой режим".
         checkExpert = GUI.createCheck("Расширенные настройки", false);
-        checkExpert.addActionListener(this);
 
         textCam = createText(10);
         textCam.setText(x_NotIndent);
         dateStart = GUI.createDTText();
-        dateStart.addActionListener(this);
         dateEnd = GUI.createDTText();
-        dateEnd.addActionListener(this);
         buttonEstimate = createButton(x_Evaluate);
 
         textDestVideo = createText(300);
@@ -219,6 +170,43 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         comboAudioFormat.setSelectedId(0);
         comboSubMode.setSelectedId(FFMpeg.isSub_srt ? 1 : 0);
         comboSubFormat.setSelectedId(0);
+
+        // TODO: В релизе убрать!
+        //setVideoDestination("/home/work/files/AZSVIDEO/1/probe1.mkv");
+        //dateStart.setText("01.01.2011 00:00:00");
+        checkExpert.addActionListener(GUI_TabProcess.this);
+    }
+
+    /**
+     * Создание комбо компонента.
+     * @return Компонент.
+     */
+    private JExtComboBox createCombo() {
+        JExtComboBox combo = GUI.createCombo();
+        combo.addActionListener(this);
+        return combo;
+    }
+
+    /**
+     * Создание компонента кнопки.
+     * @param title Название.
+     * @return Компонент.
+     */
+    private JButton createButton(String title) {
+        JButton button = GUI.createButton(title);
+        button.addActionListener(this);
+        return button;
+    }
+
+    /**
+     * Создание компонента текстового поля.
+     * @param size Длина для расчета размеров.
+     * @return Компонент.
+     */
+    private JTextField createText(int size) {
+        JTextField text = GUI.createText(size);
+        text.setEditable(false);
+        return text;
     }
     // Константные элементы - вынесены для оптимизации.
     private static final TitleBorder groupTitleBorder = new TitleBorder(new Color(0x808080));
@@ -249,8 +237,10 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     /**
      * Инициализация графических компонент.
      */
-    private void init() {
-        panel.removeAll();
+    public void createUI() {
+        setLayout(new MigLayout("ins 5, fill", "", "[][grow]"));
+
+        panel.removeAll(); // Для случая смены режима и пересоздания интерфейса.
 
         add(checkExpert, "wrap");
         add(scroll, "grow");
@@ -261,8 +251,10 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
         p1.add(GUI.createLabel(x_Period1));
         p1.add(dateStart, "w 150, spanx, split 4");
+        dateStart.addActionListener(this);
         p1.add(GUI.createLabel(x_Period2));
         p1.add(dateEnd, "w 150");
+        dateEnd.addActionListener(this);
         p1.add(buttonEstimate);
 
         if (checkExpert.isSelected()) { // Режим расширенных настроек.
@@ -314,6 +306,45 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         fireAudioFormatSelect();
         fireSubModeSelect();
         fireSubFormatSelect();
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == dateStart) {
+            fireStartDateChange();
+        } else if (e.getSource() == dateEnd) {
+            fireEndDateChange();
+        } else if (e.getSource() == buttonEstimate) {
+            fireEstimate();
+        } else if (e.getSource() == buttonSelectVideo) {
+            fireSelectVideoDestination();
+        } else if (e.getSource() == comboVideoFormat
+                || e.getSource() == comboVideoSize
+                || e.getSource() == comboVideoFPS) {
+            fireVideoFormatSelect();
+        } else if (e.getSource() == comboAudioMode) {
+            fireAudioModeSelect();
+        } else if (e.getSource() == buttonSelectAudio) {
+            fireSelectAudioDestination();
+        } else if (e.getSource() == comboAudioFormat) {
+            fireAudioFormatSelect();
+        } else if (e.getSource() == comboSubMode) {
+            fireSubModeSelect();
+        } else if (e.getSource() == buttonSelectSub) {
+            fireSelectSubDestination();
+        } else if (e.getSource() == comboSubFormat) {
+            fireSubFormatSelect();
+        } else if (e.getSource() == checkExpert) {
+            fireExpertSelect();
+        }
+    }
+
+    /**
+     * Возвращает текущий режим интерфейса закладки.
+     * @return Режим: true - экперт, false - простой.
+     */
+    public boolean isExpert() {
+        return checkExpert.isSelected();
     }
 
     /**
@@ -390,138 +421,93 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     }
 
     /**
-     * Устанавливает имя выходного файла (без проверки!). 
-     * @param text Путь и имя файла.
-     */
-    public void setVideoDestination(String text) {
-        App.destVideoName = text;
-        textDestVideo.setText(text);
-        setAudioDestination(Files.getNameWOExt(App.destVideoName) + ".wav");
-        setSubDestination(Files.getNameWOExt(App.destVideoName) + ".srt");
-    }
-
-    /**
-     * Устанавливает имя выходного файла (без проверки!). 
-     * @param text Путь и имя файла.
-     */
-    public void setAudioDestination(String text) {
-        App.destAudioName = text;
-        textDestAudio.setText(text);
-    }
-
-    /**
-     * Устанавливает имя выходного файла (без проверки!). 
-     * @param text Путь и имя файла.
-     */
-    public void setSubDestination(String text) {
-        App.destSubName = text;
-        textDestSub.setText(text);
-    }
-
-    /**
-     * Отображение выбранной на закладке источника камере.
+     * Отображение названия выбранной на закладке источника камеры.
      * @param title Название камеры.
      */
-    public void displayCam(String title) {
-        textCam.setText(title);
+    public void validateSelectedCam(final String title) {
+        GUI.InSwingWait(new Runnable() {
+
+            @Override
+            public void run() {
+                textCam.setText(title);
+            }
+        });
     }
 
     /**
      * Выставление блокировок элементов согласно текущему состоянию.
      */
     public void setLocks() {
-        if (Task.isAlive()) {
-            // Выполняется задача.
-            dateStart.setEditable(false);
-            dateEnd.setEditable(false);
-            buttonEstimate.setEnabled(false);
-            buttonSelectVideo.setEnabled(false);
-            comboVideoFormat.setEnabled(false);
-            comboVideoSize.setEnabled(false);
-            comboVideoFPS.setEnabled(false);
-            textVideoCustom.setEnabled(false);
-            buttonSelectAudio.setEnabled(false);
-            comboAudioMode.setEnabled(false);
-            comboAudioFormat.setEnabled(false);
-            textAudioCustom.setEnabled(false);
-            buttonSelectSub.setEnabled(false);
-            comboSubMode.setEnabled(false);
-            comboSubFormat.setEnabled(false);
-        } else {
-            // Задач нет.
-            dateStart.setEditable(true);
-            dateEnd.setEditable(true);
-            buttonEstimate.setEnabled(false); //App.srcCamSelect > 0 TODO убрать когда реализую вычисления.
-            buttonSelectVideo.setEnabled(true);
-            comboVideoFormat.setEnabled(true);
-            ExtItem i = comboVideoFormat.getSelectedItem();
-            if (i != null && (i.id == 0 || i.id == 1000)) {
-                // Без обработки/вручную - сбрасываем остальные комбо и лочим.
-                comboVideoSize.setSelectedId(i.id);
-                comboVideoSize.setEnabled(false);
-                comboVideoFPS.setSelectedId(i.id);
-                comboVideoFPS.setEnabled(false);
-                textVideoCustom.setEnabled(i.id == 1000);
-            } else {
-                comboVideoSize.setEnabled(true);
-                comboVideoFPS.setEnabled(true);
-                textVideoCustom.setEnabled(false);
-            }
-            i = comboAudioMode.getSelectedItem();
-            boolean m = i != null && i.id == 0 ? true : false;
-            buttonSelectAudio.setEnabled(m);
-            buttonSelectAudio.setVisible(m);
-            textDestAudio.setVisible(m);
-            comboAudioMode.setEnabled(true);
-            i = comboAudioMode.getSelectedItem();
-            if (i != null && i.id == -1) {
-                comboAudioFormat.setEnabled(false);
-                textAudioCustom.setEditable(false);
-            } else {
-                comboAudioFormat.setEnabled(true);
-                i = comboAudioFormat.getSelectedItem();
-                textAudioCustom.setEnabled(i != null && i.id == 1000);
-            }
-            i = comboSubMode.getSelectedItem();
-            m = i != null && i.id == 0 ? true : false;
-            buttonSelectSub.setEnabled(m);
-            buttonSelectSub.setVisible(m);
-            textDestSub.setVisible(m);
-            comboSubMode.setEnabled(true);
-            i = comboSubMode.getSelectedItem();
-            comboSubFormat.setEnabled(i != null && i.id == -1 ? false : true);
-        }
-    }
+        GUI.InSwingLater(new Runnable() {
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if (e.getSource() == dateStart) {
-            fireStartDateChange();
-        } else if (e.getSource() == dateEnd) {
-            fireEndDateChange();
-        } else if (e.getSource() == buttonEstimate) {
-            fireEstimate();
-        } else if (e.getSource() == buttonSelectVideo) {
-            fireSelectVideoDestination();
-        } else if (e.getSource() == comboVideoFormat
-                || e.getSource() == comboVideoSize
-                || e.getSource() == comboVideoFPS) {
-            fireVideoFormatSelect();
-        } else if (e.getSource() == comboAudioMode) {
-            fireAudioModeSelect();
-        } else if (e.getSource() == buttonSelectAudio) {
-            fireSelectAudioDestination();
-        } else if (e.getSource() == comboAudioFormat) {
-            fireAudioFormatSelect();
-        } else if (e.getSource() == comboSubMode) {
-            fireSubModeSelect();
-        } else if (e.getSource() == buttonSelectSub) {
-            fireSelectSubDestination();
-        } else if (e.getSource() == comboSubFormat) {
-            fireSubFormatSelect();
-        } else if (e.getSource() == checkExpert) {
-            fireExpertSelect();
-        }
+            @Override
+            public void run() {
+
+                if (Task.isAlive()) {
+                    // Выполняется задача.
+                    checkExpert.setEnabled(false);
+                    dateStart.setEditable(false);
+                    dateEnd.setEditable(false);
+                    buttonEstimate.setEnabled(false);
+                    buttonSelectVideo.setEnabled(false);
+                    comboVideoFormat.setEnabled(false);
+                    comboVideoSize.setEnabled(false);
+                    comboVideoFPS.setEnabled(false);
+                    textVideoCustom.setEnabled(false);
+                    buttonSelectAudio.setEnabled(false);
+                    comboAudioMode.setEnabled(false);
+                    comboAudioFormat.setEnabled(false);
+                    textAudioCustom.setEnabled(false);
+                    buttonSelectSub.setEnabled(false);
+                    comboSubMode.setEnabled(false);
+                    comboSubFormat.setEnabled(false);
+                } else {
+                    // Задач нет.
+                    checkExpert.setEnabled(true);
+                    dateStart.setEditable(true);
+                    dateEnd.setEditable(true);
+                    buttonEstimate.setEnabled(false); //(App.Source.getSelectedCam() > 0) TODO: убрать когда реализую вычисления.
+                    buttonSelectVideo.setEnabled(true);
+                    comboVideoFormat.setEnabled(true);
+                    ExtItem i = comboVideoFormat.getSelectedItem();
+                    if (i != null && (i.id == 0 || i.id == 1000)) {
+                        // Без обработки/вручную - сбрасываем остальные комбо и лочим.
+                        comboVideoSize.setSelectedId(i.id);
+                        comboVideoSize.setEnabled(false);
+                        comboVideoFPS.setSelectedId(i.id);
+                        comboVideoFPS.setEnabled(false);
+                        textVideoCustom.setEnabled(i.id == 1000);
+                    } else {
+                        comboVideoSize.setEnabled(true);
+                        comboVideoFPS.setEnabled(true);
+                        textVideoCustom.setEnabled(false);
+                    }
+                    i = comboAudioMode.getSelectedItem();
+                    boolean m = i != null && i.id == 0 ? true : false;
+                    buttonSelectAudio.setEnabled(m);
+                    buttonSelectAudio.setVisible(m);
+                    textDestAudio.setVisible(m);
+                    comboAudioMode.setEnabled(true);
+                    i = comboAudioMode.getSelectedItem();
+                    if (i != null && i.id == -1) {
+                        comboAudioFormat.setEnabled(false);
+                        textAudioCustom.setEditable(false);
+                    } else {
+                        comboAudioFormat.setEnabled(true);
+                        i = comboAudioFormat.getSelectedItem();
+                        textAudioCustom.setEnabled(i != null && i.id == 1000);
+                    }
+                    i = comboSubMode.getSelectedItem();
+                    m = i != null && i.id == 0 ? true : false;
+                    buttonSelectSub.setEnabled(m);
+                    buttonSelectSub.setVisible(m);
+                    textDestSub.setVisible(m);
+                    comboSubMode.setEnabled(true);
+                    i = comboSubMode.getSelectedItem();
+                    comboSubFormat.setEnabled(i != null && i.id == -1 ? false : true);
+                }
+            }
+        });
     }
 
     /**
@@ -531,50 +517,18 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         Task.start(new EstimateTask());
     }
 
-    /**
-     * Задача - подсчёт примерных данных за введённый период.
-     */
-    private class EstimateTask extends Task.Thread {
-
-        @Override
-        public void task() {
-            App.mainFrame.pack();
-
-            if (App.srcCamSelect < 0) {
-                return;
-            }
-            App.mainFrame.startProgress();
-            String msg = x_CalcStart;
-            App.mainFrame.setProgressInfo(msg);
-            App.log(msg);
-
-            // Вычисление приблизительных результатов к обработке.
-            CamInfo ci = App.srcCams[App.srcCamSelect];
-            for (FileInfo info : ci.files) {
-                // TODO: Подсчёт данных для обработки.
-            }
-
-            App.mainFrame.stopProgress();
-            msg = x_CalcEnd;
-            App.mainFrame.setProgressInfo(msg);
-            App.log(msg);
-
-            // TODO: Вывод окна с информацией о данных для обработки.
-        }
-    }
-
     private void fireStartDateChange() {
         if (dateStart.getTime().after(dateEnd.getTime())) {
             dateEnd.setTime(dateStart.getTime());
         }
-        App.destTimeStart = dateStart.getTime();
+        App.Dest.setTimeStart(dateStart.getTime());
     }
 
     private void fireEndDateChange() {
         if (dateEnd.getTime().before(dateStart.getTime())) {
             dateStart.setTime(dateEnd.getTime());
         }
-        App.destTimeEnd = dateEnd.getTime();
+        App.Dest.setTimeEnd(dateEnd.getTime());
     }
 
     /**
@@ -582,7 +536,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      */
     private void fireSelectVideoDestination() {
         SelectVideoDialog dlg = new SelectVideoDialog();
-        GUI.centerizeFrame(dlg, App.mainFrame);
+        GUI.centerizeFrame(dlg, App.gui);
         dlg.setVisible(true);
     }
 
@@ -590,8 +544,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      * Обработка выбора видеоформата.
      */
     private void fireVideoFormatSelect() {
-        App.destVideoOptions = getVideoOptions();
-        App.mainFrame.setLocks();
+        App.Dest.setVideoOptions(getVideoOptions());
     }
 
     /**
@@ -599,7 +552,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      */
     private void fireSelectAudioDestination() {
         SelectAudioDialog dlg = new SelectAudioDialog();
-        GUI.centerizeFrame(dlg, App.mainFrame);
+        GUI.centerizeFrame(dlg, App.gui);
         dlg.setVisible(true);
     }
 
@@ -608,19 +561,17 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      */
     private void fireAudioModeSelect() {
         if (checkExpert.isSelected()) {
-            App.destAudioType = comboAudioMode.getSelectedItem().id;
+            App.Dest.setAudioType(comboAudioMode.getSelectedItem().id);
         } else {
-            App.destAudioType = 1;
+            App.Dest.setAudioType(1);
         }
-        App.mainFrame.setLocks();
     }
 
     /**
      * Обработка выбора аудиоформата.
      */
     private void fireAudioFormatSelect() {
-        App.destAudioOptions = getAudioOptions();
-        App.mainFrame.setLocks();
+        App.Dest.setAudioOptions(getAudioOptions());
     }
 
     /**
@@ -628,7 +579,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      */
     private void fireSelectSubDestination() {
         SelectSubDialog dlg = new SelectSubDialog();
-        GUI.centerizeFrame(dlg, App.mainFrame);
+        GUI.centerizeFrame(dlg, App.gui);
         dlg.setVisible(true);
     }
 
@@ -637,27 +588,62 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      */
     private void fireSubModeSelect() {
         if (checkExpert.isSelected()) {
-            App.destSubType = comboSubMode.getSelectedItem().id;
+            App.Dest.setSubType(comboSubMode.getSelectedItem().id);
         } else {
-            App.destSubType = 0;
+            App.Dest.setSubType(0);
         }
-        App.mainFrame.setLocks();
     }
 
     /**
      * Обработка выбора субтитров.
      */
     private void fireSubFormatSelect() {
-        App.destSubOptions = getSubOptions();
-        App.mainFrame.setLocks();
+        App.Dest.setSubOptions(getSubOptions());
     }
 
     /**
      * Обработка выбора режима закладки.
      */
     private void fireExpertSelect() {
-        init();
+        createUI();
+        if (isExpert() == false) {
+            App.Dest.setVideoName(App.Dest.getVideoName());
+            textDestVideo.setText(App.Dest.getVideoName());
+            textDestAudio.setText(App.Dest.getAudioName());
+            textDestSub.setText(App.Dest.getSubName());
+        }
         revalidate();
+    }
+
+    /**
+     * Задача - подсчёт примерных данных за введённый период.
+     */
+    private class EstimateTask extends Task.Thread {
+
+        @Override
+        public void task() {
+            int cam = App.Source.getSelectedCam();
+            if (cam <= 0) {
+                return;
+            }
+            App.gui.startProgress();
+            String msg = x_CalcStart;
+            App.gui.setProgressInfo(msg);
+            App.log(msg);
+
+            // Вычисление приблизительных результатов к обработке.
+            CamInfo ci = App.Source.getCamInfo(cam);
+            for (FileInfo info : ci.files) {
+                // TODO: Подсчёт данных для обработки.
+            }
+
+            App.gui.stopProgress();
+            msg = x_CalcEnd;
+            App.gui.setProgressInfo(msg);
+            App.log(msg);
+
+            // TODO: Вывод окна с информацией о данных для обработки.
+        }
     }
 
     /**
@@ -692,17 +678,19 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     private class SelectVideoDialog extends GUIFileSelectDialog {
 
         private SelectVideoDialog() {
-            super(App.mainFrame, x_SelectDestFile,
-                    textDestVideo.getText().trim(), 
-                    checkExpert.isSelected() ? "*.mkv" : "*.avi", 
+            super(App.gui, x_SelectDestFile,
+                    textDestVideo.getText().trim(),
+                    checkExpert.isSelected() ? "*.mkv" : "*.avi",
                     Target.NEW_OR_EXIST, Mode.FILE);
         }
 
         @Override
         public void fireApply(FileChooser fc) throws CancelActionExeption {
-            final File f = fc.getSelectedFile();
-            setVideoDestination(f.getAbsolutePath());
-            App.mainFrame.setLocks();
+            final String name = fc.getSelectedFile().getAbsolutePath();
+            App.Dest.setVideoName(name);
+            textDestVideo.setText(App.Dest.getVideoName());
+            textDestAudio.setText(App.Dest.getAudioName());
+            textDestSub.setText(App.Dest.getSubName());
         }
     }
 
@@ -712,15 +700,15 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     private class SelectAudioDialog extends GUIFileSelectDialog {
 
         private SelectAudioDialog() {
-            super(App.mainFrame, x_SelectDestFile,
+            super(App.gui, x_SelectDestFile,
                     textDestAudio.getText().trim(), "*.wav", Target.NEW_OR_EXIST, Mode.FILE);
         }
 
         @Override
         public void fireApply(FileChooser fc) throws CancelActionExeption {
-            final File f = fc.getSelectedFile();
-            setAudioDestination(f.getAbsolutePath());
-            App.mainFrame.setLocks();
+            final String name = fc.getSelectedFile().getAbsolutePath();
+            App.Dest.setAudioName(name);
+            textDestAudio.setText(name);
         }
     }
 
@@ -730,15 +718,15 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     private class SelectSubDialog extends GUIFileSelectDialog {
 
         private SelectSubDialog() {
-            super(App.mainFrame, x_SelectDestFile,
+            super(App.gui, x_SelectDestFile,
                     textDestSub.getText().trim(), "*.srt", Target.NEW_OR_EXIST, Mode.FILE);
         }
 
         @Override
         public void fireApply(FileChooser fc) throws CancelActionExeption {
-            final File f = fc.getSelectedFile();
-            setSubDestination(f.getAbsolutePath());
-            App.mainFrame.setLocks();
+            final String name = fc.getSelectedFile().getAbsolutePath();
+            App.Dest.setSubName(name);
+            textDestSub.setText(name);
         }
     }
 }

@@ -24,7 +24,7 @@ public class FileListModel extends AbstractTableModel {
      */
     public FileListModel(int cam) {
         if (cam > 0 && cam <= App.MAXCAMS) {
-            files = App.srcCams[cam - 1].files;
+            files = App.Source.getCamInfo(cam).files;
         } else {
             files = new ArrayList<FileInfo>();
         }

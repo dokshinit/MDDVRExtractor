@@ -148,7 +148,7 @@ public final class GUIFileInfoPanel extends JPanel {
                 } else {
                     textAmountTime.setText("");
                 }
-                panelImage.setImage(FFMpeg.getFirstFrameImage(info, App.srcCamSelect));
+                panelImage.setImage(FFMpeg.getFirstFrameImage(info, App.Source.getSelectedCam()));
             }
         }
         curInfo = info;

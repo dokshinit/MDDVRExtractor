@@ -35,21 +35,21 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
      * Конструктор.
      */
     public GUI_SourceSelect() {
-        super(App.mainFrame);
-        init();
+        super(App.gui);
+        createUI();
     }
 
     /**
      * Инициализация графических компонетов.
      */
-    private void init() {
+    private void createUI() {
         setTitle(x_SourceScan);
         setLayout(new MigLayout("fill"));
 
         // Источник:
         add(GUI.createLabel(x_Source), "right");
         add(textSource = GUI.createText(30), "span, growx, split 2");
-        textSource.setText(App.srcName);
+        textSource.setText(App.Source.getName());
         textSource.setEditable(false);
         add(buttonSelect = GUI.createButton(x_Select), "wrap");
         buttonSelect.addActionListener(this);
@@ -103,7 +103,7 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
      */
     private void fireSelect() {
         SelectDialog dlg = new SelectDialog();
-        GUI.centerizeFrame(dlg, App.mainFrame);
+        GUI.centerizeFrame(dlg, App.gui);
         dlg.setVisible(true);
     }
 
@@ -115,7 +115,7 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
     private void fireScan() {
         // Запуск задачи сканирования.
         if (Task.start(new ScanTask())) {
-            dispose();
+            dispose(); // В случас успеха - закрываем окно.
         }
     }
 

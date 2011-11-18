@@ -53,26 +53,16 @@ public class Files {
      * @param startpath Источник (файл или каталог).
      */
     public static void scan(String startpath, int cam) {
+        // Установка источника.
+        App.Source.set(startpath, SourceFileFilter.getType(startpath), cam);
+
         // Сканирование источника.
         String msg = x_BuildFileList;
         App.log(msg);
-        App.mainFrame.setProgressInfo(msg);
-        App.mainFrame.startProgress();
-
-        // Установка источника.
-        App.srcName = startpath;
-        App.srcType = SourceFileFilter.getType(startpath);
-        App.srcCamLimit = cam;
-
-        // Отображение источника.
-        App.mainFrame.tabSource.displaySource();
-        // Очистка отображаемого списка камер источника.
-        App.mainFrame.tabSource.displayCams(0);
+        App.gui.setProgressInfo(msg);
+        App.gui.startProgress();
 
         // Очистка всех данных о предыдущем сканировании.
-        for (int i = 0; i < App.MAXCAMS; i++) {
-            App.srcCams[i].clear();
-        }
         files.clear();
 
         // Построение списка файлов для сканирования.
@@ -80,9 +70,9 @@ public class Files {
 
         msg = x_SourceScaning;
         App.log(msg);
-        App.mainFrame.setProgressInfo(msg);
+        App.gui.setProgressInfo(msg);
         if (files.size() > 0) {
-            App.mainFrame.startProgress(1, files.size());
+            App.gui.startProgress(1, files.size());
 
             // Сканирование.
             for (int n = 0; n < files.size(); n++) {
@@ -91,26 +81,26 @@ public class Files {
                 }
                 final String msg1 = String.format(x_FileScaning, n + 1, files.size());
                 final String msg2 = files.get(n).getPath();
-                App.mainFrame.setProgressInfo(msg1);
-                App.mainFrame.setProgressText(msg2);
+                App.gui.setProgressInfo(msg1);
+                App.gui.setProgressText(msg2);
                 App.log(msg1 + ": " + msg2);
                 scanFile(files.get(n), cam);
-                App.mainFrame.setProgress(n + 1);
+                App.gui.setProgress(n + 1);
             }
-            App.mainFrame.setProgress(files.size());
+            App.gui.setProgress(files.size());
 
             // Сортировка списков файлов.
-            for (int i = 0; i < App.MAXCAMS; i++) {
-                Collections.sort(App.srcCams[i].files, FileInfo.getComparator());
+            for (int i = 1; i <= App.MAXCAMS; i++) {
+                Collections.sort(App.Source.getCamInfo(i).files, FileInfo.getComparator());
             }
         }
         files.clear();
 
-        App.mainFrame.stopProgress();
+        App.gui.stopProgress();
         msg = x_ScanFinish + (Task.isTerminate() ? x_ScanFinishBreak : "") + ".";
-        App.mainFrame.setProgressInfo(msg);
+        App.gui.setProgressInfo(msg);
         App.log(msg);
-        App.mainFrame.tabSource.displayCams();
+        App.gui.tabSource.validateCamsListChange();
     }
 
     /**
@@ -149,7 +139,7 @@ public class Files {
                 }
                 // Простой файл.
                 files.add(fa[i]);
-                App.mainFrame.setProgressText(fa[i].getPath());
+                App.gui.setProgressText(fa[i].getPath());
             }
         } catch (Exception ex) {
             Err.log("File path = " + path);
@@ -169,7 +159,7 @@ public class Files {
                 // Обрабатываем инфу - добавляем файл ко всем камерам, какие в нём перечислены.
                 for (FileInfo.CamData n : info.camInfo) {
                     if (cam == 0 || cam == n.camNumber) {
-                        App.srcCams[n.camNumber - 1].addFile(info);
+                        App.Source.getCamInfo(n.camNumber).addFile(info);
                     }
                 }
                 if (App.isDebug) {
@@ -180,7 +170,6 @@ public class Files {
                             + " - " + info.frameLast.time.toString() + "]");
                 }
             }
-            Thread.sleep(100);
         } catch (Exception ex) {
             Err.log("File name = " + file);
             Err.log(ex);

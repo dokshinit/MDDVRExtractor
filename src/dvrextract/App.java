@@ -19,17 +19,18 @@ public class App {
 
     public static String x_LAFNotFound, x_LAFError, x_FFMpegWrong, x_CodecsWrong;
     //
-    //
-    public static final String version = "0.9b3";
     ////////////////////////////////////////////////////////////////////////////
     // Константы.
     ////////////////////////////////////////////////////////////////////////////
+    // Версия программы.
+    public static final String version = "0.9b3";
     // Максимальное кол-во обрабатываемых камер.
     public static final int MAXCAMS = 16;
     ////////////////////////////////////////////////////////////////////////////
     // Глобальные переменные.
     ////////////////////////////////////////////////////////////////////////////
-    public static GUI_Main mainFrame; // Основное окно работы программы.
+    // Основное окно работы программы.
+    public static GUI_Main gui;
     // Для отладки, если true - подробный лог.
     public static boolean isDebug = false;
     public static boolean isLinux = false;
@@ -41,8 +42,8 @@ public class App {
      * @param text Текст сообщения.
      */
     public static void log(LogTableModel.Type type, String text) {
-        if (mainFrame != null && mainFrame.tabLog != null) {
-            mainFrame.tabLog.getLogPanel().add(type, text);
+        if (gui != null && gui.tabLog != null) {
+            gui.tabLog.getLogPanel().add(type, text);
         }
         System.out.println(text);
     }
@@ -52,8 +53,8 @@ public class App {
      * @param text Текст сообщения.
      */
     public static void logupd(LogTableModel.Type type, String text) {
-        if (mainFrame != null && mainFrame.tabLog != null) {
-            mainFrame.tabLog.getLogPanel().update(type, text);
+        if (gui != null && gui.tabLog != null) {
+            gui.tabLog.getLogPanel().update(type, text);
         }
         System.out.println(text);
     }
@@ -132,29 +133,217 @@ public class App {
     // каталог. При этом каждый файл распознаётся исходя из имени файла:
     // по шалону *.exe - файл архива, по шаблону da*. - файл hdd.
     //
-    // Каталог или файл.
-    public static String srcName = "/home/work/files/AZSVIDEO/1/1.exe";
-    // Тип источника: 0-EXE, 1-HDD
-    public static FileType srcType = FileType.NO;
-    // Ограничение одной камерой (если = 0 - без ограничений).
-    public static int srcCamLimit = 0;
-    // Текущая выбранная камера для которой отображаются файлы.
-    public static int srcCamSelect = 0;
-    // Массив разделения источников по камерам.
-    public static CamInfo[] srcCams = new CamInfo[MAXCAMS];
+
+    public static class Source {
+
+        // Каталог или файл.
+        private static String name = "/home/work/files/AZSVIDEO/1/1.exe";
+        // Тип источника: 0-EXE, 1-HDD
+        private static FileType type = FileType.NO;
+        // Ограничение одной камерой (если = 0 - без ограничений).
+        private static int limitedCam = 0;
+        // Текущая выбранная камера для которой отображаются файлы.
+        private static int selectedCam = 0;
+        // Массив разделения источников по камерам.
+        private static CamInfo[] cams = new CamInfo[MAXCAMS];
+
+        /**
+         * Возвращает путь\файл источника.
+         * @return Путь\файл источника.
+         */
+        public static String getName() {
+            return name;
+        }
+
+        /**
+         * Возвращает тип источника.
+         * @return Тип источника.
+         */
+        public static FileType getType() {
+            return type;
+        }
+
+        /**
+         * Возвращает номер камеры жёсткого оганичения при сканировании.
+         * @return Номер камеры ограничения (0 - без ограничений).
+         */
+        public static int getLimitedCam() {
+            return limitedCam;
+        }
+
+        /**
+         * Возвращает номер выбранной камеры.
+         * @return Номер выбранной камеры.
+         */
+        public static int getSelectedCam() {
+            return selectedCam;
+        }
+
+        /**
+         * Возвразает информацию для указанной камеры.
+         * @param index Номер камеры (не индекс массива!): 1..MAXCAM
+         * @return Информация для указанной камеры.
+         */
+        public static CamInfo getCamInfo(int index) {
+            return cams[index - 1];
+        }
+
+        /**
+         * Устанавливает новый источник.
+         * @param newName Путь\имя файла источкика.
+         * @param newType Тип источника.
+         * @param limited Жесткое ограничение по камере (0 - без ограничений).
+         */
+        public static void set(String newName, FileType newType, int limited) {
+            if (newName == null) {
+                newName = "";
+            }
+            name = newName.trim();
+            type = newType;
+            limitedCam = limited;
+
+            // Очистка всех данных о предыдущем сканировании.
+            for (int i = 1; i <= MAXCAMS; i++) {
+                Source.getCamInfo(i).clear();
+            }
+            // Обновление отображения.
+            App.gui.tabSource.validateSourceChange();
+            // Обновление блокировок.
+            App.gui.validateLocks();
+        }
+
+        /**
+         * Установка выбранной камеры.
+         * @param newCam Номер камеры.
+         */
+        public static void setSelectedCam(int newCam) {
+            if (selectedCam != newCam) {
+                selectedCam = newCam;
+                // Обновление блокировок.
+                App.gui.validateLocks();
+            }
+        }
+    }
     ////////////////////////////////////////////////////////////////////////////
     // Информация об обработке:
     ////////////////////////////////////////////////////////////////////////////
-    public static Date destTimeStart;
-    public static Date destTimeEnd;
-    public static String destVideoName = "";
-    public static String destAudioName = "";
-    public static String destSubName = "";
-    public static Cmd destVideoOptions = new Cmd(false);
-    public static Cmd destAudioOptions = new Cmd(false);
-    public static Cmd destSubOptions = new Cmd(false);
-    public static int destAudioType;
-    public static int destSubType;
+
+    public static class Dest {
+
+        private static Date timeStart;
+        private static Date timeEnd;
+        private static String videoName = "";
+        private static String audioName = "";
+        private static String subName = "";
+        private static Cmd videoOptions = new Cmd(false);
+        private static Cmd audioOptions = new Cmd(false);
+        private static Cmd subOptions = new Cmd(false);
+        private static int audioType;
+        private static int subType;
+
+        public static Date getTimeStart() {
+            return timeStart;
+        }
+
+        public static Date getTimeEnd() {
+            return timeEnd;
+        }
+
+        public static String getVideoName() {
+            return videoName;
+        }
+
+        public static String getAudioName() {
+            return audioName;
+        }
+
+        public static String getSubName() {
+            return subName;
+        }
+
+        public static Cmd getVideoOptions() {
+            return videoOptions;
+        }
+        
+        public static Cmd getAudioOptions() {
+            return audioOptions;
+        }
+
+        public static Cmd getSubOptions() {
+            return subOptions;
+        }
+
+        public static int getAudioType() {
+            return audioType;
+        }
+
+        public static int getSubType() {
+            return subType;
+        }
+
+        public static void setTimeStart(Date time) {
+            timeStart = time;
+            App.gui.validateLocks();
+        }
+        
+        public static void setTimeEnd(Date time) {
+            timeEnd = time;
+            App.gui.validateLocks();
+        }
+        
+        public static void setVideoName(String name) {
+            videoName = name;
+            setAudioName(Files.getNameWOExt(name) + ".wav");
+            setSubName(Files.getNameWOExt(name) + ".srt");
+            App.gui.validateLocks();
+        }
+
+        public static void setAudioName(String name) {
+            audioName = name;
+            App.gui.validateLocks();
+        }
+
+        public static void setSubName(String name) {
+            subName = name;
+            App.gui.validateLocks();
+        }
+
+        public static void setVideoOptions(Cmd opt) {
+            videoOptions = opt;
+            App.gui.validateLocks();
+        }
+        
+        public static void setAudioOptions(Cmd opt) {
+            audioOptions = opt;
+            App.gui.validateLocks();
+        }
+        
+        public static void setSubOptions(Cmd opt) {
+            subOptions = opt;
+            App.gui.validateLocks();
+        }
+        
+        public static void setAudioType(int mode) {
+            audioType = mode;
+            App.gui.validateLocks();
+        }
+        
+        public static void setSubType(int mode) {
+            subType = mode;
+            App.gui.validateLocks();
+        }
+        
+    }
+    //public static Date destTimeStart;
+    //public static Date destTimeEnd;
+//    public static String destVideoName = "";
+//    public static String destAudioName = "";
+//    public static String destSubName = "";
+//    public static Cmd destVideoOptions = new Cmd(false);
+//    public static Cmd destAudioOptions = new Cmd(false);
+//    public static Cmd destSubOptions = new Cmd(false);
+//    public static int destAudioType;
+//    public static int destSubType;
 
     /**
      * Точка запуска приложения.
@@ -170,7 +359,7 @@ public class App {
 
         // Инициализация переменных.
         for (int i = 0; i < MAXCAMS; i++) {
-            srcCams[i] = new CamInfo();
+            Source.cams[i] = new CamInfo();
         }
         // Определяем тип ОС.
         String s = System.getProperty("os.name").toLowerCase();
@@ -191,13 +380,14 @@ public class App {
 
             @Override
             public void run() {
-                // Позиционируем по центру экрана
-                //mainFrame = new GUI_Main();
+                // Создание.
                 GUI_Main.create();
-                GUI.centerizeFrame(mainFrame);
-                mainFrame.setVisible(true);
-                if (!FFMpeg.isWork()) {
-                    JOptionPane.showMessageDialog(mainFrame,
+                // Позиционируем по центру экрана.
+                GUI.centerizeFrame(gui);
+                gui.setVisible(true);
+                // При проблемах с ffmpeg - сообщаем.
+                if (!FFMpeg.isWorking()) {
+                    JOptionPane.showMessageDialog(gui,
                             x_FFMpegWrong,
                             x_CodecsWrong,
                             JOptionPane.WARNING_MESSAGE);

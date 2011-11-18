@@ -77,13 +77,12 @@ public class DataProcessor {
         timeMin = -1;
         timeMax = -1;
         // Проверка и обработка в хронологическом порядке списка файлов.
-        int cam = App.srcCamSelect - 1;
-        camInfo = App.srcCams[cam];
+        camInfo = App.Source.getCamInfo(App.Source.getSelectedCam());
 
         String msg = x_ProcessSource;
         App.log(msg);
-        App.mainFrame.setProgressInfo(msg);
-        App.mainFrame.startProgress(0, 100);
+        App.gui.setProgressInfo(msg);
+        App.gui.startProgress(0, 100);
 
         try {
             for (int i = 0; i < camInfo.files.size(); i++) {
@@ -94,12 +93,12 @@ public class DataProcessor {
 
                 msg = String.format(x_ProcessFile, i + 1, camInfo.files.size());
                 App.log(msg + ": " + fi.fileName);
-                App.mainFrame.setProgressInfo(msg);
-                App.mainFrame.setProgressText(fi.fileName);
+                App.gui.setProgressInfo(msg);
+                App.gui.setProgressText(fi.fileName);
 
                 // Выбираем только те файлы, промежутки которых попадают в 
-                if (!fi.frameFirst.time.after(App.destTimeEnd)
-                        && !fi.frameLast.time.before(App.destTimeStart)
+                if (!fi.frameFirst.time.after(App.Dest.getTimeEnd())
+                        && !fi.frameLast.time.before(App.Dest.getTimeStart())
                         && (timeMax == -1 || fi.frameLast.time.getTime() >= timeMax)) {
                     try {
                         processFile(fi);
@@ -107,10 +106,6 @@ public class DataProcessor {
                         App.log(ex.getMessage());
                         break;
                     }
-                }
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
                 }
             }
             // Останов процессов FFMpeg.
@@ -127,11 +122,11 @@ public class DataProcessor {
             App.log(ex.getMessage());
             cancelAllProcess();
         }
-        App.mainFrame.stopProgress();
+        App.gui.stopProgress();
 
         msg = x_ProcessSourceEnd;
         App.log(msg);
-        App.mainFrame.setProgressInfo(msg);
+        App.gui.setProgressInfo(msg);
     }
 
     /**
@@ -147,7 +142,7 @@ public class DataProcessor {
             return;
         }
         // Если файл видео уже есть - стираем.
-        deleteFile(App.destVideoName);
+        deleteFile(App.Dest.getVideoName());
 
         // Построение команды для сборки.
         // Для контроля прогресса будем сами закидывать данные видео.
@@ -165,7 +160,7 @@ public class DataProcessor {
         if (isSub && isSubTemp) {
             vcmd.add("-scodec", "copy");
         }
-        vcmd.add(App.destVideoName);
+        vcmd.add(App.Dest.getVideoName());
 
         if (App.isDebug) {
             App.log("FFMpeg Make = " + vcmd.toString());
@@ -173,8 +168,8 @@ public class DataProcessor {
 
         String msg = x_FinalMakeStart;
         App.log(msg);
-        App.mainFrame.setProgressInfo(msg);
-        App.mainFrame.startProgress(0, 100);
+        App.gui.setProgressInfo(msg);
+        App.gui.startProgress(0, 100);
 
         try {
             processMake = startProcess(vcmd);
@@ -185,7 +180,7 @@ public class DataProcessor {
 
         msg = x_FinalMakeStarted;
         App.log(msg);
-        App.mainFrame.setProgressInfo(msg);
+        App.gui.setProgressInfo(msg);
 
         InputFile in;
         try {
@@ -198,8 +193,8 @@ public class DataProcessor {
 
         try {
             long size = in.getSize();
-            App.mainFrame.startProgress(0, 500);
-            App.mainFrame.setProgressText(App.destVideoName);
+            App.gui.startProgress(0, 500);
+            App.gui.setProgressText(App.Dest.getVideoName());
 
             long readsize = 0;
             int n = 0;
@@ -215,11 +210,11 @@ public class DataProcessor {
                 // Прогрес.
                 int nnew = (int) (readsize * 500 / size);
                 if (nnew != n) {
-                    App.mainFrame.setProgress(n);
+                    App.gui.setProgress(n);
                     n = nnew;
                 }
             }
-            App.mainFrame.setProgress(500);
+            App.gui.setProgress(500);
         } catch (IOException ex) {
             Err.log(ex);
             in.closeSafe();
@@ -302,28 +297,43 @@ public class DataProcessor {
         // Установка переменных.
 
         // Аудио.
-        isAudio = App.destAudioType == -1 ? false : true;
-        if (App.destAudioType == 0) { // Отдельный файл.
-            isAudioTemp = false;
-            audioName = App.destAudioName;
-        } else if (App.destAudioType == 1) { // Поток (врем.файл + сборка).
-            isAudioTemp = true;
-            audioName = App.destVideoName + ".audio.wav";
+        switch (App.Dest.getAudioType()) {
+            case -1: // Без аудио.
+                isAudio = false;
+                break;
+            case 0: // Отдельный файл.
+                isAudio = true;
+                isAudioTemp = false;
+                audioName = App.Dest.getAudioName();
+                break;
+            case 1: // Поток (врем.файл + сборка).
+                isAudio = true;
+                isAudioTemp = true;
+                audioName = App.Dest.getVideoName() + ".audio.wav";
+                break;
         }
 
         // Субтитры.
-        isSub = App.destSubType == -1 ? false : true;
-        if (App.destSubType == 0) { // Отдельный файл.
-            isSubTemp = false;
-            subName = App.destSubName;
-        } else if (App.destSubType == 1) { // Поток (врем.файл + сборка).
-            isSubTemp = true;
-            subName = App.destVideoName + ".sub.srt";
+        switch (App.Dest.getSubType()) {
+            case -1: // Без аудио.
+                isSub = false;
+                break;
+            case 0: // Отдельный файл.
+                isSub = true;
+                isSubTemp = false;
+                subName = App.Dest.getSubName();
+                break;
+            case 1: // Поток (врем.файл + сборка).
+                isSub = true;
+                isSubTemp = true;
+                subName = App.Dest.getVideoName() + ".sub.srt";
+                break;
         }
 
         // Если есть временные файлы - значит будет послед.слив в одно видео, 
         // значит сначала кодируем видео во временный файл.
-        videoName = App.destVideoName + ((isAudio && isAudioTemp) || (isSub && isSubTemp) ? ".video.mkv" : "");
+        videoName = App.Dest.getVideoName()
+                + ((isAudio && isAudioTemp) || (isSub && isSubTemp) ? ".video.mkv" : "");
         fps = fileInfo.frameFirst.fps;
 
         ////////////////////////////////////////////////////////////////////
@@ -332,8 +342,8 @@ public class DataProcessor {
 
         // Проверка файла видео результирующего!
         if ((isAudio && isAudioTemp) || (isSub && isSubTemp)) {
-            if (!allowOutFile(App.destVideoName)) {
-                throw new FatalException(x_WrongOutVideoFile + " [" + App.destVideoName + "]");
+            if (!allowOutFile(App.Dest.getVideoName())) {
+                throw new FatalException(x_WrongOutVideoFile + " [" + App.Dest.getVideoName() + "]");
             }
         }
 
@@ -365,7 +375,7 @@ public class DataProcessor {
         String ssize = "" + d.width + "x" + d.height;
         // Настройки приёмника.
         Cmd vcmd = new Cmd("-r", sfps, "-i", "-");
-        vcmd.add(App.destVideoOptions).add(videoName);
+        vcmd.add(App.Dest.getVideoOptions()).add(videoName);
         vcmd.replaceOrigs(sfps, ssize);
         //
 
@@ -374,7 +384,7 @@ public class DataProcessor {
         Cmd acmd = new Cmd();
         if (isAudio) {
             acmd.add("-f", "g722", "-acodec", "g722", "-ar", "8000", "-ac", "1", "-i", "-");
-            acmd.add(App.destAudioOptions).add(audioName);
+            acmd.add(App.Dest.getAudioOptions()).add(audioName);
         }
 
         if (App.isDebug) {
@@ -450,7 +460,7 @@ public class DataProcessor {
             processMake = null;
         }
         Object[] options = {x_Delete, x_LeaveAsIs};
-        int n = JOptionPane.showOptionDialog(App.mainFrame,
+        int n = JOptionPane.showOptionDialog(App.gui,
                 x_WhatDoTemp,
                 x_Confirmation, JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE, null, options,
@@ -498,7 +508,7 @@ public class DataProcessor {
                 }
             }
             Object[] options = {x_Finish, x_WaitFinish};
-            int n = JOptionPane.showOptionDialog(App.mainFrame,
+            int n = JOptionPane.showOptionDialog(App.gui,
                     x_FinishProcess1 + title + x_FinishProcess2 + timeout + x_FinishProcess3,
                     x_Confirmation, JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE, null, options,
@@ -562,9 +572,10 @@ public class DataProcessor {
         }
 
         try {
-            App.mainFrame.startProgress(0, 100);
+            App.gui.startProgress(0, 100);
+            App.gui.setProgressText(fileInfo.fileName);
 
-            int cam = App.srcCamSelect;
+            int cam = App.Source.getSelectedCam();
             Frame f = new Frame(fileInfo.fileType);
             int frameSize = f.getHeaderSize();
             long pos = fileInfo.frameFirst.pos; // Текущая позиция.
@@ -638,11 +649,11 @@ public class DataProcessor {
                 // Прогрес.
                 int nnew = (int) (pos * 100 / (endpos - frameSize));
                 if (nnew != n) {
-                    App.mainFrame.setProgress(n);
+                    App.gui.setProgress(n);
                     n = nnew;
                 }
             }
-            App.mainFrame.setProgress(100);
+            App.gui.setProgress(100);
 
             // Завершаем открытые субтитры.
             if (isSub) {
@@ -732,11 +743,6 @@ public class DataProcessor {
         }
     }
 
-    ////////////////////////////////////////////////////////////////////////////
-    //
-    //  СУБТИТРЫ
-    //
-    ////////////////////////////////////////////////////////////////////////////
     /**
      * Исключение при ошибке запуска ffmpeg или при фатальных ошибках требующих
      * остановить обработку.

@@ -43,7 +43,7 @@ public final class FFMpeg {
      * Проверяет инициализирован ли FFMpeg (если проблемы, то список кодеков будет пуст).
      * @return true - всё в порядке, false - ffmpeg не работает корректно.
      */
-    public static boolean isWork() {
+    public static boolean isWorking() {
         return !codecs.isEmpty();
     }
 

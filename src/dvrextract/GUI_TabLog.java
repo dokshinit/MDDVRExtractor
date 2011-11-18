@@ -17,16 +17,15 @@ public final class GUI_TabLog extends JPanel {
      * Конструктор.
      */
     public GUI_TabLog() {
-        init();
+        logPanel = new GUILogPanel();
     }
 
     /**
      * Инициализация графических компонент.
      */
-    private void init() {
+    public void createUI() {
         setLayout(new BorderLayout());
         // Панель лога.
-        logPanel = new GUILogPanel();
         logPanel.setMinimumSize(new Dimension(300, 300));
         add(logPanel, BorderLayout.CENTER);
     }
@@ -36,6 +35,6 @@ public final class GUI_TabLog extends JPanel {
      * @return Панель лога.
      */
     public GUILogPanel getLogPanel() {
-	return logPanel;
+        return logPanel;
     }
 }

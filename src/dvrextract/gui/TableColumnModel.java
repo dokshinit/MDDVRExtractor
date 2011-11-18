@@ -24,7 +24,7 @@ public class TableColumnModel extends DefaultTableColumnModel {
      * @param tm Ссылка на модель данных таблицы (для связывания с данными)
      */
     public TableColumnModel() {
-        columnSavedWidth = new ArrayList();
+        columnSavedWidth = new ArrayList<Integer>();
     }
 
     /**
