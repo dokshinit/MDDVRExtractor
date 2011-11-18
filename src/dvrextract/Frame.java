@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Contacts: dant.it@gmail.com, dokshin@list.ru.
+ */
 package dvrextract;
 
 import java.awt.Dimension;
@@ -105,7 +109,7 @@ public class Frame {
         }
         return new Dimension(704, 576);
     }
-    
+
     /**
      * Установка зонального смещения (часовой пояс отн.мирового).
      * @param msec Новое смещение в миллисекундах).
@@ -134,8 +138,10 @@ public class Frame {
         // long: младший int - мсек, старший - сек.
         long sec = bdate >> 32;
         long msec = bdate & 0xFFFFFFFFL;
-        if (msec < 0 || msec > 999) return null; // Не верный формат времени!
-        long javaDate = sec*1000 + msec;
+        if (msec < 0 || msec > 999) {
+            return null; // Не верный формат времени!
+        }
+        long javaDate = sec * 1000 + msec;
         // Внесение коррекции на часовой пояс.
         // НЕ учитывается переход на летнее и зимнее время, т.к. исходная
         // информация уже с учётом летнего времени!

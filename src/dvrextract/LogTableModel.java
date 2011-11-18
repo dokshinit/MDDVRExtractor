@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Contacts: dant.it@gmail.com, dokshin@list.ru.
+ */
 package dvrextract;
 
 import java.util.*;
@@ -87,7 +91,7 @@ public class LogTableModel extends AbstractTableModel {
     public String getColumnName(int column) {
         return (column >= 0 && column < colNames.length) ? colNames[column] : "";
     }
-    
+
     /**
      * Данные в ячейке.
      * @param row Строка.
@@ -129,7 +133,7 @@ public class LogTableModel extends AbstractTableModel {
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         return false;
     }
-    
+
     public void add(Type type, Date dt, String text) {
         synchronized (data) {
             data.add(new Row(type, dt, text));

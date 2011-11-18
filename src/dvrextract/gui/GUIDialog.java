@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Contacts: dant.it@gmail.com, dokshin@list.ru.
+ */
 package dvrextract.gui;
 
 import java.awt.BorderLayout;
@@ -16,7 +20,7 @@ public class GUIDialog extends JDialog {
     public GUIDialog() {
         this(null);
     }
-    
+
     public GUIDialog(Window owner) {
         super(owner);
         setModal(true);

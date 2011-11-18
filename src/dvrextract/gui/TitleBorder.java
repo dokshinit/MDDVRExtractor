@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Contacts: dant.it@gmail.com, dokshin@list.ru.
+ */
 package dvrextract.gui;
 
 import java.awt.Color;
@@ -11,6 +15,7 @@ import javax.swing.border.AbstractBorder;
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class TitleBorder extends AbstractBorder {
+
     protected Color color;
 
     public TitleBorder(Color c) {
@@ -35,5 +40,4 @@ public class TitleBorder extends AbstractBorder {
         insets.left = insets.top = insets.right = insets.bottom = 1;
         return insets;
     }
-    
 }

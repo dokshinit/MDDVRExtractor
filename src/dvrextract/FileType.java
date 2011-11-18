@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Contacts: dant.it@gmail.com, dokshin@list.ru.
+ */
 package dvrextract;
 
 /**
@@ -14,7 +18,6 @@ public enum FileType {
     EXE(1, "EXE"),
     // Файл хранения видео на HDD.
     HDD(2, "HDD");
-    
     // Код.
     public int id;
     // Название.

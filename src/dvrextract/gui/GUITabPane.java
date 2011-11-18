@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Contacts: dant.it@gmail.com, dokshin@list.ru.
+ */
 package dvrextract.gui;
 
 import java.awt.BorderLayout;
@@ -129,7 +133,6 @@ public class GUITabPane extends JPanel implements ActionListener {
             return button;
         }
     }
-
     // <editor-fold defaultstate="collapsed" desc="Demo">
     /**
      * Для проверки - демо.
@@ -137,42 +140,42 @@ public class GUITabPane extends JPanel implements ActionListener {
      */
     /*
     public static void main(String[] args) {
-
-        JFrame frm = new JFrame();
-        frm.setLayout(new BorderLayout());
-        frm.setPreferredSize(new Dimension(500, 500));
-        frm.setPreferredSize(new Dimension(500, 500));
-        frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        GUITabPane tab = new GUITabPane();
-
-        JPanel ptabSource = new JPanel(new MigLayout());
-        ptabSource.setBackground(Color.red);
-        ptabSource.add(new JLabel("Источник"));
-        ptabSource.add(new JTextField(50), "growx");
-        ptabSource.add(new JButton("Выбор"), "wrap");
-        JPanel panelSrcInfo = new JPanel(new MigLayout());
-
-        panelSrcInfo.add(new JLabel("Тип:"));
-        panelSrcInfo.add(new JTextField("не определён"));
-        panelSrcInfo.add(new JLabel("Камера:"));
-        panelSrcInfo.add(new JComboBox(), "wrap");
-        ptabSource.add(panelSrcInfo, "span, grow");
-
-        tab.addTab("Process", ptabSource);
-
-        JPanel ptabState = new JPanel(new MigLayout());
-        tab.addTab("State", ptabState);
-        tab.setEnable(ptabState, false);
-
-        JPanel ptabLog = new JPanel(new MigLayout());
-        tab.addTab("Log", ptabState);
-
-        frm.add(tab, BorderLayout.CENTER);
-        frm.pack();
-
-        frm.setVisible(true);
+    
+    JFrame frm = new JFrame();
+    frm.setLayout(new BorderLayout());
+    frm.setPreferredSize(new Dimension(500, 500));
+    frm.setPreferredSize(new Dimension(500, 500));
+    frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    
+    GUITabPane tab = new GUITabPane();
+    
+    JPanel ptabSource = new JPanel(new MigLayout());
+    ptabSource.setBackground(Color.red);
+    ptabSource.add(new JLabel("Источник"));
+    ptabSource.add(new JTextField(50), "growx");
+    ptabSource.add(new JButton("Выбор"), "wrap");
+    JPanel panelSrcInfo = new JPanel(new MigLayout());
+    
+    panelSrcInfo.add(new JLabel("Тип:"));
+    panelSrcInfo.add(new JTextField("не определён"));
+    panelSrcInfo.add(new JLabel("Камера:"));
+    panelSrcInfo.add(new JComboBox(), "wrap");
+    ptabSource.add(panelSrcInfo, "span, grow");
+    
+    tab.addTab("Process", ptabSource);
+    
+    JPanel ptabState = new JPanel(new MigLayout());
+    tab.addTab("State", ptabState);
+    tab.setEnable(ptabState, false);
+    
+    JPanel ptabLog = new JPanel(new MigLayout());
+    tab.addTab("Log", ptabState);
+    
+    frm.add(tab, BorderLayout.CENTER);
+    frm.pack();
+    
+    frm.setVisible(true);
     }
-    */
+     */
     // </editor-fold>
 }

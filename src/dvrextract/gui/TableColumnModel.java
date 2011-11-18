@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Contacts: dant.it@gmail.com, dokshin@list.ru.
+ */
 package dvrextract.gui;
 
 import java.util.ArrayList;
@@ -58,7 +62,7 @@ public class TableColumnModel extends DefaultTableColumnModel {
         if (maxwidth != -1) {
             col.setMaxWidth(maxwidth);
         }
-        
+
         addColumn(col);
         columnSavedWidth.add(width);
         return col;
@@ -99,4 +103,3 @@ public class TableColumnModel extends DefaultTableColumnModel {
         }
     };
 }
-

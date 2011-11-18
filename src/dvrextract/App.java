@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Contacts: dant.it@gmail.com, dokshin@list.ru.
+ */
 package dvrextract;
 
 import dvrextract.FFMpeg.Cmd;
@@ -264,7 +268,7 @@ public class App {
         public static Cmd getVideoOptions() {
             return videoOptions;
         }
-        
+
         public static Cmd getAudioOptions() {
             return audioOptions;
         }
@@ -285,12 +289,12 @@ public class App {
             timeStart = time;
             App.gui.validateLocks();
         }
-        
+
         public static void setTimeEnd(Date time) {
             timeEnd = time;
             App.gui.validateLocks();
         }
-        
+
         public static void setVideoName(String name) {
             videoName = name;
             setAudioName(Files.getNameWOExt(name) + ".wav");
@@ -312,27 +316,26 @@ public class App {
             videoOptions = opt;
             App.gui.validateLocks();
         }
-        
+
         public static void setAudioOptions(Cmd opt) {
             audioOptions = opt;
             App.gui.validateLocks();
         }
-        
+
         public static void setSubOptions(Cmd opt) {
             subOptions = opt;
             App.gui.validateLocks();
         }
-        
+
         public static void setAudioType(int mode) {
             audioType = mode;
             App.gui.validateLocks();
         }
-        
+
         public static void setSubType(int mode) {
             subType = mode;
             App.gui.validateLocks();
         }
-        
     }
     //public static Date destTimeStart;
     //public static Date destTimeEnd;

@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Contacts: dant.it@gmail.com, dokshin@list.ru.
+ */
 package dvrextract.gui;
 
 import java.awt.Dimension;
@@ -83,7 +87,7 @@ public class JExtComboBox extends JComboBox {
     public int getListItemCount() {
         return items.size();
     }
-    
+
     /**
      * Устанавливает компоненту постоянную ширину.
      * Имеет смысл если заполнение идет в отдельном потоке и необходимо 
@@ -107,7 +111,7 @@ public class JExtComboBox extends JComboBox {
     public ExtItem getSelectedItem() {
         return (ExtItem) super.getSelectedItem();
     }
-    
+
     public void setSelectedId(int id) {
         for (ExtItem i : items) {
             if (i.id == id) {

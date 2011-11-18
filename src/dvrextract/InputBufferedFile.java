@@ -1,3 +1,7 @@
+/*
+ * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Contacts: dant.it@gmail.com, dokshin@list.ru.
+ */
 package dvrextract;
 
 import java.io.FileNotFoundException;
@@ -80,20 +84,20 @@ public class InputBufferedFile {
     public long getPosition() {
         return position;
     }
-    
+
     /**
      * Возвращает смещение в буфере для указанной позиции в файле.
      * @param pos Позиция в файле.
      * @return Позиция в буфере соответсвующая позиции в файле.
      */
     public int getBufferIndex(long pos) throws IOException {
-        int bpos = (int)(pos - bufferPosition);
+        int bpos = (int) (pos - bufferPosition);
         if (bpos < 0 || bpos >= bufferSize) {
-            throw new IOException("Out of buffer: bpos="+bpos+" pos="+pos);
+            throw new IOException("Out of buffer: bpos=" + bpos + " pos=" + pos);
         }
         return bpos;
     }
-    
+
     /**
      * Возвращает байт-буфер для внешних операций с буфером.
      * Например - считывание данных напрямую из буфера (безопасно в пределах 
