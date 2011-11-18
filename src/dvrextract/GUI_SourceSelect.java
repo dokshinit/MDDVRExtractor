@@ -13,7 +13,7 @@ import net.miginfocom.swing.MigLayout;
 
 /**
  * Диалог выбора источника (с запуском сканирования при выборе).
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class GUI_SourceSelect extends GUIDialog implements ActionListener {
 

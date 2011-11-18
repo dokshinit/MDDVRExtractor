@@ -11,7 +11,7 @@ import net.miginfocom.swing.MigLayout;
 /**
  * Табулятор с заголовком из кнопок с состоянием.
  * (штатный уж очень мне не нравился!)
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class GUITabPane extends JPanel implements ActionListener {
 

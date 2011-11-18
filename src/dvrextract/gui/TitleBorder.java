@@ -8,7 +8,7 @@ import javax.swing.border.AbstractBorder;
 
 /**
  * Класс бордюра для титула в секции.
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class TitleBorder extends AbstractBorder {
     protected Color color;

@@ -7,8 +7,7 @@ import javax.swing.table.AbstractTableModel;
 /**
  * Модель табличных данных для списка файлов.
  * Подразумевается, что первый столбец невидимый и используется для системных нужд.
- * 
- * @author Докшин_А_Н
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class FileListModel extends AbstractTableModel {
 

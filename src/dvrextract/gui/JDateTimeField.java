@@ -18,7 +18,7 @@ import javax.swing.text.MaskFormatter;
  * Граф.элемент - Поле ввода даты\времени по маске.
  * В случае, если какие-то поля отсутствуют в маске, то выставляются по 
  * умолчанию (время в 0, дата в 1).
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class JDateTimeField extends JFormattedTextField {
 

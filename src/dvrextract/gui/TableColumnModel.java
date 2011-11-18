@@ -8,8 +8,7 @@ import org.jdesktop.swingx.table.TableColumnExt;
 
 /**
  * Модель колонок таблицы
- *
- * @author Докшин_А_Н
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class TableColumnModel extends DefaultTableColumnModel {
 

@@ -7,8 +7,7 @@ import java.util.TimeZone;
 
 /**
  * Работа с кадрами источника.
- * TODO: Скрыть поля и сделать методы только на чтение? (кроме pos...)
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class Frame {
 

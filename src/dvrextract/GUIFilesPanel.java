@@ -20,7 +20,7 @@ import org.jdesktop.swingx.table.TableColumnExt;
 
 /**
  * Панель со списком файлов-источников.
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class GUIFilesPanel extends JPanel {
 

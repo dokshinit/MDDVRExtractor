@@ -30,7 +30,7 @@ import java.util.Collections;
  * long[16] frameCount;  // Общее кол-во кадров по камерам.
  * <конец файла>
  * -----------------------------------------------------------------------------
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class Files {
 

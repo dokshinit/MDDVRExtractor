@@ -21,7 +21,7 @@ import net.miginfocom.swing.MigLayout;
 
 /**
  * Вкладка "Обработка".
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class GUI_TabProcess extends JPanel implements ActionListener {
 
@@ -86,6 +86,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
         // По умолчанию инициализируется как "простой режим".
         checkExpert = GUI.createCheck("Расширенные настройки", false);
+        checkExpert.addActionListener(GUI_TabProcess.this);
 
         textCam = createText(10);
         textCam.setText(x_NotIndent);
@@ -174,7 +175,6 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         // TODO: В релизе убрать!
         //setVideoDestination("/home/work/files/AZSVIDEO/1/probe1.mkv");
         //dateStart.setText("01.01.2011 00:00:00");
-        checkExpert.addActionListener(GUI_TabProcess.this);
     }
 
     /**

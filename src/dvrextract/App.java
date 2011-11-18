@@ -12,8 +12,8 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 import javax.swing.plaf.metal.OceanTheme;
 
 /**
- *
- * @author lex
+ * Глобальный класс приложения.
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class App {
 

@@ -6,7 +6,7 @@ import javax.swing.JDialog;
 
 /**
  * Диалог приложения (общие настройки и методы).
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class GUIDialog extends JDialog {
 

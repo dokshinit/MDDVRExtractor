@@ -14,7 +14,7 @@ import net.miginfocom.swing.MigLayout;
 
 /**
  * Основное окно приложения.
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class GUI_Main extends GUIFrame implements ActionListener {
 

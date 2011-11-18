@@ -6,7 +6,7 @@ import javax.swing.filechooser.FileFilter;
 
 /**
  * Фильтр по файлам для выбора источника.
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
 
@@ -18,9 +18,9 @@ public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
     public static final SourceFileFilter instHDD = new SourceFileFilter("^da\\d+", "Файлы HDD DVR");
     //
     // Маска фильтрации файлов.
-    private Pattern pattern; 
+    private Pattern pattern;
     // Описание.
-    public String description; 
+    public String description;
 
     /**
      * Конструктор.
@@ -53,7 +53,7 @@ public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
     public String getDescription() {
         return description;
     }
-    
+
     /**
      * Возвращает тип файла.
      * @param f Файл.

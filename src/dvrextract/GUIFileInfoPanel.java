@@ -20,7 +20,7 @@ import util.NumberTools;
 
 /**
  * Панель с информацией о выбранном файле-источнике.
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class GUIFileInfoPanel extends JPanel {
 

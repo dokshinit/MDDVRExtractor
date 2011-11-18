@@ -9,7 +9,7 @@ import javax.swing.Scrollable;
 /**
  * Панель с правилами для скроллирования - только по вертикали, по горизонтали
  * ведёт себя как обычно - подгоняет под ширину (!).
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class JVScrolledPanel extends JPanel implements Scrollable {
 

@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 
 /**
  * Лог для отслеживания ошибок!
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class Err {
 

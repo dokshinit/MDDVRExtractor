@@ -13,7 +13,7 @@ import org.jdesktop.swingx.JXHyperlink;
 
 /**
  * Вкладка "О программе".
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class GUI_TabAbout extends JPanel {
 

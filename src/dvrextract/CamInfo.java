@@ -5,7 +5,7 @@ import java.util.ArrayList;
 /**
  * Информация по камере 
  * (создаётся при сканировании, дополняется при обработке).
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class CamInfo {
 

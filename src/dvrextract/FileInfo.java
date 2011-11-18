@@ -6,10 +6,10 @@ import java.util.Comparator;
 /**
  * Информация о файле-источнике 
  * (заполняется при сканировании, дополняется при обработке).
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class FileInfo {
-    
+
     ////////////////////////////////////////////////////////////////////////////
     // Информация о файле при сканировании.
     ////////////////////////////////////////////////////////////////////////////
@@ -67,7 +67,7 @@ public final class FileInfo {
         frameLast = null;
         startDataPos = 0;
         endDataPos = 0;
-        
+
         p_ParsedCount = 0;
         p_Count = 0;
         p_Size = 0;
@@ -78,7 +78,7 @@ public final class FileInfo {
         p_Skip = new ArrayList<Skip>();
         p_Error = new ArrayList<Error>();
     }
-    
+
     /**
      * Добавляет инфу о камере в список камер файла.
      * @param num Номер камеры.
@@ -91,7 +91,7 @@ public final class FileInfo {
         camInfo.add(i);
         return i;
     }
-    
+
     /**
      * Возвращает инфу по камере файла.
      * @param num Номер камеры.
@@ -137,19 +137,20 @@ public final class FileInfo {
      */
     public class CamData {
         // Номер камеры.
+
         public int camNumber;
         // Отступ в файле до первого ключевого кадра камеры.
-        public long mainFrameOffset; 
+        public long mainFrameOffset;
         // Первый базовый кадр камеры (если=null - значит еще не распознан).
         public Frame mainFrame;
-        
+
         public CamData(int num, long offs, Frame f) {
             camNumber = num;
             mainFrameOffset = offs;
             mainFrame = f;
         }
     }
- 
+
     /**
      * Для учёта пропущенных кадров.
      */

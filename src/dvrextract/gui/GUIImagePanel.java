@@ -8,7 +8,7 @@ import net.miginfocom.swing.MigLayout;
 
 /**
  * Панель содержащая изображение.
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class GUIImagePanel extends JPanel {
 

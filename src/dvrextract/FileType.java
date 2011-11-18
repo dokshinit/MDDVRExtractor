@@ -2,7 +2,7 @@ package dvrextract;
 
 /**
  * Типы обрабатываемых файлов.
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public enum FileType {
 

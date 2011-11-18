@@ -2,7 +2,7 @@ package dvrextract;
 
 /**
  * Интернационализация интерфейса.
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class I10n {
 

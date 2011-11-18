@@ -12,7 +12,7 @@ import javax.swing.text.MaskFormatter;
 
 /**
  * Общие настройки граф.интерфейса.
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class GUI {
 

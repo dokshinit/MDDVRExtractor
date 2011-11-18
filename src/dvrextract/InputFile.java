@@ -6,7 +6,7 @@ import java.io.RandomAccessFile;
 
 /**
  * Низкоуровневые операции с файлом-источником.
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class InputFile {
 

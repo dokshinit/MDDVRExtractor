@@ -9,7 +9,7 @@ import java.io.OutputStream;
 
 /**
  * Сохранение сырых данных в файл.
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class OutputFile {
 

@@ -4,7 +4,7 @@ import javax.swing.JOptionPane;
 
 /**
  * Класс для запуска задач.
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class Task {
 

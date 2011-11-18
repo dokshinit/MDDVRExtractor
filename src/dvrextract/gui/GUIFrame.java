@@ -5,7 +5,7 @@ import javax.swing.JFrame;
 
 /**
  * Фрейм приложения (общие настройки и методы).
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class GUIFrame extends JFrame {
 

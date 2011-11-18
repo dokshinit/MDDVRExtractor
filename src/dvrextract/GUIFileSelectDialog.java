@@ -11,7 +11,7 @@ import javax.swing.UIManager;
 
 /**
  * Диалог выбора файла/каталога (для чтения/записи).
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class GUIFileSelectDialog extends GUIDialog {
 

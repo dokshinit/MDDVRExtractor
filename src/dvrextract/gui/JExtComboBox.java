@@ -26,7 +26,7 @@ import javax.swing.*;
  * b.showData();
  * 
  * </pre>
- * @author Докшин_А_Н
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class JExtComboBox extends JComboBox {
 

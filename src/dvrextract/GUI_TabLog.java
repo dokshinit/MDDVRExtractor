@@ -6,7 +6,7 @@ import javax.swing.JPanel;
 
 /**
  * Вкладка "Лог".
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class GUI_TabLog extends JPanel {
 

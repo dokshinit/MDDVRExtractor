@@ -15,7 +15,7 @@ import net.miginfocom.swing.MigLayout;
 
 /**
  * Вкладка "Источник".
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class GUI_TabSource extends JPanel implements ActionListener {
 
@@ -41,10 +41,12 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
     public GUI_TabSource() {
         textSource = GUI.createText(300);
         buttonSource = GUI.createButton(x_Select);
+        buttonSource.addActionListener(GUI_TabSource.this);
         textType = GUI.createText(x_NotIndent, 10);
         comboCam = GUI.createCombo();
         comboCam.addItem(0, x_NotSelect);
         comboCam.showData();
+        comboCam.addActionListener(GUI_TabSource.this);
 
         infoPanel = new GUIFileInfoPanel();
         filesPanel = new GUIFilesPanel(infoPanel);
@@ -60,7 +62,6 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
         add(textSource, "growx, span, split 2");
         textSource.setEditable(false);
         add(buttonSource, "wrap");
-        buttonSource.addActionListener(this);
 
         // Отображение типа источника.
         add(GUI.createLabel(x_Type), "right");
@@ -71,7 +72,6 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
         // Выбор камеры для обработки.
         add(GUI.createLabel(x_Cam), "gapleft 20");
         add(comboCam, "w 110, wrap");
-        comboCam.addActionListener(this);
 
         JPanel panel = new JPanel(new BorderLayout());
         add(panel, "span, grow");

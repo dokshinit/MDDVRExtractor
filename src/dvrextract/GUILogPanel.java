@@ -19,8 +19,8 @@ import org.jdesktop.swingx.table.TableColumnExt;
 
 /**
  * Панель для вывода логов.
- * TODO Реализовать просмотр/копирование содержимого ячейки в буфер (?).
- * @author Докшин_А_Н
+ * TODO: Реализовать просмотр/копирование содержимого ячейки в буфер (?).
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class GUILogPanel extends JPanel {
 

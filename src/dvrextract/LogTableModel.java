@@ -5,8 +5,7 @@ import javax.swing.table.AbstractTableModel;
 
 /**
  * Модель табличных данных адаптированная для работы с БД
- *
- * @author Докшин_А_Н
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class LogTableModel extends AbstractTableModel {
 

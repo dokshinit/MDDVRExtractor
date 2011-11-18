@@ -11,8 +11,7 @@ import javax.swing.Timer;
  * Класс, обеспечивающий отработку события двойного клика мышкой.
  * Для JTable - срабатывает только если ячейка ридонли (иначе вызывается
  * редактирование)!
- *
- * @author Докшин_А_Н
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class ExtMouseAdapter extends MouseAdapter implements ActionListener {
 

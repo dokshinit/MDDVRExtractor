@@ -16,7 +16,7 @@ import javax.imageio.ImageIO;
 
 /**
  * Класс для работы с функционалом FFMpeg.
- * @author lex
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class FFMpeg {
 
@@ -148,8 +148,8 @@ public final class FFMpeg {
                 in.read(ba, frame.videoSize);
                 in.close();
                 Dimension d = info.frameFirst.getResolution();
-                
-                Cmd cmd = new Cmd("-dframes","1","-r","1", "-s", ""+d.width + "x" + d.height, "-i", "-", "-f", "image2", "-");
+
+                Cmd cmd = new Cmd("-dframes", "1", "-r", "1", "-s", "" + d.width + "x" + d.height, "-i", "-", "-f", "image2", "-");
                 pr = Runtime.getRuntime().exec(cmd.getArray());
                 InputStream is = pr.getInputStream();
                 OutputStream os = pr.getOutputStream();

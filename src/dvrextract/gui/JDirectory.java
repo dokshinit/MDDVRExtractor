@@ -14,8 +14,7 @@ import org.jdesktop.swingx.table.TableColumnExt;
 
 /**
  * GUI компонент для отображения типового справочника.
- *
- * @author Докшин_А_Н
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class JDirectory extends JPanel {
 
