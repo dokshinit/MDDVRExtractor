@@ -24,7 +24,7 @@ public class App {
     /**
      * Версия программы.
      */
-    public static final String version = "0.9b3";
+    public static final String version = "1.0rc1";
     /**
      * Максимальное кол-во обрабатываемых камер.
      */
