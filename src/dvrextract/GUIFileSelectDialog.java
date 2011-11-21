@@ -19,26 +19,38 @@ import javax.swing.UIManager;
  */
 public class GUIFileSelectDialog extends GUIDialog {
 
+    /**
+     * Компонент выбора файла.
+     */
+    private FileChooser fileChooser;
+    /**
+     * Цель диалога.
+     */
+    private Target target;
+    /**
+     * Режим диалога.
+     */
+    private Mode mode;
+    /**
+     * Текстовые ресурсы для интерфейса.
+     */
     public static String x_Cancel, x_CancelSelect, x_DatailView, x_Date,
             x_Detail, x_Fefresh, x_FileName, x_FileType, x_GoUp, x_Home, x_List,
             x_ListView, x_Name, x_Path, x_Select, x_SelectFile, x_Size, x_View,
             x_CantCreate, x_Error, x_NotFound;
-    //
-    // Компонент выбора файла.
-    private FileChooser fileChooser;
-    // Цель диалога.
-    private Target target;
-    // Режим диалога.
-    private Mode mode;
 
     /**
      * Цель вызова диалога
      */
     public static enum Target {
 
-        // Выбор существующего файла/каталога.
+        /**
+         * Выбор существующего файла/каталога.
+         */
         EXIST_ONLY,
-        // Создание нового файла/перезапись существующего.
+        /**
+         * Создание нового файла/перезапись существующего.
+         */
         NEW_OR_EXIST
     }
 
@@ -47,17 +59,41 @@ public class GUIFileSelectDialog extends GUIDialog {
      */
     public static enum Mode {
 
+        /**
+         * Только каталоги.
+         */
         DIR(JFileChooser.DIRECTORIES_ONLY),
+        /**
+         * Только файлы.
+         */
         FILE(JFileChooser.FILES_ONLY),
+        /**
+         * Файлы и каталоги.
+         */
         ALL(JFileChooser.FILES_AND_DIRECTORIES);
-        // ID соответствующий режиму JFileChooser.
+        /**
+         * ID соответствующий режиму JFileChooser.
+         */
         public int id;
 
-        Mode(int id) {
+        /**
+         * Конструктор.
+         * @param id Код режима.
+         */
+        private Mode(int id) {
             this.id = id;
         }
     }
 
+    /**
+     * Конструктор.
+     * @param owner Компонент-владелец диалога (null - без владельца).
+     * @param title Название.
+     * @param filename Начальное имя файла\каталога.
+     * @param defname Имя файла\каталога\маски по умолчанию (если filename не задано).
+     * @param target Тип цели.
+     * @param mode Режим работы.
+     */
     protected GUIFileSelectDialog(Window owner, String title, String filename, String defname, Target target, Mode mode) {
         super(owner);
 
@@ -115,12 +151,14 @@ public class GUIFileSelectDialog extends GUIDialog {
 
     /**
      * Вызывается при инициализации, до выбора тек.файла.
+     * @param fc Передача компонента выбора файла.
      */
     public void fireInit(FileChooser fc) {
     }
 
     /**
      * Вызывается при выборе файла.
+     * @param fc Передача компонента выбора файла.
      * @exception CancelActionExeption Вызывается при необходимости отмены действия.
      */
     public void fireApply(FileChooser fc) throws CancelActionExeption {
@@ -128,11 +166,15 @@ public class GUIFileSelectDialog extends GUIDialog {
 
     /**
      * Вызывается при отмене выбора.
+     * @param fc Передача компонента выбора файла.
      * @exception CancelActionExeption Вызывается при необходимости отмены действия.
      */
     public void fireCancel(FileChooser fc) throws CancelActionExeption {
     }
 
+    /**
+     * Расширение компонента выбора файла.
+     */
     protected class FileChooser extends JFileChooser {
 
         @Override

@@ -14,16 +14,25 @@ import javax.swing.filechooser.FileFilter;
  */
 public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
 
-    // Общий фильтр для всех типов файлов.
+    /**
+     * Общий фильтр для всех типов файлов.
+     */
     public static final SourceFileFilter instALL = new SourceFileFilter("(.+\\.exe$|^da\\d+)", "Все файлы DVR");
-    // Фильтр для EXE файлов.
+    /**
+     * Фильтр для EXE файлов.
+     */
     public static final SourceFileFilter instEXE = new SourceFileFilter(".+\\.exe$", "Файлы EXE-архивы DVR");
-    // Фильтр для HDD файлов.
+    /**
+     * Фильтр для HDD файлов.
+     */
     public static final SourceFileFilter instHDD = new SourceFileFilter("^da\\d+", "Файлы HDD DVR");
-    //
-    // Маска фильтрации файлов.
+    /**
+     * Маска фильтрации файлов.
+     */
     private Pattern pattern;
-    // Описание.
+    /**
+     * Описание.
+     */
     public String description;
 
     /**
@@ -77,7 +86,7 @@ public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
 
     /**
      * Возвращает тип файла.
-     * @param f Файл.
+     * @param name Имя файла.
      * @return Тип файла.
      */
     public static FileType getType(String name) {

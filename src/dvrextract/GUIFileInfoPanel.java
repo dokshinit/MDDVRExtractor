@@ -28,30 +28,71 @@ import util.NumberTools;
  */
 public final class GUIFileInfoPanel extends JPanel {
 
+    /**
+     * Скролл для всей инфо-панели (добавляется в панель - единственный компонет в ней).
+     */
+    private JScrollPane scrollPane;
+    /**
+     * Панель со всей информацией (добавляется в скролл).
+     */
+    private JPanel panelInfo;
+    /**
+     * Панель изображения-стопкадра с камеры.
+     */
+    private GUIImagePanel panelImage;
+    ////////////////////////////////////////////////////////////////////////////
+    // Информация о файле
+    ////////////////////////////////////////////////////////////////////////////
+    /**
+     * Полное имя.
+     */
+    private JTextField textName;
+    /**
+     * Размер в байтах.
+     */
+    private JTextField textSize;
+    /**
+     * Тип.
+     */
+    private JTextField textType;
+    /**
+     * Список номеров камер информация с которых содержится в файле.
+     */
+    private JTextField textCams;
+    /**
+     * Разрешение видео.
+     */
+    private JTextField textResolution;
+    /**
+     * Частота кадров в секунду.
+     */
+    private JTextField textFPS;
+    /**
+     * Время в первом кадре файла.
+     */
+    private JTextField textFirstTime;
+    /**
+     * Время в последнем кадре файла.
+     */
+    private JTextField textLastTime;
+    /**
+     * Продолжительность видео (оценочная - как разница между концом и началом!).
+     */
+    private JTextField textAmountTime;
+    /**
+     * Текущая отображаемая информация о файле.
+     */
+    private FileInfo curInfo;
+    /**
+     * Форматер для времени выводимого в инфе.
+     */
+    private static SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+    /**
+     * Текстовые ресурсы для интерфейса.
+     */
     public static String x_Cams, x_Duration, x_DurationFormat, x_End,
             x_FirstKeyFrame, x_Freq, x_FreqFormat, x_HintChangeZoom, x_NO,
             x_Name, x_Resolution, x_ResolutionFormat, x_Size, x_Start, x_Type;
-    //
-    // Скролл для всей инфо-панели (добавляется в панель - единственный компонет в ней).
-    private JScrollPane scrollPane;
-    // Панель со всей информацией (добавляется в скролл).
-    private JPanel panelInfo;
-    // Панель изображения с камеры.
-    private GUIImagePanel panelImage;
-    // Поля для отображения информации о файле.
-    private JTextField textName;
-    private JTextField textSize;
-    private JTextField textType;
-    private JTextField textCams;
-    private JTextField textResolution;
-    private JTextField textFPS;
-    private JTextField textFirstTime;
-    private JTextField textLastTime;
-    private JTextField textAmountTime;
-    // Текущая отображаемая информация о файле.
-    private FileInfo curInfo;
-    // Форматер для времени выводимого в инфе.
-    private static SimpleDateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
 
     /**
      * Конструктор.
@@ -136,14 +177,14 @@ public final class GUIFileInfoPanel extends JPanel {
                     Dimension d = info.frameFirst.getResolution();
                     textResolution.setText(String.format(x_ResolutionFormat, d.width, d.height));
                     textFPS.setText(String.format(x_FreqFormat, info.frameFirst.fps));
-                    textFirstTime.setText(df.format(info.frameFirst.time));
+                    textFirstTime.setText(dateFormat.format(info.frameFirst.time));
                 } else {
                     textResolution.setText("");
                     textFPS.setText("");
                     textFirstTime.setText("");
                 }
                 if (info.frameLast != null) {
-                    textLastTime.setText(df.format(info.frameLast.time));
+                    textLastTime.setText(dateFormat.format(info.frameLast.time));
                 } else {
                     textLastTime.setText("");
                 }
@@ -171,9 +212,14 @@ public final class GUIFileInfoPanel extends JPanel {
         long ms = (period - h * 3600 * 1000 - m * 60 * 1000 - s * 1000);
         return String.format(x_DurationFormat, h, m, s, ms);
     }
-    // Размер картинки: true - маленький (x=352,y-сжат), false - полный кадр.
+    /** 
+     * Текущий размер картинки: true - маленький (x=352,y-сжат), false - полный кадр.
+     */
     private boolean isSmallView = true;
 
+    /**
+     * Актуализация размера отображения стопкадра.
+     */
     public void setImageSize() {
         int x = 704, y = 576;
         if (curInfo != null) {
@@ -194,6 +240,9 @@ public final class GUIFileInfoPanel extends JPanel {
         panelImage.revalidate();
     }
 
+    /**
+     * Адаптер для обработка нажатий кнопок мыши на изображении с камеры.
+     */
     private class ImageMouseAdapter extends MouseAdapter {
 
         @Override

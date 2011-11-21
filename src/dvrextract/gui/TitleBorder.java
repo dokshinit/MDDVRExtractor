@@ -11,13 +11,20 @@ import java.awt.Insets;
 import javax.swing.border.AbstractBorder;
 
 /**
- * Класс бордюра для титула в секции.
+ * Класс окантовки для панелей названий в группах.
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class TitleBorder extends AbstractBorder {
 
+    /**
+     * Цвет окантовки.
+     */
     protected Color color;
 
+    /**
+     * Конструктор.
+     * @param c Цвет окантовки.
+     */
     public TitleBorder(Color c) {
         color = c;
     }

@@ -21,6 +21,10 @@ public class GUIDialog extends JDialog {
         this(null);
     }
 
+    /**
+     * Конструктор.
+     * @param owner Владелец.
+     */
     public GUIDialog(Window owner) {
         super(owner);
         setModal(true);

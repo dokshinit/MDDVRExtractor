@@ -40,7 +40,7 @@ public enum FileType {
      * @param id Код.
      * @param title Название.
      */
-    FileType(int id, String title) {
+    private FileType(int id, String title) {
         this.id = id;
         this.title = title;
     }

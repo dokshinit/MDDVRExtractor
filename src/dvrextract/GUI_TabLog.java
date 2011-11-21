@@ -14,7 +14,9 @@ import javax.swing.JPanel;
  */
 public final class GUI_TabLog extends JPanel {
 
-    // Панель лога.
+    /**
+     * Панель лога.
+     */
     private GUILogPanel logPanel;
 
     /**

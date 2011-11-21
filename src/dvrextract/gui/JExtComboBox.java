@@ -28,13 +28,14 @@ import javax.swing.*;
  * 
  * JModeComboBox b = new JModeComboBox();
  * b.showData();
- * 
  * </pre>
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class JExtComboBox extends JComboBox {
 
-    // Объекты записей списка.
+    /**
+     * Объекты записей списка.
+     */
     protected ArrayList<ExtItem> items;
 
     /**
@@ -112,6 +113,10 @@ public class JExtComboBox extends JComboBox {
         return (ExtItem) super.getSelectedItem();
     }
 
+    /**
+     * Установка текущего выбранного элемента по его коду.
+     * @param id Код.
+     */
     public void setSelectedId(int id) {
         for (ExtItem i : items) {
             if (i.id == id) {
@@ -127,10 +132,14 @@ public class JExtComboBox extends JComboBox {
      */
     public static class ExtItem {
 
-        // Код.
+        /**
+         * Код.
+         */
         public int id;
-        // Объект (обязательно должен иметь текстовое представление, которое 
-        // будет отображаться в списке!).
+        /**
+         * Объект (обязательно должен иметь текстовое представление, которое 
+         * будет отображаться в списке!).
+         */
         public Object object;
 
         /**

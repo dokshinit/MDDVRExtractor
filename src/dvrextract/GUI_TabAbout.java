@@ -21,11 +21,29 @@ import org.jdesktop.swingx.JXHyperlink;
  */
 public final class GUI_TabAbout extends JPanel {
 
-    private static final TitleBorder titleBorder = new TitleBorder(new Color(0x404080));
-    private static final Color panelBg = new Color(0xfffef6);
-    private static final Color titleBg = new Color(0xBFCFFF);
-    private static final Color scrollBg = new Color(0xe8e5d9);
+    /**
+     * Окантовка панели названия группы.
+     */
+    private static final TitleBorder groupTitleBorder = new TitleBorder(new Color(0x404080));
+    /**
+     * Цвет фона панели группы.
+     */
+    private static final Color groupBackground = new Color(0xfffef6);
+    /**
+     * Цвет фона панели названия группы.
+     */
+    private static final Color groupTitleBackground = new Color(0xBFCFFF);
+    /**
+     * Цвет фона подложки.
+     */
+    private static final Color scrollBackground = new Color(0xe8e5d9);
+    /**
+     * Скролл для всей закладки (добавляется в панель - единственный компонет в ней).
+     */
     private JScrollPane scroll;
+    /**
+     * Панель скролируемая только вертикально (добавляется в скролл).
+     */
     private JVScrolledPanel panel;
 
     /**
@@ -34,19 +52,25 @@ public final class GUI_TabAbout extends JPanel {
     public GUI_TabAbout() {
     }
 
-    private JPanel addPanel(String s, String pBcond) {
+    /**
+     * Добавляет панель группы и возвращает ссылку на панель контента группы.
+     * @param title Название группы.
+     * @param bodyConditions Дополнительные параметры геометрии панели контента.
+     * @return Ссылка на панель контента группы.
+     */
+    private JPanel addPanel(String title, String bodyConditions) {
         JPanel p = new JPanel(new MigLayout("ins 0", "grow", "[]5[]"));
-        p.setBackground(panelBg);
+        p.setBackground(groupBackground);
 
         JPanel pT = new JPanel(new MigLayout("ins 3", "grow"));
         JLabel l;
-        pT.add(l = GUI.createLabel("<html><font color=#4040BF style='font-size: 16pt; font-weight: bold'>" + s + "</font></html>"), "center");
+        pT.add(l = GUI.createLabel("<html><font color=#4040BF style='font-size: 16pt; font-weight: bold'>" + title + "</font></html>"), "center");
 
-        pT.setBorder(titleBorder);
-        pT.setBackground(titleBg);
+        pT.setBorder(groupTitleBorder);
+        pT.setBackground(groupTitleBackground);
 
-        JPanel pB = new JPanel(new MigLayout("ins 0", pBcond));
-        pB.setBackground(panelBg);
+        JPanel pB = new JPanel(new MigLayout("ins 0", bodyConditions));
+        pB.setBackground(groupBackground);
 
         p.add(pT, "growx, wrap");
         p.add(pB, "gapleft 15, gapright 15, gapbottom 5, growx");
@@ -54,17 +78,36 @@ public final class GUI_TabAbout extends JPanel {
         return pB;
     }
 
-    private void addLine(JPanel p, String s1, String s2) {
-        p.add(GUI.createLabel("<html><b>" + s1 + "</b></html>"), "top");
-        p.add(GUI.createLabel("<html>" + s2 + "</html>"), "top, wrap");
+    /**
+     * Добавляет на панель парный текстовый элемент - заголовок + текст.
+     * @param panel Панель.
+     * @param head Заголовок.
+     * @param text Текст.
+     */
+    private void addLine(JPanel panel, String head, String text) {
+        panel.add(GUI.createLabel("<html><b>" + head + "</b></html>"), "top");
+        panel.add(GUI.createLabel("<html>" + text + "</html>"), "top, wrap");
     }
 
-    private void addLine(JPanel p, String s) {
-        p.add(GUI.createLabel("<html>" + s + "</html>"), "spanx, left, top, wrap");
+    /**
+     * Добавляет на панель одиночный текстовый элемент.
+     * @param panel Панель.
+     * @param text Текст.
+     */
+    private void addLine(JPanel panel, String text) {
+        panel.add(GUI.createLabel("<html>" + text + "</html>"), "spanx, left, top, wrap");
     }
 
-    class Link extends JXHyperlink {
+    /**
+     * Расширение ссылки.
+     */
+    private class Link extends JXHyperlink {
 
+        /**
+         * Конструктор.
+         * @param title Название (как будет выглядеть).
+         * @param url Адрес ссылки.
+         */
         Link(String title, String url) {
             super();
             setURI(URI.create(url));
@@ -84,7 +127,7 @@ public final class GUI_TabAbout extends JPanel {
         panel = new JVScrolledPanel(new MigLayout("ins 20, gap 10", "grow"));
         panel.setOpaque(false);
         scroll = new JScrollPane(panel);
-        scroll.getViewport().setBackground(scrollBg);
+        scroll.getViewport().setBackground(scrollBackground);
         add(scroll, "grow");
         //scroll.setBorder(new LineBorder(new Color(0xA0A0C0)));
 

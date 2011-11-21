@@ -17,9 +17,13 @@ import java.io.OutputStream;
  */
 public class OutputFile {
 
-    // Имя файла.
+    /**
+     * Имя файла.
+     */
     private String name;
-    // Поток файла.
+    /**
+     * Поток файла.
+     */
     private OutputStream fout;
 
     /**

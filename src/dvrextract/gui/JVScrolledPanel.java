@@ -17,10 +17,17 @@ import javax.swing.Scrollable;
  */
 public class JVScrolledPanel extends JPanel implements Scrollable {
 
+    /**
+     * Конструктор.
+     */
     public JVScrolledPanel() {
         super();
     }
 
+    /**
+     * Конструктор.
+     * @param layout Менеджер раскладки.
+     */
     public JVScrolledPanel(LayoutManager layout) {
         super(layout);
     }

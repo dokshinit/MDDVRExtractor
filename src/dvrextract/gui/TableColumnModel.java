@@ -16,15 +16,16 @@ import org.jdesktop.swingx.table.TableColumnExt;
  */
 public class TableColumnModel extends DefaultTableColumnModel {
 
-    // Массив в котором сохраняются предпочитаемые ширины колонок
-    // Используется в механизме изменения размеров компонента (включение и
-    // выключение скроллинга) для корректного растяжения столбцов после
-    // отключения скроллинга
+    /**
+     * Массив в котором сохраняются предпочитаемые ширины колонок
+     * Используется в механизме изменения размеров компонента (включение и
+     * выключение скроллинга) для корректного растяжения столбцов после
+     * отключения скроллинга
+     */
     private ArrayList<Integer> columnSavedWidth;
 
     /**
      * Конструктор
-     * @param tm Ссылка на модель данных таблицы (для связывания с данными)
      */
     public TableColumnModel() {
         columnSavedWidth = new ArrayList<Integer>();
@@ -69,8 +70,8 @@ public class TableColumnModel extends DefaultTableColumnModel {
     }
 
     /**
-     * Сопоставление столбцов и данных (по идентификаторам),
-     * присваивоение индексов.
+     * Сопоставление столбцов и данных (по идентификаторам), присваивоение индексов.
+     * @param model Модель данных таблицы.
      */
     public void linkToData(AbstractTableModel model) {
         TableColumn col = null;
@@ -93,6 +94,9 @@ public class TableColumnModel extends DefaultTableColumnModel {
         columnSavedWidth.clear();
     }
 
+    /**
+     * Компаратор для сортировки столбцов со значениями типа Double.
+     */
     public class DoubleComparator implements Comparator {
 
         @Override

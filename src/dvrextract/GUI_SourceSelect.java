@@ -21,19 +21,31 @@ import net.miginfocom.swing.MigLayout;
  */
 public final class GUI_SourceSelect extends GUIDialog implements ActionListener {
 
+    /**
+     * Отображение пути и имени файла.
+     */
+    private JTextField textSource;
+    /**
+     * Кнопка выбора источника.
+     */
+    private JButton buttonSelect;
+    /**
+     * Отображение типа источника.
+     */
+    private JTextField textType;
+    /**
+     * Отображение списка камер для ограничения сканирования.
+     */
+    private JExtComboBox comboCam;
+    /**
+     * Кнопка сканирования источника - подтверждение выбора.
+     */
+    private JButton buttonScan;
+    /**
+     * Текстовые ресурсы для интерфейса.
+     */
     public static String x_All, x_Cam, x_GoScan, x_Hint, x_NotIndent, x_Select,
             x_Source, x_SourceScan, x_Type, x_SelectSource;
-    //
-    // Отображение пути и имени файла.
-    private JTextField textSource;
-    // Кнопка выбора источника.
-    private JButton buttonSelect;
-    // Отображение типа источника.
-    private JTextField textType;
-    // Отображение списка камер для ограничения сканирования.
-    private JExtComboBox comboCam;
-    // Кнопка сканирования источника - подтверждение выбора.
-    private JButton buttonScan;
 
     /**
      * Конструктор.
@@ -84,10 +96,6 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         textType.setText(SourceFileFilter.getType(textSource.getText()).title);
     }
 
-    /**
-     * Обработка событий нажатий на кнопки.
-     * @param e 
-     */
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == comboCam) {
@@ -123,6 +131,9 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         }
     }
 
+    /**
+     * Задача сканирования источника.
+     */
     private class ScanTask extends Task.Thread {
 
         @Override
@@ -137,6 +148,9 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
      */
     private class SelectDialog extends GUIFileSelectDialog {
 
+        /**
+         * Конструктор.
+         */
         private SelectDialog() {
             super(GUI_SourceSelect.this, x_SelectSource,
                     textSource.getText().trim(), "", Target.EXIST_ONLY, Mode.ALL);

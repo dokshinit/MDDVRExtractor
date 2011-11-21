@@ -28,23 +28,39 @@ import org.jdesktop.swingx.table.TableColumnExt;
  */
 public final class GUIFilesPanel extends JPanel {
 
-    public static String x_End, x_Name, x_Size, x_Start, x_Type;
-    //
-    // Панель - каталог.
+    /**
+     * Панель - каталог.
+     */
     private JFilesDirectory dir;
-    // Номер камеры отображаемых файлов.
+    /**
+     * Номер камеры отображаемых файлов.
+     */
     private int camNumber;
-    // ID полей.
+    /**
+     * ID полей.
+     */
     private static String ID_TYPE, ID_START, ID_END;
-    // Форматтер представления дат.
+    /**
+     * Форматтер представления дат.
+     */
     private static DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-    // Рендер ячеек.
+    /**
+     * Рендер ячеек.
+     */
     private static TableCellRenderer cr = new FilesTableCellRenderer();
-    // Связь на панель отображения инфы выбранного файла.
+    /**
+     * Связь на панель отображения инфы выбранного файла.
+     */
     private GUIFileInfoPanel infoPanel;
+    /**
+     * Текстовые ресурсы для интерфейса.
+     */
+    public static String x_End, x_Name, x_Size, x_Start, x_Type;
 
     /**
      * Конструктор.
+     * @param info Ссылка на связанную панель вывода информации о файле (для 
+     * отображении инфы о файле при выборе файла).
      */
     public GUIFilesPanel(GUIFileInfoPanel info) {
         camNumber = 0;
@@ -96,10 +112,6 @@ public final class GUIFilesPanel extends JPanel {
      * @param info Инфо о файле (при потере выбора = null).
      */
     public void fireSelect(int row, FileInfo info) {
-//            App.log("Select! row=" + row);
-//            if (row >= 0) {
-//                App.log("N=" + row + " name=" + info.fileName);
-//            }
         infoPanel.displayInfo(info);
     }
 
@@ -108,6 +120,11 @@ public final class GUIFilesPanel extends JPanel {
      */
     private class JFilesDirectory extends JDirectory {
 
+        /**
+         * Конструктор.
+         * @param m Модель данных.
+         * @param tm Модель столбцов.
+         */
         public JFilesDirectory(AbstractTableModel m, TableColumnModel tm) {
             super(m, tm);
         }

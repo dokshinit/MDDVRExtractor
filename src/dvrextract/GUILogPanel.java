@@ -28,18 +28,30 @@ import org.jdesktop.swingx.table.TableColumnExt;
  */
 public class GUILogPanel extends JPanel {
 
-    public static String x_Date, x_Message;
-    //
-    // Панель - лог.
+    /**
+     * Панель - лог.
+     */
     private JDirectory dir;
-    // Модель лога.
+    /**
+     * Модель лога.
+     */
     private LogTableModel model;
-    // ID полей.
+    /**
+     * ID полей.
+     */
     private static String ID_DT, ID_TEXT;
-    // Форматтер представления дат.
-    private static DateFormat df = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
-    // Рендер ячеек.
-    private static TableCellRenderer cr = new LogTableCellRenderer();
+    /**
+     * Форматтер представления дат.
+     */
+    private static DateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss");
+    /**
+     * Рендер ячеек.
+     */
+    private static TableCellRenderer cellRender = new LogTableCellRenderer();
+    /**
+     * Текстовые ресурсы для интерфейса.
+     */
+    public static String x_Date, x_Message;
 
     /**
      * Конструктор.
@@ -61,9 +73,9 @@ public class GUILogPanel extends JPanel {
         c = cm.add(model.getColumnName(0), "", 0, 0, 0);
         c.setVisible(false);
         c = cm.add(ID_DT = model.getColumnName(1), x_Date, 150, 150, 150);
-        c.setCellRenderer(cr);
+        c.setCellRenderer(cellRender);
         c = cm.add(ID_TEXT = model.getColumnName(2), x_Message, -1, 150, -1);
-        c.setCellRenderer(cr);
+        c.setCellRenderer(cellRender);
 
         dir = new JDirectory(model, cm);
         JXTable table = dir.getTable();
@@ -125,7 +137,7 @@ public class GUILogPanel extends JPanel {
                 if (id == ID_DT) {
                     r.setHorizontalAlignment(JLabel.CENTER);
                     if (value != null) {
-                        r.setText(df.format((Date) value));
+                        r.setText(dateFormat.format((Date) value));
                     }
                 } else if (id == ID_TEXT) {
                     r.setHorizontalAlignment(JLabel.LEFT);

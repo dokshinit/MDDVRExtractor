@@ -26,13 +26,25 @@ import javax.swing.text.MaskFormatter;
  */
 public class JDateTimeField extends JFormattedTextField {
 
-    // Форматер для преобразований.
+    /**
+     * Форматер для преобразований.
+     */
     private SimpleDateFormat formatDt;
-    // Хранение даты\времени (как эквивалент текстового поля).
+    /**
+     * Хранение даты\времени (как эквивалент текстового поля).
+     */
     private Date time;
-    // Минимальная\максимальная дата (для ограничения диапазона ввода дат).
-    private Date timeMin, timeMax;
-    // Индикатор режима блокирования фокуса при неверном вводе.
+    /**
+     * Минимальная дата (для ограничения диапазона ввода дат).
+     */
+    private Date timeMin;
+    /**
+     * Максимальная дата (для ограничения диапазона ввода дат).
+     */
+    private Date timeMax;
+    /**
+     * Индикатор режима блокирования фокуса при неверном вводе.
+     */
     private boolean isLockFocus;
 
     /**
@@ -224,7 +236,9 @@ public class JDateTimeField extends JFormattedTextField {
             }
         }
     }
-    // ID события изменения значения времени.
+    /**
+     * ID события изменения значения времени.
+     */
     public final static int ID_TIMECHANGE = 1;
 
     /**

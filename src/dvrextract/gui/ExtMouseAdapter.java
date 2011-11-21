@@ -12,20 +12,37 @@ import javax.swing.JTable;
 import javax.swing.Timer;
 
 /**
- * Класс, обеспечивающий отработку события двойного клика мышкой.
+ * Класс, обеспечивающий нормальную отработку события двойного клика мышкой.
  * Для JTable - срабатывает только если ячейка ридонли (иначе вызывается
- * редактирование)!
+ * редактирование)! В отличии от штатного - на срабатывания двойного клика не 
+ * влияет смещение указателя мыши в пределах ячейки (!).
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class ExtMouseAdapter extends MouseAdapter implements ActionListener {
 
-    // Таймаут ожидания второго клика в миллисекундах.
+    /**
+     * Таймаут ожидания второго клика в миллисекундах.
+     */
     private int doubleClickDelay = 300;
-    // Таймер ожидания второго клика.
+    /**
+     * Таймер ожидания второго клика.
+     */
     private Timer timer;
+    /**
+     * Компонент на котором отлавливается событие клика.
+     */
     private Object owner;
+    /**
+     * Текущее кол-во кликов.
+     */
     private int click = 0;
+    /**
+     * Для таблицы - столбец начала клика.
+     */
     private int col = -1;
+    /**
+     * Для таблицы - строка начала клика.
+     */
     private int row = -1;
 
     /**
@@ -42,6 +59,10 @@ public class ExtMouseAdapter extends MouseAdapter implements ActionListener {
         timer.stop();
     }
 
+    /**
+     * Устанока компонента владельца.
+     * @param obj Компонент.
+     */
     private void setOwner(Object obj) {
         owner = obj;
         if (owner != null) {
@@ -53,6 +74,12 @@ public class ExtMouseAdapter extends MouseAdapter implements ActionListener {
         }
     }
 
+    /**
+     * Проверка является ли владелец таблицей и совпадает ли выделенная ячейка
+     * с хранимыми значениям столбца и строки.
+     * @param obj Компонент.
+     * @return Флаг: true - совпадает, false - нет.
+     */
     private boolean checkOwner(Object obj) {
         if (owner == obj) {
             if (owner instanceof JTable) {
@@ -62,19 +89,6 @@ public class ExtMouseAdapter extends MouseAdapter implements ActionListener {
             return true;
         }
         return false;
-    }
-
-    public void show(String s) {
-        System.out.print(s);
-        if (owner != null) {
-            System.out.print(": " + owner.getClass().getName());
-            if (owner instanceof JTable) {
-                System.out.print(" row=" + row + " col=" + col);
-            }
-        } else {
-            System.out.print(": null");
-        }
-        System.out.println();
     }
 
     @Override

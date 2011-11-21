@@ -16,9 +16,13 @@ import net.miginfocom.swing.MigLayout;
  */
 public class GUIImagePanel extends JPanel {
 
-    // Изображение.
+    /**
+     * Изображение.
+     */
     private Image image;
-    // Текстовая метка по центру картинки - выводится когда картинки нет.
+    /**
+     * Текстовая метка по центру картинки - выводится когда картинки нет.
+     */
     private JLabel label;
 
     /**

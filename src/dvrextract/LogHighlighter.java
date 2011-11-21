@@ -15,19 +15,34 @@ import org.jdesktop.swingx.decorator.ComponentAdapter;
  */
 public class LogHighlighter extends AbstractHighlighter {
 
-    // Цвет текста строки с типом ERROR.
+    /**
+     * Цвет текста строки с типом ERROR.
+     */
     private Color errorColor;
-    // Цвет текста строки с типом HIDE.
+    /**
+     * Цвет текста строки с типом HIDE.
+     */
     private Color hideInfoColor;
-    // Цвет текста строки с типом INFO.
+    /**
+     * Цвет текста строки с типом INFO.
+     */
     private Color infoColor;
 
+    /**
+     * Конструктор.
+     */
     public LogHighlighter() {
         errorColor = new Color(0xFF0000);
         hideInfoColor = new Color(0xA0A0A0);
         infoColor = new Color(0x0000FF);
     }
 
+    /**
+     * Подсветка компонента.
+     * @param component Компонент.
+     * @param adapter Адаптер компонента.
+     * @return Обработанный компонент.
+     */
     @Override
     protected Component doHighlight(Component component, ComponentAdapter adapter) {
         Object val = adapter.getValue(1);
@@ -35,11 +50,9 @@ public class LogHighlighter extends AbstractHighlighter {
             if (val.getClass() == Integer.class) {
                 if ((Integer) val < 0) {
                     component.setForeground(errorColor);
-                }
-                if ((Integer) val == 1) {
+                } else if ((Integer) val == 1) {
                     component.setForeground(hideInfoColor);
-                }
-                if ((Integer) val > 1) {
+                } else if ((Integer) val > 1) {
                     component.setForeground(infoColor);
                 }
             }

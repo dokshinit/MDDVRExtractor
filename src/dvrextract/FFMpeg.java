@@ -137,6 +137,13 @@ public final class FFMpeg {
 
         /**
          * Конструктор.
+         * @param name Имя кодека.
+         * @param title Название.
+         * @param isDecode Возможность декодирования.
+         * @param isEncode Возможность кодирования.
+         * @param isVideo Кодек видео.
+         * @param isAudio Кодек аудио.
+         * @param isSub Кодек субтитров.
          */
         public FFCodec(String name, String title, boolean isDecode, boolean isEncode,
                 boolean isVideo, boolean isAudio, boolean isSub) {

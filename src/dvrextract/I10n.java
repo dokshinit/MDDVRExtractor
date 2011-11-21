@@ -10,16 +10,26 @@ package dvrextract;
  */
 public class I10n {
 
-    // Текущий язык интерфейса.
+    /**
+     * Текущий язык интерфейса.
+     */
     private static Lang language;
 
-    // Возможные языки интерфейса.
+    /**
+     * Возможные языки интерфейса.
+     */
     public static enum Lang {
-
+        /**
+         * Русский язык.
+         */
         RU
     }
 
-    public static Lang get() {
+    /**
+     * Возвращает текущий устновленный язык интерфейса.
+     * @return Язык интерфейса.
+     */
+    public static Lang getLanguage() {
         return language;
     }
 
@@ -38,6 +48,10 @@ public class I10n {
         }
     }
 
+    /**
+     * Инициализация графических компонент.
+     * @param lang Язык интерфейса.
+     */
     public static void init(Lang lang) {
 
         // По умолчанию все значения выставляются на русском (переделать на английский?).

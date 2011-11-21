@@ -22,27 +22,41 @@ import org.jdesktop.swingx.table.TableColumnExt;
  */
 public class JDirectory extends JPanel {
 
-    // GUI компонент - таблица.
+    /**
+     * GUI компонент - таблица.
+     */
     protected JXTable table;
-    // GUI компонент - панель прокрутки.
+    /**
+     * GUI компонент - панель прокрутки.
+     */
     protected JScrollPane scroll;
-    // Флаг состояния горизонтальнй прокрутки (вкл/выкл).
+    /**
+     * Флаг состояния горизонтальнй прокрутки (вкл/выкл).
+     */
     protected Boolean scrolled;
-    // Модель столбцов таблицы.
+    /**
+     * Модель столбцов таблицы.
+     */
     protected TableColumnModel columnModel;
-    // Модель данных таблицы.
+    /**
+     * Модель данных таблицы.
+     */
     protected AbstractTableModel tableModel;
-    // Сохраненный режим растягивания столбцов (для восстановления после
-    // выключения скроллинга).
+    /**
+     * Сохраненный режим растягивания столбцов (для восстановления после
+     * выключения скроллинга).
+     */
     protected int savedResizeMode;
 
     /**
      * Конструктор.
+     * @param model Модель данных таблицы.
+     * @param cmodel Модель столбцов таблицы.
      */
-    public JDirectory(AbstractTableModel m, TableColumnModel tm) {
-        tableModel = m;
-        columnModel = tm;
-        tm.linkToData(m); // Обязательно для корректного сопоставления!!!
+    public JDirectory(AbstractTableModel model, TableColumnModel cmodel) {
+        tableModel = model;
+        columnModel = cmodel;
+        cmodel.linkToData(model); // Обязательно для корректного сопоставления!!!
 
         scrolled = false;
         table = new JXTable(tableModel, columnModel);
@@ -110,6 +124,11 @@ public class JDirectory extends JPanel {
     protected void fireEdit(ActionEvent e) {
     }
 
+    /**
+     * Метод вызываемый при выборе строки в таблице.
+     * @param e Событие.
+     * @param l Модель выделения.
+     */
     protected void fireSelect(ListSelectionEvent e, ListSelectionModel l) {
     }
 
@@ -166,34 +185,63 @@ public class JDirectory extends JPanel {
         }
     }
 
+    /**
+     * Возвращает компонент таблицы.
+     * @return Таблица.
+     */
     public JXTable getTable() {
         return table;
     }
 
+    /**
+     * Возвращает скролл компонент.
+     * @return Скролл.
+     */
     public JScrollPane getScroll() {
         return scroll;
     }
 
+    /**
+     * Возвращает модель столбцов таблицы.
+     * @return Модель столбцов таблицы.
+     */
     public TableColumnModel getColumnModel() {
         return columnModel;
     }
 
+    /**
+     * Установка новой модели столбцов таблицы.
+     * @param columnModel Модель столбцов таблицы.
+     */
     public void setColumnModel(TableColumnModel columnModel) {
         this.columnModel = columnModel;
         this.table.setColumnModel(columnModel);
         columnModel.linkToData(tableModel);
     }
 
+    /**
+     * Возвращает модель таблицы.
+     * @return Модель таблицы.
+     */
     public AbstractTableModel getTableModel() {
         return tableModel;
     }
 
+    /**
+     * Установка новой модели данных таблицы.
+     * @param tableModel Модель данных таблицы.
+     */
     public void setTableModel(AbstractTableModel tableModel) {
         this.tableModel = tableModel;
         this.table.setModel(tableModel);
         columnModel.linkToData(tableModel);
     }
 
+    /**
+     * Установка моделей таблицы.
+     * @param tableModel Модель данных.
+     * @param columnModel Модель столбцов.
+     */
     public void setModels(AbstractTableModel tableModel, TableColumnModel columnModel) {
         this.tableModel = tableModel;
         this.table.setModel(tableModel);
@@ -205,7 +253,6 @@ public class JDirectory extends JPanel {
     /**
      * Делает указанную строку таблицы (не модели!!!) видимой в видимом окне 
      * скролла (прокручивает таблицу если нужно).
-     * TODO допилисть чтобы это был номер строки модели!
      * @param index Номер строки.
      */
     public void displayTableRow(int index) {

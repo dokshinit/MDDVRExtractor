@@ -643,9 +643,6 @@ public class DataProcessor {
                         // а продолжение предыдущего, но предыдущего нет, а есть 
                         // предпредыдущий - будет неверным добавлять этот кадр.
                         long time = f.time.getTime();
-//                        App.log("Frame pos=" + pos + " cam=" + f.camNumber
-//                                + " VSz=" + f.videoSize + " ASz=" + f.audioSize
-//                                + " step=" + (time - timeMax));
                         // Отбрасываем кадры, которые ранее последнего записанного кадра 
                         // (направление времени только на увеличение, а т.к. 
                         // дискретность времени в DVR-секунды, то неравенство не строгое!)
@@ -715,11 +712,17 @@ public class DataProcessor {
     //  СУБТИТРЫ
     //
     ////////////////////////////////////////////////////////////////////////////
-    // Время последнего незаписанного субтитра.
+    /**
+     * Время последнего незаписанного субтитра.
+     */
     private static Date subTimeLast = null;
-    // Номер кадра последнего незаписанного субтитра.
+    /**
+     * Номер кадра последнего незаписанного субтитра.
+     */
     private static long subFrameLast;
-    // Кол-во записанных субтитров.
+    /**
+     * Кол-во записанных субтитров.
+     */
     private static long subCount;
 
     /**
@@ -730,7 +733,7 @@ public class DataProcessor {
      * @param shift Сдвиг в миллисекундах (может быть отрицательным).
      * @return Строка времени.
      */
-    static String getFTime(long frames, int shift) {
+    private static String getFTime(long frames, int shift) {
         // Вычисляем время в файле для пред.фрейма.
         long msec1 = (long) ((double) frames * 1000 / fps) + shift;
         long h1 = msec1 / 3600 / 1000;

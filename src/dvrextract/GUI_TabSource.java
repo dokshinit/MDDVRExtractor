@@ -23,21 +23,35 @@ import net.miginfocom.swing.MigLayout;
  */
 public final class GUI_TabSource extends JPanel implements ActionListener {
 
+    /**
+     * Путь к источнику.
+     */
+    private JTextField textSource;
+    /**
+     * Кнопка вызова диалога выбора источника.
+     */
+    private JButton buttonSource;
+    /**
+     * Тип источника.
+     */
+    private JTextField textType;
+    /**
+     * Список камер для выбора.
+     */
+    private JExtComboBox comboCam;
+    /**
+     * Панель списка файлов-источников.
+     */
+    private GUIFilesPanel filesPanel;
+    /**
+     * Панель отображения информации о файле-источнике.
+     */
+    private GUIFileInfoPanel infoPanel;
+    /**
+     * Текстовые ресурсы для интерфейса.
+     */
     public static String x_Cam, x_NotIndent, x_NotSelect, x_Select,
             x_Source, x_Type;
-    //
-    // Путь к источнику.
-    private JTextField textSource;
-    // Кнопка вызова диалога выбора источника.
-    private JButton buttonSource;
-    // Тип источника.
-    private JTextField textType;
-    // Список камер для выбора.
-    private JExtComboBox comboCam;
-    // Панель списка файлов-источников.
-    private GUIFilesPanel filesPanel;
-    // Панель отображения информации о файле-источнике.
-    private GUIFileInfoPanel infoPanel;
 
     /**
      * Конструктор.

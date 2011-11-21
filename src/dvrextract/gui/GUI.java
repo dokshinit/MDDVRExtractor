@@ -23,49 +23,68 @@ public class GUI {
     ////////////////////////////////////////////////////////////////////////////
     // ЦВЕТ
     ////////////////////////////////////////////////////////////////////////////
-    // Цвет фона панелей.
-    public static Color bgPanel = new Color(0xEEEEEE);
-    // Цвет текста панелей.
-    public static Color fgPanel = new Color(0x000000);
-    // Цвет фона кнопок.
-    public static Color bgButton = new Color(0xF8F8F8);
-    // Цвет текста кнопок.
-    public static Color fgButton = new Color(0x000000);
-    // Цвет фона полей ввода при наличии значений.
-    public static Color bgEdit = new Color(0xFFFFFF);
-    // Цвет текста полей ввода при наличии значений.
-    public static Color fgEdit = new Color(0x000000);
-    // Цвет тёмных панелей
-    public static Color bgPanelDark = new Color(0xE0E0E0);
-    // Цвет фона дорожки при отсутствии данных.
-    public static Color colorNoTrack = new Color(0xD0D0D0);
-    // Цвет фона полей ввода при отсутствии значения или ошибке.
-    public static Color colorWrongValue = new Color(0xFFE0E0);
-    // Цвет текстовых надписей.
-    public static Color colorTextFg = new Color(0x404080);
-    // Цвет фона подсказок
-    public static Color colorToolTipBg = new Color(0x7070A0);
-    // Цвет текста подсказок
-    public static Color colorToolTipFg = new Color(0xFFFFFF);
-    // Цвет текста подсказок
-    public static Color colorToolTipBorder = new Color(0x505080);
-    // Цвет фона примечаний.
-    public static Color bgNoteLabel = new Color(0xF8F8FF);
-    // Цвет текста примечаний.
-    public static Color fgNoteLabel = new Color(0x6060F0);
-    //
+    /**
+     * Цвет фона панелей.
+     */
+    public final static Color bgPanel = new Color(0xEEEEEE);
+    /**
+     * Цвет текста панелей.
+     */
+    public final static Color fgPanel = new Color(0x000000);
+    /**
+     * Цвет фона кнопок.
+     */
+    public final static Color bgButton = new Color(0xF8F8F8);
+    /**
+     * Цвет текста кнопок.
+     */
+    public final static Color fgButton = new Color(0x000000);
+    /**
+     * Цвет фона полей ввода при наличии значений.
+     */
+    public final static Color bgEdit = new Color(0xFFFFFF);
+    /**
+     * Цвет текста полей ввода при наличии значений.
+     */
+    public final static Color fgEdit = new Color(0x000000);
+    /**
+     * Цвет фона подсказок.
+     */
+    public final static Color colorToolTipBg = new Color(0x7070A0);
+    /**
+     * Цвет текста подсказок.
+     */
+    public final static Color colorToolTipFg = new Color(0xFFFFFF);
+    /**
+     * Цвет текста подсказок.
+     */
+    public final static Color colorToolTipBorder = new Color(0x505080);
+    /**
+     * Цвет фона примечаний.
+     */
+    public final static Color bgNoteLabel = new Color(0xF8F8FF);
+    /**
+     * Цвет текста примечаний.
+     */
+    public final static Color fgNoteLabel = new Color(0x6060F0);
     ////////////////////////////////////////////////////////////////////////////
-    // Бордюры
+    // Окантовки
     ////////////////////////////////////////////////////////////////////////////
-    // Окантовка текстовых полей.
+    /**
+     * Окантовка текстовых полей.
+     */
     public static Border borderTextField = new CompoundBorder(
             new LineBorder(new Color(0xC0C0C0)),
             new EmptyBorder(3, 3, 3, 3));
-    // Окантовка подсказок.
+    /**
+     * Окантовка подсказок.
+     */
     public static Border borderToolTip = new CompoundBorder(
             new LineBorder(colorToolTipBorder),
             new EmptyBorder(2, 2, 2, 2));
-    // Окантовка примечаний.
+    /**
+     * Окантовка примечаний.
+     */
     public static CompoundBorder borderNoteLabel = new CompoundBorder(
             new LineBorder(new Color(0xE0E0F0)),
             new EmptyBorder(1, 1, 1, 1));

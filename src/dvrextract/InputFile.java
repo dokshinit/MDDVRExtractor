@@ -14,9 +14,13 @@ import java.io.RandomAccessFile;
  */
 public class InputFile {
 
-    // Имя файла.
+    /**
+     * Имя файла.
+     */
     private String name;
-    // Файл с произвольным доступом (из-за EXE и сканирования).
+    /**
+     * Файл с произвольным доступом (из-за EXE и сканирования).
+     */
     private RandomAccessFile in;
 
     /**

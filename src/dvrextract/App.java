@@ -58,15 +58,25 @@ public class App {
      */
     public static class Source {
 
-        // Полное имя файла или каталога.
+        /**
+         * Полное имя файла или каталога.
+         */
         private static String name = "/home/work/files/AZSVIDEO/1/1.exe";
-        // Тип источника: 0-EXE, 1-HDD
+        /**
+         * Тип источника: 0-EXE, 1-HDD
+         */
         private static FileType type = FileType.NO;
-        // Ограничение одной камерой (если = 0 - без ограничений).
+        /**
+         * Ограничение одной камерой (если = 0 - без ограничений).
+         */
         private static int limitedCam = 0;
-        // Текущая выбранная камера для которой отображаются файлы.
+        /**
+         * Текущая выбранная камера для которой отображаются файлы.
+         */
         private static int selectedCam = 0;
-        // Массив разделения источников по камерам.
+        /**
+         * Массив разделения источников по камерам.
+         */
         private static CamInfo[] cams = new CamInfo[MAXCAMS];
 
         /**
@@ -152,25 +162,45 @@ public class App {
      */
     public static class Dest {
 
-        // Дата начала сохраняемого периода.
+        /**
+         * Дата начала сохраняемого периода.
+         */
         private static Date timeStart;
-        // Дата конца сохраняемого периода.
+        /**
+         * Дата конца сохраняемого периода.
+         */
         private static Date timeEnd;
-        // Полное имя файла-приёмника видео.
+        /**
+         * Полное имя файла-приёмника видео.
+         */
         private static String videoName = "";
-        // Полное имя файла-приёмника аудио.
+        /**
+         * Полное имя файла-приёмника аудио.
+         */
         private static String audioName = "";
-        // Полное имя файла-приёмника субтитров.
+        /**
+         * Полное имя файла-приёмника субтитров.
+         */
         private static String subName = "";
-        // Опции ffmpeg для видео.
+        /**
+         * Опции ffmpeg для видео.
+         */
         private static Cmd videoOptions = new Cmd(false);
-        // Опции ffmpeg для аудио.
+        /**
+         * Опции ffmpeg для аудио.
+         */
         private static Cmd audioOptions = new Cmd(false);
-        // Опции ffmpeg для субтитров.
+        /**
+         * Опции ffmpeg для субтитров.
+         */
         private static Cmd subOptions = new Cmd(false);
-        // Режим сохранения аудио: -1-не сохранять, 0-в файл аудио, 1-в файл видео.
+        /**
+         * Режим сохранения аудио: -1-не сохранять, 0-в файл аудио, 1-в файл видео.
+         */
         private static int audioType;
-        // Режим сохранения субтитров: -1-не сохранять, 0-в файл субтитров, 1-в файл видео.
+        /**
+         * Режим сохранения субтитров: -1-не сохранять, 0-в файл субтитров, 1-в файл видео.
+         */
         private static int subType;
 
         /**

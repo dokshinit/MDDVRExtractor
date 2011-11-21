@@ -29,56 +29,101 @@ import net.miginfocom.swing.MigLayout;
  */
 public final class GUI_TabProcess extends JPanel implements ActionListener {
 
+    /**
+     * Выбор вида настроек "Простые" \ "Расширенные".
+     */
+    private JCheckBox checkExpert;
+    /**
+     * Выбранная камера.
+     */
+    private JTextField textCam;
+    /**
+     * Период.
+     */
+    private JDateTimeField dateStart, dateEnd;
+    /**
+     * Кнопка оценки объёмов.
+     */
+    private JButton buttonEstimate;
+    ////////////////////////////////////////////////////////////////////////////
+    /**
+     * Путь к файлу-приёмнику.
+     */
+    private JTextField textDestVideo;
+    /**
+     * Кнопка выбора файла-приёмника видео.
+     */
+    private JButton buttonSelectVideo;
+    /**
+     * Список форматов видео.
+     */
+    private JExtComboBox comboVideoFormat;
+    /**
+     * Список разрешений видео.
+     */
+    private JExtComboBox comboVideoSize;
+    /**
+     * Список ФПС видео.
+     */
+    private JExtComboBox comboVideoFPS;
+    /**
+     * Ручные настройки для кодирования.
+     */
+    private JTextField textVideoCustom;
+    ////////////////////////////////////////////////////////////////////////////
+    /**
+     * Список режима сохранения аудио.
+     */
+    private JExtComboBox comboAudioMode;
+    /**
+     * Путь к файлу-приёмнику-аудио.
+     */
+    private JTextField textDestAudio;
+    /**
+     * Кнопка выбора файла-приёмника аудио.
+     */
+    private JButton buttonSelectAudio;
+    /**
+     * Формат аудио.
+     */
+    private JExtComboBox comboAudioFormat;
+    /**
+     * Ручные настройки для кодирования.
+     */
+    private JTextField textAudioCustom;
+    ////////////////////////////////////////////////////////////////////////////
+    /**
+     * Список режима сохранения субтитров.
+     */
+    private JExtComboBox comboSubMode;
+    /**
+     * Путь к файлу-приёмнику-субтитров.
+     */
+    private JTextField textDestSub;
+    /**
+     * Кнопка выбора файла-приёмника субтитров.
+     */
+    private JButton buttonSelectSub;
+    /**
+     * Список форматов субтитров.
+     */
+    private JExtComboBox comboSubFormat;
+    /**
+     * Скролл для всей закладки (добавляется в панель - единственный компонет в ней).
+     */
+    private JScrollPane scroll;
+    /**
+     * Панель скролируемая только вертикально (добавляется в скролл).
+     */
+    private JVScrolledPanel panel;
+    /**
+     * Текстовые ресурсы для интерфейса.
+     */
     public static String x_Audio, x_Cam, x_Codec, x_CustomOption, x_Evaluate,
             x_File, x_Format, x_FramePerSec, x_Mode, x_NotIndent, x_NotSave,
             x_Period1, x_Period2, x_Select, x_Size, x_Source, x_Sub, x_ToFile,
             x_ToVideo, x_Video, x_WOConvert, x_CalcEnd, x_CalcStart,
             x_SelectDestFile;
-    //
-    // Выбор вида настроек "Простые" \ "Расширенные".
-    private JCheckBox checkExpert;
-    // Выбранная камера.
-    private JTextField textCam;
-    // Период
-    private JDateTimeField dateStart, dateEnd;
-    // Кнопка оценки объёмов.
-    private JButton buttonEstimate;
-    ////////////////////////////////////////////////////////////////////////////
-    // Путь к файлу-приёмнику.
-    private JTextField textDestVideo;
-    // Кнопка выбора файла-приёмника видео.
-    private JButton buttonSelectVideo;
-    // Список форматов видео.
-    private JExtComboBox comboVideoFormat;
-    // Список разрешений видео.
-    private JExtComboBox comboVideoSize;
-    // Список ФПС видео.
-    private JExtComboBox comboVideoFPS;
-    // Ручные настройки для кодирования.
-    private JTextField textVideoCustom;
-    ////////////////////////////////////////////////////////////////////////////
-    // Список режима сохранения аудио.
-    private JExtComboBox comboAudioMode;
-    // Путь к файлу-приёмнику-аудио.
-    private JTextField textDestAudio;
-    // Кнопка выбора файла-приёмника аудио.
-    private JButton buttonSelectAudio;
-    // Формат аудио.
-    private JExtComboBox comboAudioFormat;
-    // Ручные настройки для кодирования.
-    private JTextField textAudioCustom;
-    ////////////////////////////////////////////////////////////////////////////
-    // Список режима сохранения субтитров.
-    private JExtComboBox comboSubMode;
-    // Путь к файлу-приёмнику-субтитров.
-    private JTextField textDestSub;
-    // Кнопка выбора файла-приёмника субтитров.
-    private JButton buttonSelectSub;
-    // Список форматов субтитров.
-    private JExtComboBox comboSubFormat;
-    // Скролл и панель-подложка для всех элементов вкладки.
-    private JScrollPane scroll;
-    private JVScrolledPanel panel;
 
     /**
      * Конструктор.
@@ -212,8 +257,13 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         text.setEditable(false);
         return text;
     }
-    // Константные элементы - вынесены для оптимизации.
+    /**
+     * Окантовка панели названия группы.
+     */
     private static final TitleBorder groupTitleBorder = new TitleBorder(new Color(0x808080));
+    /**
+     * Цвет фона панели названия группы.
+     */
     private static final Color groupTitleBackground = new Color(0xC0C0C0);
 
     /**
@@ -655,16 +705,29 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      */
     public static class Item {
 
-        // Отображаемое название.
+        /**
+         * Отображаемое название.
+         */
         public String title;
-        // Строка с настройками.
+        /**
+         * Строка с настройками.
+         */
         public String name;
 
+        /**
+         * Конструктор.
+         * @param title Отображаемое название.
+         * @param name Имя.
+         */
         public Item(String title, String name) {
             this.title = title;
             this.name = name;
         }
 
+        /**
+         * Конструктор.
+         * @param title Отображаемое название (имя = название).
+         */
         public Item(String title) {
             this.title = title;
             this.name = title;
@@ -681,6 +744,9 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      */
     private class SelectVideoDialog extends GUIFileSelectDialog {
 
+        /**
+         * Конструктор.
+         */
         private SelectVideoDialog() {
             super(App.gui, x_SelectDestFile,
                     textDestVideo.getText().trim(),
@@ -703,6 +769,9 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      */
     private class SelectAudioDialog extends GUIFileSelectDialog {
 
+        /**
+         * Конструктор.
+         */
         private SelectAudioDialog() {
             super(App.gui, x_SelectDestFile,
                     textDestAudio.getText().trim(), "*.wav", Target.NEW_OR_EXIST, Mode.FILE);
@@ -721,6 +790,9 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      */
     private class SelectSubDialog extends GUIFileSelectDialog {
 
+        /**
+         * Конструктор.
+         */
         private SelectSubDialog() {
             super(App.gui, x_SelectDestFile,
                     textDestSub.getText().trim(), "*.srt", Target.NEW_OR_EXIST, Mode.FILE);

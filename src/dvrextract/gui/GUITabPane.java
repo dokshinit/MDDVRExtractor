@@ -19,11 +19,17 @@ import net.miginfocom.swing.MigLayout;
  */
 public class GUITabPane extends JPanel implements ActionListener {
 
-    // Панель закладок.
+    /**
+     * Панель закладок.
+     */
     private JPanel panelBar;
-    // Список всех закладок.
+    /**
+     * Список всех закладок.
+     */
     private ArrayList<Item> items;
-    // Индекс текущей выбранной закладки (в массиве items, если -1 - нет закладок).
+    /**
+     * Индекс текущей выбранной закладки (в массиве items, если -1 - нет закладок).
+     */
     private int index;
 
     /**
@@ -101,11 +107,17 @@ public class GUITabPane extends JPanel implements ActionListener {
      */
     public class Item {
 
-        // Индекс закладки в массиве закладок.
+        /**
+         * Индекс закладки в массиве закладок.
+         */
         private int index;
-        // Содержимое закладки.
+        /**
+         * Содержимое закладки.
+         */
         private Component comp;
-        // Кнопка-селектор закладки.
+        /**
+         * Кнопка-селектор закладки.
+         */
         private JToggleButton button;
 
         /**
@@ -121,61 +133,28 @@ public class GUITabPane extends JPanel implements ActionListener {
             button.addActionListener(GUITabPane.this);
         }
 
+        /**
+         * Возвращает индекс закладки.
+         * @return Индекс.
+         */
         public int getIndex() {
             return index;
         }
 
+        /**
+         * Возвращает содерживмое закладки.
+         * @return Компонент.
+         */
         public Component getComp() {
             return comp;
         }
 
+        /**
+         * Возвращает кнопку закладки.
+         * @return Кнопка закладки.
+         */
         public JToggleButton getButton() {
             return button;
         }
     }
-    // <editor-fold defaultstate="collapsed" desc="Demo">
-    /**
-     * Для проверки - демо.
-     * @param args 
-     */
-    /*
-    public static void main(String[] args) {
-    
-    JFrame frm = new JFrame();
-    frm.setLayout(new BorderLayout());
-    frm.setPreferredSize(new Dimension(500, 500));
-    frm.setPreferredSize(new Dimension(500, 500));
-    frm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-    
-    GUITabPane tab = new GUITabPane();
-    
-    JPanel ptabSource = new JPanel(new MigLayout());
-    ptabSource.setBackground(Color.red);
-    ptabSource.add(new JLabel("Источник"));
-    ptabSource.add(new JTextField(50), "growx");
-    ptabSource.add(new JButton("Выбор"), "wrap");
-    JPanel panelSrcInfo = new JPanel(new MigLayout());
-    
-    panelSrcInfo.add(new JLabel("Тип:"));
-    panelSrcInfo.add(new JTextField("не определён"));
-    panelSrcInfo.add(new JLabel("Камера:"));
-    panelSrcInfo.add(new JComboBox(), "wrap");
-    ptabSource.add(panelSrcInfo, "span, grow");
-    
-    tab.addTab("Process", ptabSource);
-    
-    JPanel ptabState = new JPanel(new MigLayout());
-    tab.addTab("State", ptabState);
-    tab.setEnable(ptabState, false);
-    
-    JPanel ptabLog = new JPanel(new MigLayout());
-    tab.addTab("Log", ptabState);
-    
-    frm.add(tab, BorderLayout.CENTER);
-    frm.pack();
-    
-    frm.setVisible(true);
-    }
-     */
-    // </editor-fold>
 }

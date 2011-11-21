@@ -22,27 +22,53 @@ import net.miginfocom.swing.MigLayout;
  */
 public final class GUI_Main extends GUIFrame implements ActionListener {
 
-    // Строки привязанные к языку.
+    ////////////////////////////////////////////////////////////////////////////
+    // На всех вкладках.
+    ////////////////////////////////////////////////////////////////////////////
+    /**
+     * Строка состояния обработки.
+     */
+    private JTextField textInfo;
+    /**
+     * Запуск\остановка обработки.
+     */
+    private JButton buttonProcess;
+    /**
+     * Прогрес выполнения операции.
+     */
+    private JProgressBar progressBar;
+    ////////////////////////////////////////////////////////////////////////////
+    /**
+     * Закладка "Источник".
+     */
+    public GUI_TabSource tabSource;
+    /**
+     * Закладка "Обработка".
+     */
+    public GUI_TabProcess tabProcess;
+    /**
+     * Закладка "Лог".
+     */
+    public GUI_TabLog tabLog;
+    /**
+     * Закладка "Справка".
+     */
+    public GUI_TabAbout tabAbout;
+    /**
+     * Сосотояние кнопки "Обработка".
+     * Если true - "Отмена" (остановка текущей задачи), false - "Обработка" (запуск обработки).
+     */
+    private boolean cancelState = true;
+    /**
+     * Текстовые ресурсы для интерфейса.
+     */
     public static String x_Confirmation, x_ExitQuest, x_Help, x_Info, x_Log,
             x_No, x_Process, x_Source, x_State, x_Yes, x_Interrupt;
-    //
-    ////////////////////////////////////////////////////////////////////////////
-    // На всех вкладках
-    private JTextField textInfo; // Строка состояния обработки.
-    private JButton buttonProcess; // Запуск\остановка обработки.
-    private JProgressBar progressBar; // Прогрес выполнения операции.
-    ////////////////////////////////////////////////////////////////////////////
-    public GUI_TabSource tabSource;
-    public GUI_TabProcess tabProcess;
-    public GUI_TabLog tabLog;
-    public GUI_TabAbout tabAbout;
-    // Сосотояние кнопки "Обработка".
-    // Если true - "Отмена" (остановка текущей задачи), false - "Обработка" (запуск обработки).
-    private boolean cancelState = true;
 
     /**
      * Создание окна.
      */
+    @SuppressWarnings("ResultOfObjectAllocationIgnored")
     public static void create() {
         if (App.gui == null) {
             new GUI_Main();

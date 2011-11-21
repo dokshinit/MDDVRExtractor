@@ -13,35 +13,70 @@ import javax.swing.table.AbstractTableModel;
  */
 public class LogTableModel extends AbstractTableModel {
 
+    /**
+     * Перечисление типов маркировки строк.
+     */
     public static enum Type {
 
-        // Для маркировки строк с ошибками.
+        /**
+         * Для маркировки строк с ошибками.
+         */
         ERROR,
-        // Для вывода без подсветки (обычный текст).
+        /**
+         * Для вывода без подсветки (обычный текст).
+         */
         TEXT,
-        // Для вывода неактуальной информации слабо подсвеченный текст.
+        /**
+         * Для вывода неактуальной информации слабо подсвеченный текст.
+         */
         HIDE,
-        // Для маркировки строк к предупреждениями или важной информацией.
+        /**
+         * Для маркировки строк к предупреждениями или важной информацией.
+         */
         INFO
     };
 
+    /**
+     * Модель строки.
+     */
     public static class Row {
 
+        /**
+         * Тип маркировки.
+         */
         public Type type;
+        /**
+         * Дата добавления.
+         */
         public Date dt;
+        /**
+         * Текст сообщения.
+         */
         public String text;
 
+        /**
+         * Конструктор.
+         * @param type Тип маркировки.
+         * @param dt Дата добавления.
+         * @param text Текст сообщения.
+         */
         public Row(Type type, Date dt, String text) {
             this.type = type;
             this.dt = dt;
             this.text = text;
         }
     }
-    // Типы столбцов.
+    /**
+     * Типы столбцов.
+     */ 
     private static Class[] colTypes = {Row.class, Date.class, String.class};
-    // Имена столбцов.
+    /**
+     * Имена столбцов.
+     */
     private static String[] colNames = {"ID", "dt", "text"};
-    // Строки.
+    /**
+     * Строки.
+     */ 
     private ArrayList<Row> data;
 
     /**
@@ -134,6 +169,12 @@ public class LogTableModel extends AbstractTableModel {
         return false;
     }
 
+    /**
+     * Добавление строки.
+     * @param type Тип маркировки.
+     * @param dt Дата добавления.
+     * @param text Текст сообщения.
+     */
     public void add(Type type, Date dt, String text) {
         synchronized (data) {
             data.add(new Row(type, dt, text));
@@ -141,6 +182,11 @@ public class LogTableModel extends AbstractTableModel {
         }
     }
 
+    /**
+     * Добавление строки.
+     * @param type Тип маркировки.
+     * @param text Текст сообщения.
+     */
     public void add(Type type, String text) {
         synchronized (data) {
             data.add(new Row(type, new Date(), text));
@@ -169,6 +215,9 @@ public class LogTableModel extends AbstractTableModel {
         }
     }
 
+    /**
+     * Очистка лога.
+     */
     public void removeAll() {
         synchronized (data) {
             int size = data.size();
