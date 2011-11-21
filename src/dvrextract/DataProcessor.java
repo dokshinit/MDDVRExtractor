@@ -25,36 +25,64 @@ import javax.swing.JOptionPane;
 public class DataProcessor {
 
     ////////////////////////////////////////////////////////////////////////////
-    // Основной процесс - обработка видео или всего через именованные потоки.
+    /**
+     * Основной процесс ffmpeg - обработка видео.
+     */
     private static Process processVideo;
-    private static OutputStream processVideoOut;
-    // Процесс для обработки аудио в отдельный файл.
+    /**
+     * Процесс для обработки аудио в отдельный файл.
+     */
     private static Process processAudio;
-    private static OutputStream processAudioOut;
-    // Процесс для обработки субтитров в отдельный файл.
-    //private static Process processSub;
+    /**
+     * Выходной поток для генерации субтитров в файл.
+     */
     private static PrintStream processSubOut;
-    // Процесс для окончательной сборки видеофайла.
+    /**
+     * Процесс для окончательной сборки видеофайла.
+     */
     private static Process processMake;
-    private static OutputStream processMakeOut;
     ////////////////////////////////////////////////////////////////////////////
-    // Текущая инфа о камере.
+    /**
+     * Информация о текущей камере.
+     */
     private static CamInfo camInfo;
-    // Текущий обрабатываемый файл.
+    /**
+     * Информация о текущем обрабатываемом файле.
+     */
     private static FileInfo fileInfo;
-    // Последний обработанный фрейм.
+    /**
+     * Последний обработанный фрейм.
+     */
     private static Frame frame;
     ////////////////////////////////////////////////////////////////////////////
-    // Кол-во распарсеных кадров (кол-во вызовов парсера).
+    /**
+     * Кол-во распарсеных кадров (кол-во вызовов парсера).
+     */
     public static long frameParsedCount;
-    // Кол-во обработанных кадров (сохранённых).
+    /**
+     * Кол-во обработанных кадров (сохранённых).
+     */
     public static long frameProcessCount;
-    // Размер обработанных данных.
+    /**
+     * Размер обработанных данных видео.
+     */
     public static long videoProcessSize;
+    /**
+     * Размер обработанных данных аудио.
+     */
     public static long audioProcessSize;
-    // Минимальное и максимальное время среди обработанных кадров.
-    public static long timeMin, timeMax;
+    /**
+     * Минимальное время среди обработанных кадров.
+     */
+    public static long timeMin;
+    /**
+     * Максимальное время среди обработанных кадров.
+     */
+    public static long timeMax;
     ////////////////////////////////////////////////////////////////////////////
+    /**
+     * Текстовые ресурсы для интерфейса.
+     */
     public static String x_ProcessSource, x_ProcessFile, x_ProcessEnd,
             x_ProcessSourceEnd, x_FinalMakeStart, x_ErrorFinalMakeStart,
             x_FinalMakeStarted, x_FFMpegVideoInputNotFound,
@@ -175,10 +203,10 @@ public class DataProcessor {
 
         try {
             processMake = startProcess(vcmd);
-            processMakeOut = processMake.getOutputStream();
         } catch (IOException ex) {
             throw new FatalException(x_ErrorFinalMakeStart);
         }
+        OutputStream makeOut = processMake.getOutputStream();
 
         msg = x_FinalMakeStarted;
         App.log(msg);
@@ -207,7 +235,7 @@ public class DataProcessor {
                 }
                 int len = (int) Math.min(size - readsize, buf.length);
                 in.read(buf, len);
-                processMakeOut.write(buf, 0, len);
+                makeOut.write(buf, 0, len);
                 readsize += len;
                 // Прогрес.
                 int nnew = (int) (readsize * 500 / size);
@@ -227,17 +255,24 @@ public class DataProcessor {
         // Остановка процесса.
         stopProcess(processMake, "FFMpeg-make", 10000);
         processMake = null;
-        processMakeOut = null;
 
         App.log(x_FinalMakeEnd);
     }
-    // Имена файлов для сохранения аудио и субтитров.
+    /**
+     * Имена файлов для сохранения видео, аудио и субтитров.
+     */
     private static String videoName, audioName, subName;
-    // Флаги сохранения аудио и субтитров.
+    /**
+     * Флаги сохранения аудио и субтитров.
+     */
     private static boolean isAudio, isSub;
-    // Флаги временности файлов.
+    /**
+     * Флаги временности файлов.
+     */
     private static boolean isAudioTemp, isSubTemp;
-    // ФПС на входе.
+    /**
+     * ФПС на входе.
+     */
     private static int fps;
 
     /**
@@ -398,7 +433,6 @@ public class DataProcessor {
         // Стартуем процесс обработки видео.
         try {
             processVideo = startProcess(vcmd);
-            processVideoOut = processVideo.getOutputStream();
         } catch (IOException ex) {
             throw new FatalException(x_ErrorFFMpegVideoStart);
         }
@@ -407,7 +441,6 @@ public class DataProcessor {
         if (isAudio) {
             try {
                 processAudio = startProcess(acmd);
-                processAudioOut = processAudio.getOutputStream();
             } catch (IOException ex) {
                 throw new FatalException(x_ErrorFFMpegAudioStart);
             }
@@ -445,12 +478,10 @@ public class DataProcessor {
         if (processVideo != null) {
             processVideo.destroy();
             processVideo = null;
-            processVideoOut = null;
         }
         if (processAudio != null) {
             processAudio.destroy();
             processAudio = null;
-            processAudioOut = null;
         }
         if (processSubOut != null) {
             processSubOut.close();
@@ -458,7 +489,6 @@ public class DataProcessor {
         }
         if (processMake != null) {
             processMake.destroy();
-            processMake = null;
             processMake = null;
         }
         Object[] options = {x_Delete, x_LeaveAsIs};
@@ -534,9 +564,7 @@ public class DataProcessor {
             processSubOut.close();
         }
         processVideo = null;
-        processVideoOut = null;
         processAudio = null;
-        processAudioOut = null;
         processSubOut = null;
     }
 
@@ -576,6 +604,9 @@ public class DataProcessor {
         try {
             App.gui.startProgress(0, 100);
             App.gui.setProgressText(fileInfo.fileName);
+
+            OutputStream videoOut = processVideo.getOutputStream();
+            OutputStream audioOut = isAudio ? processAudio.getOutputStream() : null;
 
             int cam = App.Source.getSelectedCam();
             Frame f = new Frame(fileInfo.fileType);
@@ -625,10 +656,10 @@ public class DataProcessor {
 
                                 in.read(baFrame, f.videoSize + f.audioSize);
                                 // Пишем видео в поток.
-                                processVideoOut.write(baFrame, 0, f.videoSize);
+                                videoOut.write(baFrame, 0, f.videoSize);
                                 // Пишем аудио в поток.
                                 if (isAudio) {
-                                    processAudioOut.write(baFrame, f.videoSize, f.audioSize);
+                                    audioOut.write(baFrame, f.videoSize, f.audioSize);
                                 }
                                 // Пишем субтитры в поток.
                                 if (isSub) {
@@ -752,6 +783,10 @@ public class DataProcessor {
      */
     public final static class FatalException extends Exception {
 
+        /**
+         * Конструктор.
+         * @param msg Текст сообщения об ошибке.
+         */
         public FatalException(String msg) {
             super(msg);
         }
@@ -762,6 +797,10 @@ public class DataProcessor {
      */
     public final static class SourceException extends Exception {
 
+        /**
+         * Конструктор.
+         * @param msg Текст сообщения об ошибке.
+         */
         public SourceException(String msg) {
             super(msg);
         }

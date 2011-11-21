@@ -24,15 +24,25 @@ import javax.imageio.ImageIO;
  */
 public final class FFMpeg {
 
-    // Список кодеков.
+    /**
+     * Список кодеков.
+     */
     private static final ArrayList<FFCodec> codecs = new ArrayList<FFCodec>();
-    // Паттерн для "парсинга" инфы о кодеке из вывода "ffmpeg -codecs".
-    // Исключаем из списка форматы изображений (image).
+    /**
+     * Паттерн для "парсинга" инфы о кодеке из вывода "ffmpeg -codecs".
+     * Исключаем из списка форматы изображений (image).
+     */
     private static final Pattern patternCodec =
             Pattern.compile("^\\ ([D\\ ])([E\\ ])([VAS])([S\\ ])([D\\ ])([T\\ ])\\ "
             + "(\\w{1,})\\s{1,}((?:[\\S&&[^iJG]]|i(?!mage)|J(?!PEG)|G(?!IF)|\\s){1,})\\s*$");
-    // Наличие нужных для финальной сборки (а также процессинга аудио) кодеков.
+    /**
+     * Флаг наличия нужного кодека для финальной сборки аудио (в видео), 
+     * а также процессинга аудио.
+     */
     public static boolean isAudio_g722 = false;
+    /**
+     * Флаг наличия нужного кодека для финальной сборки субтитров (в видео).
+     */
     public static boolean isSub_srt = false;
 
     /**
@@ -112,11 +122,17 @@ public final class FFMpeg {
      */
     public static class FFCodec {
 
-        // Имя кодека.
+        /**
+         * Имя кодека.
+         */
         public String name;
-        // Название кодека.
+        /**
+         * Название кодека.
+         */
         public String title;
-        // Модификаторы.
+        /**
+         * Модификаторы.
+         */
         public boolean isDecode, isEncode, isVideo, isAudio, isSub;
 
         /**
@@ -183,8 +199,10 @@ public final class FFMpeg {
      * Воспомогательный класс для удобной "постройки" команд для ffmpeg.
      */
     public static class Cmd {
-        // Токены команды (неделимые параметры).
 
+        /**
+         * Токены команды (неделимые параметры).
+         */
         private ArrayList<String> tokens = new ArrayList<String>();
 
         /**

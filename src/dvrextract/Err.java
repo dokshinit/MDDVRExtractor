@@ -16,7 +16,13 @@ import java.util.logging.Logger;
  */
 public final class Err {
 
+    /**
+     * Логгер для ведения лога об исключениях.
+     */
     private static final Logger errLog = Logger.getLogger(App.class.getName());
+    /**
+     * Текстовые ресурсы для интерфейса.
+     */
     public static String x_InitError;
             
     /**
@@ -46,9 +52,7 @@ public final class Err {
 
     /**
      * Вывод исключения в лог (со стеком).
-     * @param src 
-     * @param method
-     * @param ex 
+     * @param ex Исключение.
      */
     public static void log(Throwable ex) {
         if (errLog != null) {

@@ -15,15 +15,22 @@ import javax.swing.table.AbstractTableModel;
  */
 public class FileListModel extends AbstractTableModel {
 
-    // Типы столбцов.
+    /**
+     * Типы столбцов.
+     */
     private static Class[] colTypes = {FileInfo.class, String.class, String.class, Long.class, Date.class, Date.class};
-    // Имена столбцов.
+    /**
+     * Имена столбцов.
+     */
     private static String[] colNames = {"ID", "name", "type", "size", "start", "end"};
-    // Строки.
+    /**
+     * Строки.
+     */
     private final ArrayList<FileInfo> files;
 
     /**
      * Конструктор.
+     * @param cam Номер камеры для которой создаётся модель.
      */
     public FileListModel(int cam) {
         if (cam > 0 && cam <= App.MAXCAMS) {

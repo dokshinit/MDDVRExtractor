@@ -38,15 +38,21 @@ import java.util.Collections;
  */
 public class Files {
 
-    public static String x_BuildFileList, x_FileScaning, x_ScanFinish,
-            x_ScanFinishBreak, x_SourceScaning;
-    //
-    // Размер инфоблока в конце EXE файла.
+    /**
+     * Размер инфоблока в конце EXE файла.
+     */
     private static final int exeInfoSize =
             4 + 4 + 4 * 16 + 8 * 16 * 101 + 4 * 16 * 101
             + 4 + 16 * 4 + 8 + 15 * 8 + 8 + 15 * 8 + 16 * 8;
-    // Список для занесение всех файлов для сканирования.
+    /**
+     * Список для занесение всех файлов для сканирования.
+     */
     private static final ArrayList<File> files = new ArrayList<File>();
+    /**
+     * Текстовые ресурсы для интерфейса.
+     */
+    public static String x_BuildFileList, x_FileScaning, x_ScanFinish,
+            x_ScanFinishBreak, x_SourceScaning;
 
     /**
      * Сканирование источника (с рекурсивным обходом подкаталогов).
@@ -55,6 +61,7 @@ public class Files {
      * распределяются по камерам и в итоге сортируются по возрастанию по времени 
      * первого кадра.
      * @param startpath Источник (файл или каталог).
+     * @param cam Номер камеры по которой жёстко ограничено сканирование.
      */
     public static void scan(String startpath, int cam) {
         // Установка источника.
