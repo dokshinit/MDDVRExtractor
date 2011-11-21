@@ -313,6 +313,9 @@ public class DataProcessor {
      */
     private static Process startProcess(Cmd cmd) throws IOException {
         Process p = Runtime.getRuntime().exec(cmd.getArray());
+        if (App.isWindows) {
+            p.getErrorStream().close(); // Без этого не начинается процессинг в винде!!!
+        }
         int res = 0;
         try {
             res = p.exitValue();
@@ -519,9 +522,6 @@ public class DataProcessor {
             OutputStream out = p.getOutputStream();
             out.flush();
             out.close();
-            if (App.isWindows) {
-                p.getErrorStream().close(); // Без этого не начинается процессинг в винде!!!
-            }
         } catch (IOException ex) {
             Err.log(ex);
         }

@@ -61,7 +61,7 @@ public class App {
         /**
          * Полное имя файла или каталога.
          */
-        private static String name = "/home/work/files/AZSVIDEO/1/1.exe";
+        private static String name = "";
         /**
          * Тип источника: 0-EXE, 1-HDD
          */

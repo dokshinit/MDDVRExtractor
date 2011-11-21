@@ -216,8 +216,12 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
                     buttonProcess.setText(x_Process);
                     cancelState = false;
                 }
-                tabSource.validateLocks();
-                tabProcess.setLocks();
+                if (tabSource != null) {
+                    tabSource.validateLocks();
+                }
+                if (tabProcess != null) {
+                    tabProcess.validateLocks();
+                }
             }
         });
     }

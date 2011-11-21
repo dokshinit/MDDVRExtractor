@@ -491,7 +491,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     /**
      * Выставление блокировок элементов согласно текущему состоянию.
      */
-    public void setLocks() {
+    public void validateLocks() {
         GUI.InSwingLater(new Runnable() {
 
             @Override

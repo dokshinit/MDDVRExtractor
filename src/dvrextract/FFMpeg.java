@@ -157,6 +157,18 @@ public final class FFMpeg {
         }
     }
 
+    static void flushInput(InputStream is) {
+        try {
+            byte[] buffer = new byte[512];
+            int i = 0;
+            while ((i = is.available()) > 0) {
+                int len = Math.min(i, buffer.length);
+                is.read(buffer, 0, len);
+            }
+        } catch (IOException ex) {
+        }
+    }
+
     /**
      * Возвращает изображение из первого ключевого кадра файла для указанной камеры.
      * @param info Инфо о файле.
@@ -166,7 +178,7 @@ public final class FFMpeg {
     public static BufferedImage getFirstFrameImage(FileInfo info, int cam) {
         BufferedImage image = null;
         Frame frame = Files.getFirstMainFrame(info, cam);
-        Process pr = null;
+        Process process = null;
         if (frame != null) {
             try {
                 InputFile in = new InputFile(info.fileName);
@@ -177,25 +189,27 @@ public final class FFMpeg {
                 Dimension d = info.frameFirst.getResolution();
 
                 Cmd cmd = new Cmd("-dframes", "1", "-r", "1", "-s", "" + d.width + "x" + d.height, "-i", "-", "-f", "image2", "-");
-                pr = Runtime.getRuntime().exec(cmd.getArray());
-                InputStream is = pr.getInputStream();
-                OutputStream os = pr.getOutputStream();
+                process = Runtime.getRuntime().exec(cmd.getArray());
+                InputStream is = process.getInputStream();
+                OutputStream os = process.getOutputStream();
+                if (App.isWindows) {
+                    process.getErrorStream().close(); // Без этого не начинается процессинг в винде!!!
+                }
+
                 os.write(ba, 0, ba.length);
                 // Вынуждаем обработать данные (если не закрыть - во вх.потоке 
                 // данные не появляются, даже если делать flush()!).
                 os.flush();
                 os.close();
-                if (App.isWindows) {
-                    pr.getErrorStream().close(); // Без этого не начинается процессинг в винде!!!
-                }
+
                 // Поток тормознут, если exitValue не вызывает исключение!
                 image = ImageIO.read(is);
                 is.close();
             } catch (IOException e) {
                 Err.log(e);
             } finally {
-                if (pr != null) {
-                    pr.destroy(); // На всякий случай.
+                if (process != null) {
+                    process.destroy(); // На всякий случай.
                 }
             }
         }
