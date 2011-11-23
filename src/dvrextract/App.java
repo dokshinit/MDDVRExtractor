@@ -22,6 +22,10 @@ import javax.swing.plaf.metal.OceanTheme;
 public class App {
 
     /**
+     * Дата релиза версии программы.
+     */
+    public static final String versionDate = "23.11.2011";
+    /**
      * Версия программы.
      */
     public static final String version = "1.0rc1";
@@ -512,7 +516,7 @@ public class App {
                 }
             }
         });
-
+        
         //TODO: Два режима работы - графический и консольный?
         /*
          * Ориентировочный синтаксис использования из консоли:
