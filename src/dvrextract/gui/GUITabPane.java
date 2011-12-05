@@ -61,6 +61,14 @@ public class GUITabPane extends JPanel implements ActionListener {
     }
 
     /**
+     * Возвращает панель с кнопками-закладками.
+     * @return Панель кнопок-закладок.
+     */
+    public JPanel getBarPanel() {
+        return panelBar;
+    }
+    
+    /**
      * Включение/выключение закладки (доступна/недоступна).
      * @param comp Содержимое закладки.
      * @param state Устанавливаемый режим доступности.

@@ -423,7 +423,7 @@ public class DataProcessor {
         // Для аудио.
         Cmd acmd = new Cmd();
         if (isAudio) {
-            acmd.add("-f", "g722", "-acodec", "g722", "-ar", "8000", "-ac", "1", "-i", "-");
+            acmd.add("-f", "s16le", "-ar", "8000", "-i", "-");
             acmd.add(App.Dest.getAudioOptions()).add(audioName);
         }
 
@@ -607,6 +607,7 @@ public class DataProcessor {
 
             OutputStream videoOut = processVideo.getOutputStream();
             OutputStream audioOut = isAudio ? processAudio.getOutputStream() : null;
+            OutputFile rawAOut = isAudio ? new OutputFile(fileInfo.fileName + ".audio.raw") : null;
 
             int cam = App.Source.getSelectedCam();
             Frame f = new Frame(fileInfo.fileType);
@@ -625,6 +626,9 @@ public class DataProcessor {
             final byte[] baFrame = new byte[1000000];
             final ByteBuffer bbF = ByteBuffer.wrap(baFrame);
             bbF.order(ByteOrder.LITTLE_ENDIAN);
+
+            final byte[] outAudioFrame = new byte[ADPCM.MAX_PCMFRAME_SIZE];
+            ADPCM decoder = new ADPCM(0x23, baFrame, outAudioFrame);
             int n = 0;
 
             // Идём по кадрам от начала к концу.
@@ -656,7 +660,17 @@ public class DataProcessor {
                                 videoOut.write(baFrame, 0, f.videoSize);
                                 // Пишем аудио в поток.
                                 if (isAudio) {
-                                    audioOut.write(baFrame, f.videoSize, f.audioSize);
+                                    rawAOut.write(baFrame, f.videoSize, f.audioSize);
+                                    for (int np = 0; np < f.audioSize;) {
+                                        int res = decoder.HI_VOICE_Decode(f.videoSize + np, 0);
+                                        if (res == 0) {
+                                            audioOut.write(outAudioFrame, 0, decoder.getOutShift());
+                                            np += decoder.getInShift();
+                                        } else {
+                                            np += 168; // Пропускаем кадр, размер по умолчанию.
+                                            App.log("ErrAudio="+res);
+                                        }
+                                    }
                                 }
                                 // Пишем субтитры в поток.
                                 if (isSub) {
@@ -690,7 +704,8 @@ public class DataProcessor {
             if (isSub) {
                 writeSub(new Date(), true);
             }
-            in.close();
+            rawAOut.closeSafe();
+
             if (App.isDebug) {
                 App.log("Frame parsed = " + frameParsedCount);
                 App.log("Frame processed = " + frameProcessCount);

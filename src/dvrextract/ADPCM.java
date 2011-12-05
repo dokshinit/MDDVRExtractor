@@ -13,242 +13,300 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * Класс для транскодирования аудио DVR в "Signed PCM 16bit LE".
+ * Класс для транскодирования аудио DVR (0x23) в "Signed PCM 16bit LE".
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class ADPCM {
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) throws FileNotFoundException, IOException {
 
-        byte[] g_inBuf = new byte[168];
-        ByteBuffer bi = ByteBuffer.wrap(g_inBuf);
-        bi.order(ByteOrder.LITTLE_ENDIAN);
-        byte[] g_outBuf = new byte[1024];
+        byte[] inB = new byte[1024];
+        ByteBuffer bbi = ByteBuffer.wrap(inB);
+        bbi.order(ByteOrder.LITTLE_ENDIAN);
+        byte[] outB = new byte[1024];
 
         FileInputStream is = new FileInputStream("/home/work/files/DVRVIDEO/audio1.raw");
         File fos = new File("/home/work/files/DVRVIDEO/audio1.pcm");
         fos.delete();
         FileOutputStream os = new FileOutputStream(fos);
 
-        PCM p = new PCM();
-        State state = new State();
-        state.coder = 0x23;
+        ADPCM p = new ADPCM(0x23, inB, outB);
 
         while (true) {
             if (is.available() == 0) {
                 break;
             }
 
-            int len = is.read(g_inBuf, 0, 4);
+            int len = is.read(inB, 0, 4);
             if (len != 4) {
                 System.out.println("Error! Cant read 4b: read = " + len);
                 break;
             }
-            len = bi.get(2) & 0xFF;
+            len = bbi.get(2) & 0xFF;
             if (len > 122) {
                 System.out.println("Error! Len = " + len);
                 break;
             }
-            if (is.read(g_inBuf, 4, len * 2) != len * 2) {
+            if (is.read(inB, 4, len * 2) != len * 2) {
                 System.out.println("Error! Cant read body: read = " + len);
                 break;
             }
-            int res = p.HI_VOICE_Decode(state, g_inBuf, g_outBuf);
-            if (res > 0) {
-                os.write(g_outBuf, 0, res);
+            int res = p.HI_VOICE_Decode(0, 0);
+            if (res == 0) {
+                os.write(p.outBuffer, 0, p.outShift);
+            } else {
+                System.out.println("Error Decode: " + res);
             }
-            //break;
         }
         is.close();
         os.close();
     }
     ////////////////////////////////////////////////////////////////////////////
-    //
-    final int MAX_PCMFRAME_SIZE = 480; // words
-    //
-    byte[] g_inBuf; // Макс.по всем алгоритмам.
-    ByteBuffer g_bi;
-    //
-    byte[] g_outBuf;
-    ByteBuffer g_bo;
-    int idCodec;
+    /**
+     * Константа - максимальный размер фрейма PCM в байтах.
+     */
+    public static final int MAX_PCMFRAME_SIZE = 480 * 2;
+    /**
+     * Ссылка на буфер-источник (кодированные данные).
+     */
+    private byte[] inBuffer;
+    /**
+     * Буфер для байт-преобразований с привязкой ко входному буферу.
+     */
+    private ByteBuffer inBB;
+    /**
+     * Ссылка на буфер-приёмник (декодированные данные - sPCM16le).
+     */
+    private byte[] outBuffer;
+    /**
+     * Буфер для байт-преобразований с привязкой к выходному буферу.
+     */
+    private ByteBuffer outBB;
+    /**
+     * ID алгоритма кодирования.
+     */
+    private final int idCodec;
+    /**
+     * Текущая позиция во входном буфере.
+     */
+    private int inPos;
+    /**
+     * Кол-во "обработанных" байт во входном буфере в процессе декодирования.
+     * Смещение inPos от начальной позиции декодирования.
+     */
+    private int inShift;
+    /**
+     * Текущая позиция в выходном буфере.
+     */
+    private int outPos;
+    /**
+     * Кол-во "обработанных" байт в выходном буфере в процессе декодирования.
+     * Смещение outPos от начальной позиции декодирования.
+     */
+    private int outShift;
+    ////////////////////////////////////////////////////////////////////////////
+    // Для алгоритма.
+    /**
+     * Предыдущее значение 16бит.
+     */
+    private int value;
+    /**
+     * Текущий индекс.
+     */
+    private int index;
+    /**
+     * Длина данных (кол-во 16бит слов).
+     */
+    private int length;
 
     /**
-     * Конструктор. Сопоставляются входной-выходной буферы.
+     * Конструктор. Сопоставляются входной-выходной буферы, сбрасываются 
+     * значения переменных-регистров.
+     * @param codec ID алгоритма кодирования (кодека?).
+     * @param inBuffer Буфер источник.
+     * @param outBuffer Буфер приёмник.
      */
-    ADPCM(int codec, byte[] inBuffer, byte[] outBuffer) {
+    public ADPCM(int codec, byte[] inBuffer, byte[] outBuffer) {
         if (inBuffer == null || outBuffer == null) {
-            throw new Error("Param is null!");
+            throw new Error("Buffers must be not null!");
         }
-        // Более строгое условие на кодек.
-        if (codec != 3 && codec != 23 && codec != 43) {
+        // Более строгое условие на кодек, чем в процедуре декодирования.
+        if (codec != 0x03 && codec != 0x23 && codec != 0x43) {
             throw new Error("Wrong codec ID! (" + codec + ")");
         }
         idCodec = codec;
-        g_inBuf = inBuffer;
-        g_bi = ByteBuffer.wrap(g_inBuf);
-        g_bi.order(ByteOrder.LITTLE_ENDIAN);
-        g_outBuf = outBuffer;
-        g_bo = ByteBuffer.wrap(g_outBuf);
-        g_bo.order(ByteOrder.LITTLE_ENDIAN);
+        this.inBuffer = inBuffer;
+        inBB = ByteBuffer.wrap(this.inBuffer);
+        inBB.order(ByteOrder.LITTLE_ENDIAN);
+        this.outBuffer = outBuffer;
+        outBB = ByteBuffer.wrap(this.outBuffer);
+        outBB.order(ByteOrder.LITTLE_ENDIAN);
     }
-    int inPos; // Текущая позиция.
-    int inShift; // Кол-во "обработанных" байт во входном буфере.
-    int outPos; // Текущая позиция.
-    int outShift; // Кол-во "обработанных" байт в выходном буфере.
-    // Алгоритм.
-    int valPrev; // Пред.значение (семпл) 16бит.
-    int index; // Нач.индекс фрейма.
-    int length; // Длина данных (длина фрейма минус 4 байта).
 
     /**
-     * Конвертирует данные в буфере c текущей позиции.
-     * Вычисляет кол-во обработанных байтов и кол-во записаных в выходной буфер.
-     * @return 
+     * Возвращает значение текущего смещения во входном буфере с начала 
+     * процесса декодирования.
+     * @return Смещение.
      */
-    int HI_VOICE_Decode(int pos) {
-        // Init
-        inPos = outPos = inShift = outShift = 0;
-        valPrev = index = length = 0;
-        // Positioning
-        if (pos < 0 || pos >= g_inBuf.length - 4) {
-            return -1;
-        }
-        inPos = pos;
-        // Shifting (skip header).
-        inPos += 4;
-        inShift += 4;
-        // Mode
-        if ((g_bi.getShort(pos) & 0x300) != 0x100) {
-            return -2;
-        }
-        // Length
-        length = g_bi.get(pos + 2) & 0xFF;
-        if (length == 0) {
-            return -3;
-        }
+    public int getInShift() {
+        return inShift;
+    }
 
-        /*
-        Варианты от [codec-1]
-        00 00 01 02 03 04 05 07  07 07 07 07 07 07 07 07
-        07 07 07 07 07 07 07 07  07 07 07 07 07 07 07 07
-        07 07 01 02 03 04 05 07  07 07 07 07 07 07 07 07
-        07 07 07 07 07 07 07 07  07 07 07 07 07 07 07 07
-        00 00 01 06
-        Переходы
-        44 4E 4C 00 7D 4E 4C 00  B1 4E 4C 00 19 4F 4C 00
-        93 4F 4C 00 07 50 4C 00  83 50 4C 00 C0 50 4C 00
-         */
-        switch (idCodec - 1) {
-            case 0x00:
-            case 0x01:
-            case 0x40:
-            case 0x41: // n0
-                return -10;
-            case 0x02:
-            case 0x22:
-            case 0x42: // n1
-                if (length * 4 - 7 > 0x1E1) {
-                    return -101;
-                }
-                return FrameConvert();
-            case 0x03:
-            case 0x23: // n2
-                return -10;
-            case 0x04:
-            case 0x24: // n3
-                return -10;
-            case 0x05:
-            case 0x25: // n4
-                return -10;
-            case 0x06:
-            case 0x26: // n5
-                return -10;
-            case 0x43: // n6
-                return -10;
-            default: // n7 (некорректный ID кодека!)
-                return -20;
+    /**
+     * Возвращает значение текущего смещения в выходном буфере с начала 
+     * процесса декодирования.
+     * @return Смещение.
+     */
+    public int getOutShift() {
+        return outShift;
+    }
+
+    /**
+     * Конвертирует данные из входного буфера с указанной позиции и записывает
+     * декодированные данные в выходной буфер с нулевой позиции.
+     * В процессе декодирования вычисляется кол-во обработанных байтов из 
+     * входного буфера <b>inShift</b> и кол-во записаных в выходной буфер 
+     * <b>outShift</b>.
+     * @return Результат выполнения операции: 0-без ошибок, иначе код ошибки.
+     */
+    public int HI_VOICE_Decode(int inpos, int outpos) {
+        try {
+            // Init
+            inPos = outPos = inShift = outShift = 0;
+            value = index = length = 0;
+            // Positioning
+            if (inpos < 0 || inpos >= inBuffer.length - 4) {
+                return -1;
+            }
+            if (outpos < 0 || outpos >= outBuffer.length) {
+                return -1;
+            }
+            inPos = inpos;
+            outPos = outpos;
+            // Shifting (skip header).
+            inPos += 4;
+            inShift += 4;
+            
+            // Mode
+            if ((inBB.getShort(inpos) & 0x300) != 0x100) {
+                return -2;
+            }
+            // Length
+            length = inBB.get(inpos + 2) & 0xFF;
+            if (length == 0) {
+                return -3;
+            }
+
+            /*
+            Варианты от [codec-1]
+            00 00 01 02 03 04 05 07  07 07 07 07 07 07 07 07
+            07 07 07 07 07 07 07 07  07 07 07 07 07 07 07 07
+            07 07 01 02 03 04 05 07  07 07 07 07 07 07 07 07
+            07 07 07 07 07 07 07 07  07 07 07 07 07 07 07 07
+            00 00 01 06
+            Переходы
+            44 4E 4C 00 7D 4E 4C 00  B1 4E 4C 00 19 4F 4C 00
+            93 4F 4C 00 07 50 4C 00  83 50 4C 00 C0 50 4C 00
+             */
+            switch (idCodec - 1) {
+                case 0x00:
+                case 0x01:
+                case 0x40:
+                case 0x41: // n0
+                    return -10;
+                case 0x02:
+                case 0x22:
+                case 0x42: // n1
+                    if (length * 4 - 7 > 0x1E1) {
+                        return -11;
+                    }
+                    return frameDecode()*100;
+                case 0x03:
+                case 0x23: // n2
+                    return -10;
+                case 0x04:
+                case 0x24: // n3
+                    return -10;
+                case 0x05:
+                case 0x25: // n4
+                    return -10;
+                case 0x06:
+                case 0x26: // n5
+                    return -10;
+                case 0x43: // n6
+                    return -10;
+                default: // n7 (некорректный ID кодека!)
+                    return -20;
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            return -100000;
         }
     }
 
     /**
      * Конвертирует фрейм с текущей позиции в выходной буфер.
      * СОХРАННОСТЬ данных во входном буфере НЕ СОБЛЮДАЕТСЯ (!).
-     * @return Результат.
+     * @return Результат выполнения операции: 0-без ошибок, иначе код ошибки.
      */
-    int FrameConvert() {
-
-        int res = 0;
+    private int frameDecode() {
         switch (idCodec) {
             case 0x03: // uncompress
 
-                valPrev = g_bi.getShort(inPos + 4);
-                index = g_bi.get(inPos + 4 + 2);
+                value = inBB.getShort(inPos);
+                index = inBB.get(inPos + 2);
+                inPos += 4;
+                inShift += 4;
 
                 // Преобразуем остальное тело в PCM (кроме первых 4 байт).
                 // База не сохраняется.
-                res += uncompress(inFrame, 4, outBuf, 0, (len - 2) * 2, state);
-                break;
+                return uncompress((length - 2) * 2);
 
             case 0x23: // reorder + uncomress
 
-                state.valPrev = bif.getShort(0);
-                state.index = bif.get(2);
+                value = inBB.getShort(inPos);
+                index = inBB.get(inPos + 2);
+                inPos += 4;
+                inShift += 4;
 
                 // Первые два байта - переносим отдельно и без преобразования.
-                bo.putShort(0, (short) state.valPrev);
-                res += 2;
+                outBB.putShort(outPos, (short) value);
+                outPos += 2;
+                outShift += 2;
 
                 // Меняем местами полубайты в каждом байте тела фрейма.
-                int n = (len - 2) * 2; // Кол-во исходных БАЙТ (кроме первых 4!).
+                int n = (length - 2) * 2; // Кол-во исходных байт фрейма (кроме первых 4 - их уже обработали!).
                 for (int i = 0; i < n; i++) {
-                    byte a = inFrame[i + 4];
-                    inFrame[i + 4] = (byte) (((a >> 4) & 0xF) + ((a << 4) & 0xF0));
+                    byte a = inBuffer[inPos + i];
+                    inBuffer[inPos + i] = (byte) (((a >> 4) & 0xF) + ((a << 4) & 0xF0));
                 }
                 // Преобразуем остальное тело в PCM (кроме первых 4 байт).
-                res += uncompress(inFrame, 4, outBuf, 2, n, state);
-                break;
+                return uncompress(n);
 
             case 0x43: // uncompress
                 // Преобразуем тело в PCM.
-                res += uncompress(inFrame, 0, outBuf, 0, len * 2, state);
-                break;
+                return uncompress(length * 2);
 
             default:
                 return -1;
         }
-
-
-        return res;
     }
 
     /**
-     * Преобразование ADPCM в PCM.
-     * @param inFrame Массив с телом фрейма.
-     * @param inPos Стартовая позиция в фрейме.
-     * @param outBuf Массив для данных PCM.
-     * @param outPos Стартовая позиция в массиве PCM.
+     * Преобразование в PCM.
      * @param count Кол-во байт для преобразования во фрейме (lendata-4).
-     * @param state Состояние.
-     * @return Кол-во байт записанных в PCM массив.
+     * @return Результат выполнения операции: 0-без ошибок, иначе код ошибки.
      */
-    int uncompress(byte[] inFrame, int inPos, byte[] outBuf, int outPos, int count, State state) {
-        ByteBuffer bo = ByteBuffer.wrap(outBuf);
-        bo.order(ByteOrder.LITTLE_ENDIAN);
-
-        int n = 0; // Кол-во байт записанных при обработке в массив PCM.
-        int value = state.valPrev; // Текущее значение.
-        int index = state.index; // Текущий индекс.
+    private int uncompress(int count) {
         int inByte = 0; // Текущий байт из вх.массива.
         int inHByte; // Текущий полубайт из вх.массива.
         int flag = 0; // Флаг смены полубайта.
 
         while (count > 0) {
             if (flag == 0) {
-                inByte = inFrame[inPos++];
+                inByte = inBuffer[inPos];
+                inPos++;
+                inShift++;
                 inHByte = (inByte >> 4) & 0xF; // Hi4bit
                 count--;
                 flag = 1;
@@ -271,19 +329,19 @@ public class ADPCM {
             value += ((inHByte & 0x8) == 0) ? step : -step;
             value = (value > 0x7FFF) ? 0x7FFF : (((value < 0xFFFF8000) ? 0xFFFF8000 : value));
 
-            bo.putShort(outPos, (short) value);
+            outBB.putShort(outPos, (short) value);
             outPos += 2;
-            n += 2;
+            outShift += 2;
 
             index += indexTable[inHByte];
             index = (index < 0) ? 0 : ((index > 0x58) ? 0x58 : index);
         }
-        return n;
+        return 0;
     }
     /**
      * Таблица размеров шагов.
      */
-    int[] stepsizeTable = {
+    private static final int[] stepsizeTable = {
         0x0007, 0x0008, 0x0009, 0x000A,
         0x000B, 0x000C, 0x000D, 0x000E,
         0x0010, 0x0011, 0x0013, 0x0015,
@@ -310,7 +368,7 @@ public class ADPCM {
     /**
      * Таблица изменений индексов.
      */
-    int[] indexTable = {
+    private static final int[] indexTable = {
         -1, -1, -1, -1, 2, 4, 6, 8, -1, -1, -1, -1, 2, 4, 6, 8
     };
 }

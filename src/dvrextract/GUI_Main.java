@@ -4,6 +4,7 @@
  */
 package dvrextract;
 
+import dvrextract.I10n.Lang;
 import dvrextract.gui.GUI;
 import dvrextract.gui.GUITabPane;
 import dvrextract.gui.GUIFrame;
@@ -37,6 +38,10 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
      * Прогрес выполнения операции.
      */
     private JProgressBar progressBar;
+    /**
+     * Список языков интерфейса.
+     */
+    private JComboBox comboLang;
     ////////////////////////////////////////////////////////////////////////////
     /**
      * Закладка "Источник".
@@ -83,10 +88,13 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         // компонеты, причем в том числе и на этапе инициализации.
         App.gui = GUI_Main.this;
 
+        comboLang = new JComboBox(Lang.values());
+        comboLang.addActionListener(GUI_Main.this);
         buttonProcess = GUI.createButton(x_Process);
+        buttonProcess.addActionListener(GUI_Main.this);
         progressBar = new JProgressBar();
         textInfo = GUI.createText(100);
-        //
+        
         tabSource = new GUI_TabSource();
         tabProcess = new GUI_TabProcess();
         tabLog = new GUI_TabLog();
@@ -123,7 +131,10 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         // Вкладка "О программе"
         tabPane.addTab(x_Help, tabAbout);
 
-        buttonProcess.addActionListener(this);
+        JPanel p = tabPane.getBarPanel();
+        p.add(new JLabel(), "push");
+        p.add(comboLang);
+
         progressBar.setPreferredSize(new Dimension(100, 20));
 
         add(tabPane, BorderLayout.CENTER);
@@ -160,6 +171,9 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
                 // Остановка задачи.
                 Task.terminate();
             }
+        } else if (e.getSource() == comboLang) {
+            I10n.init((Lang)comboLang.getSelectedItem());
+            createUI();
         }
     }
 

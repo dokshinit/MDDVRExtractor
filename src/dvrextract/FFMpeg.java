@@ -39,7 +39,7 @@ public final class FFMpeg {
      * Флаг наличия нужного кодека для финальной сборки аудио (в видео), 
      * а также процессинга аудио.
      */
-    public static boolean isAudio_g722 = false;
+    public static boolean isAudio_pcm_s16le = false;
     /**
      * Флаг наличия нужного кодека для финальной сборки субтитров (в видео).
      */
@@ -108,8 +108,8 @@ public final class FFMpeg {
             codecs.add(new FFCodec(name, m.group(8),
                     !m.group(1).trim().isEmpty(), !m.group(2).trim().isEmpty(),
                     c == 'V', c == 'A', c == 'S'));
-            if (c == 'A' && name.equals("g722")) {
-                isAudio_g722 = true;
+            if (c == 'A' && name.equals("pcm_s16le")) {
+                isAudio_pcm_s16le = true;
             }
             if (c == 'S' && name.equals("srt")) {
                 isSub_srt = true;

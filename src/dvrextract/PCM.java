@@ -23,19 +23,19 @@ public class PCM {
      */
     public static void main(String[] args) throws FileNotFoundException, IOException {
 
-        byte[] g_inBuf = new byte[168];
+        byte[] g_inBuf = new byte[1024];
         ByteBuffer bi = ByteBuffer.wrap(g_inBuf);
         bi.order(ByteOrder.LITTLE_ENDIAN);
         byte[] g_outBuf = new byte[1024];
 
-        FileInputStream is = new FileInputStream("/home/work/files/DVRVIDEO/audio1.raw");
-        File fos = new File("/home/work/files/DVRVIDEO/audio1.pcm");
+        FileInputStream is = new FileInputStream("/home/work/files/DVRVIDEO/g726_instd.dat");
+        File fos = new File("/home/work/files/DVRVIDEO/g726_instd.dat.pcm");
         fos.delete();
         FileOutputStream os = new FileOutputStream(fos);
 
         PCM p = new PCM();
         State state = new State();
-        state.coder = 0x23;
+        state.coder = 0x43;
 
         while (true) {
             if (is.available() == 0) {

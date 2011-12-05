@@ -21,6 +21,8 @@ import javax.swing.JCheckBox;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -123,7 +125,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             x_File, x_Format, x_FramePerSec, x_Mode, x_NotIndent, x_NotSave,
             x_Period1, x_Period2, x_Select, x_Size, x_Source, x_Sub, x_ToFile,
             x_ToVideo, x_Video, x_WOConvert, x_CalcEnd, x_CalcStart,
-            x_SelectDestFile;
+            x_SelectDestFile, x_NotePreDecoding, x_NoteSimple;
 
     /**
      * Конструктор.
@@ -189,7 +191,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         comboVideoSize.showData();
 
         comboAudioMode.addItem(-1, new Item(x_NotSave));
-        if (FFMpeg.isAudio_g722) {
+        if (FFMpeg.isAudio_pcm_s16le) {
             comboAudioMode.addItem(0, new Item(x_ToFile));
             comboAudioMode.addItem(1, new Item(x_ToVideo));
         }
@@ -216,7 +218,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         comboSubFormat.showData();
 
         comboVideoFormat.setSelectedId(0);
-        comboAudioMode.setSelectedId(FFMpeg.isAudio_g722 ? 1 : -1);
+        comboAudioMode.setSelectedId(FFMpeg.isAudio_pcm_s16le ? 1 : -1);
         comboAudioFormat.setSelectedId(0);
         comboSubMode.setSelectedId(FFMpeg.isSub_srt ? 1 : 0);
         comboSubFormat.setSelectedId(0);
@@ -294,7 +296,8 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     public void createUI() {
         setLayout(new MigLayout("ins 5, fill", "", "[][grow]"));
 
-        panel.removeAll(); // Для случая смены режима и пересоздания интерфейса.
+        // Для случая смены режима и пересоздания интерфейса.
+        panel.removeAll();
 
         add(checkExpert, "wrap");
         add(scroll, "grow");
@@ -332,7 +335,8 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             p3.add(textDestAudio, "growx");
             p3.add(buttonSelectAudio, "wrap");
             p3.add(GUI.createLabel(x_Codec), "");
-            p3.add(comboAudioFormat, "left, spanx, wrap");
+            p3.add(comboAudioFormat, "left, spanx, split 2");
+            p3.add(GUI.createNoteLabel(x_NotePreDecoding), "wrap");
             p3.add(GUI.createLabel(x_CustomOption), "");
             p3.add(textAudioCustom, "left, spanx");
 
@@ -350,7 +354,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             p2.add(GUI.createLabel(x_File));
             p2.add(textDestVideo, "growx, spanx, split 2");
             p2.add(buttonSelectVideo, "wrap");
-            p2.add(GUI.createNoteLabel("Кодек-видео - MPEG4, кодек-аудио - PCM16BIT, субтитры - файл SRT."), "skip, spanx");
+            p2.add(GUI.createNoteLabel(x_NoteSimple), "skip, spanx");
         }
 
         fireStartDateChange();
@@ -453,7 +457,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
                 }
             }
         } else {  // Режим упрощенных настроек.
-            s.add("-acodec", "pcm_s16le");
+            s.add("-acodec", "copy"); // на выходе как раз pcm_s16le, так что без кодирования.
         }
         return s;
     }
@@ -755,6 +759,15 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         }
 
         @Override
+        public void fireInit(FileChooser fc) {
+            FileFilter avi, mkv;
+            fc.addChoosableFileFilter(avi = new FileNameExtensionFilter("Video AVI", "avi"));
+            fc.addChoosableFileFilter(new FileNameExtensionFilter("Video MPEG4", "mp4", "mpg4", "mpeg4"));
+            fc.addChoosableFileFilter(mkv = new FileNameExtensionFilter("Video MKV", "mkv"));
+            fc.setFileFilter(isExpert() ? mkv : avi);
+        }
+
+        @Override
         public void fireApply(FileChooser fc) throws CancelActionExeption {
             final String name = fc.getSelectedFile().getAbsolutePath();
             App.Dest.setVideoName(name);
@@ -778,6 +791,13 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         }
 
         @Override
+        public void fireInit(FileChooser fc) {
+            FileFilter wav;
+            fc.addChoosableFileFilter(wav = new FileNameExtensionFilter("Audio WAV", "wav"));
+            fc.setFileFilter(wav);
+        }
+
+        @Override
         public void fireApply(FileChooser fc) throws CancelActionExeption {
             final String name = fc.getSelectedFile().getAbsolutePath();
             App.Dest.setAudioName(name);
@@ -796,6 +816,13 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         private SelectSubDialog() {
             super(App.gui, x_SelectDestFile,
                     textDestSub.getText().trim(), "*.srt", Target.NEW_OR_EXIST, Mode.FILE);
+        }
+
+        @Override
+        public void fireInit(FileChooser fc) {
+            FileFilter srt;
+            fc.addChoosableFileFilter(srt = new FileNameExtensionFilter("Subtitle SRT", "srt"));
+            fc.setFileFilter(srt);
         }
 
         @Override

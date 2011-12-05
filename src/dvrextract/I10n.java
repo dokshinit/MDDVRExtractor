@@ -22,7 +22,11 @@ public class I10n {
         /**
          * Русский язык.
          */
-        RU
+        RU,
+        /**
+         * Английский язык.
+         */
+        EN
     }
 
     /**
@@ -48,29 +52,40 @@ public class I10n {
         }
     }
 
+    private static String text(String rus, String eng) {
+        switch (language) {
+            case RU:
+                return rus;
+            case EN:
+                return eng;
+            default:
+                return eng;
+        }
+    }
+    
     /**
      * Инициализация графических компонент.
      * @param lang Язык интерфейса.
      */
     public static void init(Lang lang) {
 
-        // По умолчанию все значения выставляются на русском (переделать на английский?).
+        // По умолчанию все значения выставляются на английском.
         language = lang;
 
         // App
-        App.x_LAFNotFound = text("Не найден L&F");
-        App.x_LAFError = text("Ошибка включения L&F");
-        App.x_FFMpegWrong = text("Некорректная работа FFMPEG!");
-        App.x_CodecsWrong = text("Ошибка запроса кодеков");
+        App.x_LAFNotFound = text("Не найден Look&Feel", "Look&Feel not found"); // Not found LAF
+        App.x_LAFError = text("Ошибка включения Look&Feel", "Look&Feel aplying error"); // Error of LAF applying
+        App.x_FFMpegWrong = text("Некорректная работа FFMPEG", "FFMPEG not working correctly");
+        App.x_CodecsWrong = text("Ошибка запроса кодеков FFMPEG", "Error of FFMPEG codecs request");
 
         // DataProcessor
-        DataProcessor.x_ProcessSource = text("Обработка источника...");
-        DataProcessor.x_ProcessFile = text("Обработка файла (%d из %d)");
-        DataProcessor.x_ProcessEnd = text("Процесс кодирования завершён.");
-        DataProcessor.x_ProcessSourceEnd = text("Обработка источника завершена.");
-        DataProcessor.x_FinalMakeStart = text("Запуск процесса сборки...");
-        DataProcessor.x_ErrorFinalMakeStart = text("Ошибка запуска процесса сборки!");
-        DataProcessor.x_FinalMakeStarted = text("Запущен процесс сборки.");
+        DataProcessor.x_ProcessSource = text("Обработка источника...", "Source processing...");
+        DataProcessor.x_ProcessFile = text("Обработка файла (%d из %d)", "File processing (%d of %d)");
+        DataProcessor.x_ProcessEnd = text("Процесс кодирования завершён.", "The encoding process is completed.");
+        DataProcessor.x_ProcessSourceEnd = text("Обработка источника завершена.", "The source processing is completed.");
+        DataProcessor.x_FinalMakeStart = text("Запуск процесса сборки...","Starting of process of final build...");
+        DataProcessor.x_ErrorFinalMakeStart = text("Ошибка запуска процесса сборки!", "Error of starting of final build process!");
+        DataProcessor.x_FinalMakeStarted = text("Запущен процесс сборки.","");
         DataProcessor.x_FFMpegVideoInputNotFound = text("FFMpeg process video input not found!");
         DataProcessor.x_FFMpegProcessVideoInputFail = text("FFMpeg process video input fail!");
         DataProcessor.x_UserPorcessCancel = text("Прерывание процесса пользователем!");
@@ -164,17 +179,17 @@ public class I10n {
         GUILogPanel.x_Message = text("Сообщение");
 
         //GUI_Main
-        GUI_Main.x_Confirmation = text("Подтверждение");
-        GUI_Main.x_ExitQuest = text("Выйти из программы?");
-        GUI_Main.x_Help = text("Справка");
-        GUI_Main.x_Info = text("Инфо:");
-        GUI_Main.x_Log = text("Лог");
-        GUI_Main.x_No = text("Нет");
-        GUI_Main.x_Process = text("Обработка");
-        GUI_Main.x_Source = text("Источник");
-        GUI_Main.x_State = text("Состояние");
-        GUI_Main.x_Yes = text("Да");
-        GUI_Main.x_Interrupt = text("Прервать");
+        GUI_Main.x_Confirmation = text("Подтверждение", "Confirmation");
+        GUI_Main.x_ExitQuest = text("Выйти из программы?", "Exit the program?");
+        GUI_Main.x_Help = text("Справка", "Help");
+        GUI_Main.x_Info = text("Инфо:", "Info:");
+        GUI_Main.x_Log = text("Лог", "Log");
+        GUI_Main.x_No = text("Нет", "No");
+        GUI_Main.x_Process = text("Обработка", "Process");
+        GUI_Main.x_Source = text("Источник", "Source");
+        GUI_Main.x_State = text("Состояние", "State");
+        GUI_Main.x_Yes = text("Да", "Yes");
+        GUI_Main.x_Interrupt = text("Прервать", "Cancel");
 
         // GUI_SourceSelect
         GUI_SourceSelect.x_All = text("< все >");
@@ -215,7 +230,9 @@ public class I10n {
         GUI_TabProcess.x_CalcEnd = text("Подсчёт данных для обработки завершён.");
         GUI_TabProcess.x_CalcStart = text("Подсчёт данных для обработки...");
         GUI_TabProcess.x_SelectDestFile = text("Выбор файла приёмника");
-
+        GUI_TabProcess.x_NotePreDecoding = text("Предекодируется как 'Signed PCM 16bit LowEndian'");
+        GUI_TabProcess.x_NoteSimple = text("Кодек-видео - MPEG4, кодек-аудио - PCM16BIT, субтитры - файл SRT.");
+        
         // GUI_TabSource
         GUI_TabSource.x_Cam = text("Камера");
         GUI_TabSource.x_NotIndent = text("не определён");
