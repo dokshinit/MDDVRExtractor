@@ -59,6 +59,15 @@ public class GUITabPane extends JPanel implements ActionListener {
         }
         panelBar.add(i.button);
     }
+    
+    /**
+     * Установка названия для вкладки.
+     * @param index Номер вкладки (0..n-1).
+     * @param title Название вкладки.
+     */
+    public void setTabTitle(int index, String title) {
+        items.get(index).button.setText(title);
+    }
 
     /**
      * Возвращает панель с кнопками-закладками.

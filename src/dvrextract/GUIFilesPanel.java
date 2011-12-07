@@ -95,6 +95,18 @@ public final class GUIFilesPanel extends JPanel {
     }
 
     /**
+     * Актуализация контента при смене языка отображения.
+     */
+    public void updateLocale() {
+        TableColumnModel cm = dir.getColumnModel();
+        cm.setColumnHeader(1, x_Name);
+        cm.setColumnHeader(2, x_Type);
+        cm.setColumnHeader(3, x_Size);
+        cm.setColumnHeader(4, x_Start);
+        cm.setColumnHeader(5, x_End);
+    }
+
+    /**
      * Построение модели для указанного номера камеры
      * (если номер камеры соответствует текущему - построения не происходит).
      * @param cam Номер камеры.

@@ -88,6 +88,15 @@ public class GUILogPanel extends JPanel {
     }
 
     /**
+     * Актуализация контента при смене языка отображения.
+     */
+    public void updateLocale() {
+        TableColumnModel cm = dir.getColumnModel();
+        cm.setColumnHeader(1, x_Date);
+        cm.setColumnHeader(2, x_Message);
+    }
+
+    /**
      * Добавление строки лога.
      * @param type Тип сообщения.
      * @param text Текст сообщения.

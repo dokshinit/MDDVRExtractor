@@ -46,39 +46,43 @@ public final class GUIFileInfoPanel extends JPanel {
     /**
      * Полное имя.
      */
-    private JTextField textName;
+    private Info infoName;
     /**
      * Размер в байтах.
      */
-    private JTextField textSize;
+    private Info infoSize;
     /**
      * Тип.
      */
-    private JTextField textType;
+    private Info infoType;
     /**
      * Список номеров камер информация с которых содержится в файле.
      */
-    private JTextField textCams;
+    private Info infoCams;
     /**
      * Разрешение видео.
      */
-    private JTextField textResolution;
+    private Info infoResolution;
     /**
      * Частота кадров в секунду.
      */
-    private JTextField textFPS;
+    private Info infoFPS;
     /**
      * Время в первом кадре файла.
      */
-    private JTextField textFirstTime;
+    private Info infoFirstTime;
     /**
      * Время в последнем кадре файла.
      */
-    private JTextField textLastTime;
+    private Info infoLastTime;
     /**
      * Продолжительность видео (оценочная - как разница между концом и началом!).
      */
-    private JTextField textAmountTime;
+    private Info infoAmountTime;
+    /**
+     * Примечание.
+     */
+    private JLabel labelNote;
     /**
      * Текущая отображаемая информация о файле.
      */
@@ -92,7 +96,7 @@ public final class GUIFileInfoPanel extends JPanel {
      */
     public static String x_Cams, x_Duration, x_DurationFormat, x_End,
             x_FirstKeyFrame, x_Freq, x_FreqFormat, x_HintChangeZoom, x_NO,
-            x_Name, x_Resolution, x_ResolutionFormat, x_Size, x_Start, x_Type;
+            x_Name, x_Resolution, x_ResolutionFormat, x_Size, x_Bytes, x_Start, x_Type;
 
     /**
      * Конструктор.
@@ -102,18 +106,27 @@ public final class GUIFileInfoPanel extends JPanel {
     }
 
     /**
+     * Для удобства добавления строк отображения параметров.
+     */
+    class Info {
+
+        JLabel label; // Название.
+        JTextField text; // Текстовое поле.
+    }
+
+    /**
      * Воспомогательный метод для создания добавление метки+поля в инфу.
      * @param title Наименование в метке.
      * @param size Размер поля.
      * @param add Строка для MigLayout или null - если стандартно.
      * @return Сформированное поле.
      */
-    private JTextField createInfo(String title, int size, String add) {
-        JTextField tf = GUI.createText(size);
-        panelInfo.add(GUI.createLabel(title));
-        panelInfo.add(tf, add != null ? add + ",wrap" : "wrap");
-        tf.setEditable(false);
-        return tf;
+    private Info addInfo(String title, int size, String add) {
+        Info info = new Info();
+        panelInfo.add(info.label = GUI.createLabel(title));
+        panelInfo.add(info.text = GUI.createText(size), add != null ? add + ",wrap" : "wrap");
+        info.text.setEditable(false);
+        return info;
     }
 
     /**
@@ -136,19 +149,38 @@ public final class GUIFileInfoPanel extends JPanel {
         panelInfo = new JPanel(new MigLayout("", "[]10[right][grow,shrink]"));
         panelInfo.add(panelImage, "spany, top");
         //
-        textName = createInfo(x_Name, 30, "growx");
-        textSize = createInfo(x_Size, 15, null);
-        textType = createInfo(x_Type, 10, null);
-        textCams = createInfo(x_Cams, 30, null);
-        textResolution = createInfo(x_Resolution, 12, null);
-        textFPS = createInfo(x_Freq, 10, null);
-        textFirstTime = createInfo(x_Start, 15, null);
-        textLastTime = createInfo(x_End, 15, null);
-        textAmountTime = createInfo(x_Duration, 22, null);
-        panelInfo.add(GUI.createNoteLabel(x_HintChangeZoom),
-                "spanx, pushy, bottom");
+        infoName = addInfo(x_Name, 30, "growx");
+        infoSize = addInfo(x_Size, 15, null);
+        infoType = addInfo(x_Type, 10, null);
+        infoCams = addInfo(x_Cams, 30, null);
+        infoResolution = addInfo(x_Resolution, 12, null);
+        infoFPS = addInfo(x_Freq, 10, null);
+        infoFirstTime = addInfo(x_Start, 15, null);
+        infoLastTime = addInfo(x_End, 15, null);
+        infoAmountTime = addInfo(x_Duration, 22, null);
+        labelNote = GUI.createNoteLabel(x_HintChangeZoom);
+        panelInfo.add(labelNote, "spanx, pushy, bottom");
         scrollPane = new JScrollPane(panelInfo);
         add(scrollPane, BorderLayout.CENTER);
+    }
+
+    /**
+     * Актуализация контента при смене языка отображения.
+     */
+    public void updateLocale() {
+        panelImage.setLabelText("<html><center>" + x_NO + "<br></html>");
+        panelImage.setToolTipText(x_FirstKeyFrame);
+        //
+        infoName.label.setText(x_Name);
+        infoSize.label.setText(x_Size);
+        infoType.label.setText(x_Type);
+        infoCams.label.setText(x_Cams);
+        infoResolution.label.setText(x_Resolution);
+        infoFPS.label.setText(x_Freq);
+        infoFirstTime.label.setText(x_Start);
+        infoLastTime.label.setText(x_End);
+        infoAmountTime.label.setText(x_Duration);
+        labelNote.setText(GUI.buildNoteLabelText(x_HintChangeZoom));
     }
 
     /**
@@ -157,41 +189,41 @@ public final class GUIFileInfoPanel extends JPanel {
      */
     public void displayInfo(FileInfo info) {
         if (info == null) {
-            textName.setText("");
-            textSize.setText("");
-            textType.setText("");
-            textCams.setText("");
-            textResolution.setText("");
-            textFPS.setText("");
-            textFirstTime.setText("");
-            textLastTime.setText("");
-            textAmountTime.setText("");
+            infoName.text.setText("");
+            infoSize.text.setText("");
+            infoType.text.setText("");
+            infoCams.text.setText("");
+            infoResolution.text.setText("");
+            infoFPS.text.setText("");
+            infoFirstTime.text.setText("");
+            infoLastTime.text.setText("");
+            infoAmountTime.text.setText("");
             panelImage.setImage(null);
         } else {
             if (curInfo != info) {
-                textName.setText(info.fileName);
-                textSize.setText(NumberTools.doubleToFormatString((double) info.fileSize, NumberTools.format0, "", "") + " байт");
-                textType.setText(info.fileType.title);
-                textCams.setText(info.getCamsToString());
+                infoName.text.setText(info.fileName);
+                infoSize.text.setText(NumberTools.doubleToFormatString((double) info.fileSize, NumberTools.format0, "", "") + " " + x_Bytes);
+                infoType.text.setText(info.fileType.title);
+                infoCams.text.setText(info.getCamsToString());
                 if (info.frameFirst != null) {
                     Dimension d = info.frameFirst.getResolution();
-                    textResolution.setText(String.format(x_ResolutionFormat, d.width, d.height));
-                    textFPS.setText(String.format(x_FreqFormat, info.frameFirst.fps));
-                    textFirstTime.setText(dateFormat.format(info.frameFirst.time));
+                    infoResolution.text.setText(String.format(x_ResolutionFormat, d.width, d.height));
+                    infoFPS.text.setText(String.format(x_FreqFormat, info.frameFirst.fps));
+                    infoFirstTime.text.setText(dateFormat.format(info.frameFirst.time));
                 } else {
-                    textResolution.setText("");
-                    textFPS.setText("");
-                    textFirstTime.setText("");
+                    infoResolution.text.setText("");
+                    infoFPS.text.setText("");
+                    infoFirstTime.text.setText("");
                 }
                 if (info.frameLast != null) {
-                    textLastTime.setText(dateFormat.format(info.frameLast.time));
+                    infoLastTime.text.setText(dateFormat.format(info.frameLast.time));
                 } else {
-                    textLastTime.setText("");
+                    infoLastTime.text.setText("");
                 }
                 if (info.frameFirst != null && info.frameLast != null) {
-                    textAmountTime.setText(timeToString(info.frameLast.time.getTime() - info.frameFirst.time.getTime()));
+                    infoAmountTime.text.setText(timeToString(info.frameLast.time.getTime() - info.frameFirst.time.getTime()));
                 } else {
-                    textAmountTime.setText("");
+                    infoAmountTime.text.setText("");
                 }
                 panelImage.setImage(FFMpeg.getFirstFrameImage(info, App.Source.getSelectedCam()));
             }
@@ -248,7 +280,6 @@ public final class GUIFileInfoPanel extends JPanel {
         @Override
         public void mouseClicked(MouseEvent e) {
             // Меняем масштаб картинки.
-            //App.log("Click! zoom="+zoom+" dx="+dx+" dy="+dy);
             isSmallView = isSmallView ? false : true;
             setImageSize();
         }

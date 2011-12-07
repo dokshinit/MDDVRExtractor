@@ -112,16 +112,25 @@ public class GUI {
     }
 
     /**
+     * Построение форматированного текста примечания для указанного сообщения.
+     * @param title Текст примечания.
+     * @return Форматированный текст примечания.
+     */
+    public static String buildNoteLabelText(String title) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<html><table><td valign='top'><font color=#4040F0>\u2794</font></td><td valign='top'>");
+        sb.append(title);
+        sb.append("</td></table></html>");
+        return sb.toString();
+    }
+    
+    /**
      * Создание конфигурированной текстовой метки-примечания.
      * @param title Текст примечания.
      * @return Текстовая метка-примечание.
      */
     public static JLabel createNoteLabel(String title) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("<html><table><td valign='top'><font color=#4040F0>\u2794</font></td><td valign='top'>");
-        sb.append(title);
-        sb.append("</td></table></html>");
-        JLabel label = new JLabel(sb.toString());
+        JLabel label = new JLabel(buildNoteLabelText(title));
         label.setBorder(borderNoteLabel);
         label.setBackground(bgNoteLabel);
         label.setForeground(fgNoteLabel);

@@ -108,7 +108,7 @@ public class Files {
         files.clear();
 
         App.gui.stopProgress();
-        msg = x_ScanFinish + (Task.isTerminate() ? x_ScanFinishBreak : "") + ".";
+        msg = x_ScanFinish + (Task.isTerminate() ? " (" + x_ScanFinishBreak + ")" : "") + ".";
         App.gui.setProgressInfo(msg);
         App.log(msg);
         App.gui.tabSource.validateCamsListChange();

@@ -88,11 +88,9 @@ public class DataProcessor {
             x_FinalMakeStarted, x_FFMpegVideoInputNotFound,
             x_FFMpegProcessVideoInputFail, x_UserPorcessCancel, x_ErrorMakeIO,
             x_FinalMakeEnd, x_WrongOutVideoFile, x_WrongOutAudioFile,
-            x_WrongOutSubFile, x_ErrorFFMpegVideoStart, x_ErrorFFMpegAudioStart,
-            x_ErrorFFMpegSubStart, x_Delete, x_LeaveAsIs, x_WhatDoTemp,
-            x_Confirmation, x_Finish, x_WaitFinish, x_FinishProcess1,
-            x_FinishProcess2, x_FinishProcess3, x_FinishedProcess1,
-            x_FinishedProcess2, x_CoderStarting, x_CoderStarted;
+            x_WrongOutSubFile, x_ErrorFFMpegStart, x_Delete, x_LeaveAsIs, x_WhatDoTemp,
+            x_Confirmation, x_Finish, x_WaitFinish, x_FinishProcess, x_FinishedProcess,
+            x_CoderStarting, x_CoderStarted;
 
     /**
      * Обработка данных.
@@ -216,9 +214,9 @@ public class DataProcessor {
         try {
             in = new InputFile(videoName);
         } catch (FileNotFoundException ex) {
-            throw new FatalException(x_FFMpegVideoInputNotFound + " [" + videoName + "]");
+            throw new FatalException("FFMPEG-VIDEO: " + x_FFMpegVideoInputNotFound + " [" + videoName + "]");
         } catch (IOException ex) {
-            throw new FatalException(x_FFMpegProcessVideoInputFail);
+            throw new FatalException("FFMPEG-VIDEO: " + x_FFMpegProcessVideoInputFail);
         }
 
         try {
@@ -389,19 +387,19 @@ public class DataProcessor {
 
         // Проверка файла видео.
         if (!allowOutFile(videoName)) {
-            throw new FatalException(x_WrongOutVideoFile + " [" + videoName + "]");
+            throw new FatalException(x_WrongOutVideoFile + " FFMPEG-VIDEO [" + videoName + "]");
         }
 
         // Проверка файла аудио.
         if (isAudio) {
             if (!allowOutFile(audioName)) {
-                throw new FatalException(x_WrongOutAudioFile + " [" + audioName + "]");
+                throw new FatalException(x_WrongOutAudioFile + " FFMPEG-AUDIO [" + audioName + "]");
             }
         }
         // Проверка файла субтитров.
         if (isSub) {
             if (!allowOutFile(subName)) {
-                throw new FatalException(x_WrongOutSubFile + " [" + subName + "]");
+                throw new FatalException(x_WrongOutSubFile + " FFMPEG-SUB [" + subName + "]");
             }
         }
 
@@ -437,7 +435,7 @@ public class DataProcessor {
         try {
             processVideo = startProcess(vcmd);
         } catch (IOException ex) {
-            throw new FatalException(x_ErrorFFMpegVideoStart);
+            throw new FatalException("FFMPEG-VIDEO: "+ x_ErrorFFMpegStart);
         }
 
         // Стартуем процесс обработки аудио.
@@ -445,7 +443,7 @@ public class DataProcessor {
             try {
                 processAudio = startProcess(acmd);
             } catch (IOException ex) {
-                throw new FatalException(x_ErrorFFMpegAudioStart);
+                throw new FatalException("FFMPEG-AUDIO: "+ x_ErrorFFMpegStart);
             }
         }
 
@@ -454,7 +452,7 @@ public class DataProcessor {
             try {
                 processSubOut = new PrintStream(new FileOutputStream(subName, true));
             } catch (IOException ex) {
-                throw new FatalException(x_ErrorFFMpegSubStart);
+                throw new FatalException("FFMPEG-SUB: "+ x_ErrorFFMpegStart);
             }
         }
     }
@@ -541,13 +539,13 @@ public class DataProcessor {
             }
             Object[] options = {x_Finish, x_WaitFinish};
             int n = JOptionPane.showOptionDialog(App.gui,
-                    x_FinishProcess1 + title + x_FinishProcess2 + timeout + x_FinishProcess3,
+                    String.format(x_FinishProcess, title, timeout),
                     x_Confirmation, JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE, null, options,
                     options[1]);
             if (n == 0) {
                 p.destroy();
-                App.log(x_FinishedProcess1 + title + x_FinishedProcess2);
+                App.log(String.format(x_FinishedProcess, title));
                 return false;
             }
         }

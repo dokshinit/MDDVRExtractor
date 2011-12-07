@@ -30,10 +30,19 @@ public final class GUI_TabLog extends JPanel {
      * Инициализация графических компонент.
      */
     public void createUI() {
+        removeAll();
+
         setLayout(new BorderLayout());
         // Панель лога.
         logPanel.setMinimumSize(new Dimension(300, 300));
         add(logPanel, BorderLayout.CENTER);
+    }
+
+    /**
+     * Актуализация контента при смене языка отображения.
+     */
+    public void updateLocale() {
+        logPanel.updateLocale();
     }
 
     /**

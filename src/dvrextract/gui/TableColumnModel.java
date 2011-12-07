@@ -83,6 +83,38 @@ public class TableColumnModel extends DefaultTableColumnModel {
             }
         }
     }
+    
+    /**
+     * Возвращает столбец соответствующий указанному номеру В МОДЕЛИ (!).
+     * @param index Номер столбца в модели (0..n-1).
+     * @return Столбец или null если не найден.
+     */
+    public TableColumn getColumnForModelIndex(int index) {
+        TableColumn col = null;
+        for (int i = 0; i < tableColumns.size(); i++) {
+            col = tableColumns.get(i);
+            if (col.getModelIndex() == index) {
+                return col;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Устанавливает отображаемое название столбцу соответствующему заданному
+     * номеру столбца В МОДЕЛИ (!).
+     * @param index Номер столбца В МОДЕЛИ (!).
+     * @param title Название столбца.
+     * @return Результат операции: true - успех, false - ошибка.
+     */
+    public boolean setColumnHeader(int index, String title) {
+        TableColumn col = getColumnForModelIndex(index);
+        if (col != null) {
+            col.setHeaderValue(title);
+            return true;
+        }
+        return false;
+    }
 
     /**
      * Удаление из модели всех колонок

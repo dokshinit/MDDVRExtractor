@@ -16,8 +16,10 @@ import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
@@ -122,10 +124,31 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      * Текстовые ресурсы для интерфейса.
      */
     public static String x_Audio, x_Cam, x_Codec, x_CustomOption, x_Evaluate,
-            x_File, x_Format, x_FramePerSec, x_Mode, x_NotIndent, x_NotSave,
-            x_Period1, x_Period2, x_Select, x_Size, x_Source, x_Sub, x_ToFile,
+            x_File, x_Format, x_FramePerSec, x_Mode, x_NotSave,
+            x_Period1, x_Period2, x_Select, x_Resolution, x_Source, x_Sub, x_ToFile,
             x_ToVideo, x_Video, x_WOConvert, x_CalcEnd, x_CalcStart,
-            x_SelectDestFile, x_NotePreDecoding, x_NoteSimple;
+            x_SelectDestFile, x_NotePreDecoding, x_NoteSimple,
+            x_CheckExpert;
+
+    private JLabel labelGrSource;
+    private JLabel labelGrVideo;
+    private JLabel labelGrAudio;
+    private JLabel labelGrSub;
+    private JLabel labelCam;
+    private JLabel labelPeriod1;
+    private JLabel labelPeriod2;
+    private JLabel labelVideoFile;
+    private JLabel labelVideoCodec;
+    private JLabel labelVideoResolution;
+    private JLabel labelVideoFPS;
+    private JLabel labelVideoCustom;
+    private JLabel labelAudioMode;
+    private JLabel labelAudioCodec;
+    private JLabel labelNote;
+    private JLabel labelAudioCustom;
+    private JLabel labelSubMode;
+    private JLabel labelSubFormat;
+    private JLabel labelNoteSimple;
 
     /**
      * Конструктор.
@@ -136,13 +159,36 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         scroll = new JScrollPane(panel);
 
         // По умолчанию инициализируется как "простой режим".
-        checkExpert = GUI.createCheck("Расширенные настройки", false);
+        checkExpert = GUI.createCheck(x_CheckExpert, false);
         checkExpert.addActionListener(GUI_TabProcess.this);
 
+        labelGrSource = createGroupLabel(x_Source);
+        labelGrVideo = createGroupLabel(x_Video);
+        labelGrAudio = createGroupLabel(x_Audio);
+        labelGrSub = createGroupLabel(x_Sub);
+        
+        labelCam = GUI.createLabel(x_Cam);
+        labelPeriod1 = GUI.createLabel(x_Period1);
+        labelPeriod2 = GUI.createLabel(x_Period2);
+        labelVideoFile = GUI.createLabel(x_File);
+        labelVideoCodec = GUI.createLabel(x_Codec);
+        labelVideoResolution = GUI.createLabel(x_Resolution);
+        labelVideoFPS = GUI.createLabel(x_FramePerSec);
+        labelVideoCustom = GUI.createLabel(x_CustomOption);
+        labelAudioMode = GUI.createLabel(x_Mode);
+        labelAudioCodec = GUI.createLabel(x_Codec);
+        labelNote = GUI.createNoteLabel(x_NotePreDecoding + " 'Signed PCM 16bit LowEndian'");
+        labelAudioCustom = GUI.createLabel(x_CustomOption);
+        labelSubMode = GUI.createLabel(x_Mode);
+        labelSubFormat = GUI.createLabel(x_Format);
+        labelNoteSimple = GUI.createNoteLabel(x_NoteSimple);
+        
         textCam = createText(10);
-        textCam.setText(x_NotIndent);
+        textCam.setText(App.Source.getType().title);
         dateStart = GUI.createDTText();
+        dateStart.addActionListener(GUI_TabProcess.this);
         dateEnd = GUI.createDTText();
+        dateEnd.addActionListener(GUI_TabProcess.this);
         buttonEstimate = createButton(x_Evaluate);
 
         textDestVideo = createText(300);
@@ -269,16 +315,25 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     private static final Color groupTitleBackground = new Color(0xC0C0C0);
 
     /**
+     * Создание метки панели группы.
+     * @param title Текст.
+     * @return Метка.
+     */
+    private JLabel createGroupLabel(String title) {
+        return GUI.createLabel("<html><font color=#202020 style='font-size: 12pt; font-weight: bold'>"
+                + title + "</font></html>");
+    }
+
+    /**
      * Добавление панели группы на подложку.
-     * @param title Название
+     * @param title Метка названия.
      * @return Панель-тело для наполнения группы.
      */
-    private JPanel addGroupPanel(String title) {
+    private JPanel addGroupPanel(JLabel title) {
         JPanel group = new JPanel(new MigLayout("ins 0", "grow", "[]5[]"));
 
         JPanel gtitle = new JPanel(new MigLayout("ins 3", "grow"));
-        gtitle.add(GUI.createLabel("<html><font color=#202020 style='font-size: 12pt; font-weight: bold'>"
-                + title + "</font></html>"), "gapleft 5, left");
+        gtitle.add(title, "gapleft 5, left");
         gtitle.setBorder(groupTitleBorder);
         gtitle.setBackground(groupTitleBackground);
 
@@ -294,67 +349,66 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      * Инициализация графических компонент.
      */
     public void createUI() {
-        setLayout(new MigLayout("ins 5, fill", "", "[][grow]"));
-
         // Для случая смены режима и пересоздания интерфейса.
+        removeAll();
         panel.removeAll();
+
+        setLayout(new MigLayout("ins 5, fill", "", "[][grow]"));
 
         add(checkExpert, "wrap");
         add(scroll, "grow");
 
-        JPanel p1 = addGroupPanel(x_Source);
-        p1.add(GUI.createLabel(x_Cam));
+        JPanel p1 = addGroupPanel(labelGrSource);
+        p1.add(labelCam);
         p1.add(textCam, "spanx, wrap");
 
-        p1.add(GUI.createLabel(x_Period1));
+        p1.add(labelPeriod1);
         p1.add(dateStart, "w 150, spanx, split 4");
-        dateStart.addActionListener(this);
-        p1.add(GUI.createLabel(x_Period2));
+        p1.add(labelPeriod2);
         p1.add(dateEnd, "w 150");
-        dateEnd.addActionListener(this);
         p1.add(buttonEstimate);
 
         if (checkExpert.isSelected()) { // Режим расширенных настроек.
 
-            JPanel p2 = addGroupPanel(x_Video);
-            p2.add(GUI.createLabel(x_File));
+            JPanel p2 = addGroupPanel(labelGrVideo);
+            p2.add(labelVideoFile);
             p2.add(textDestVideo, "growx, spanx, split 2");
             p2.add(buttonSelectVideo, "wrap");
-            p2.add(GUI.createLabel(x_Codec));
+            p2.add(labelVideoCodec);
             p2.add(comboVideoFormat, "left, spanx, wrap");
-            p2.add(GUI.createLabel(x_Size));
+            p2.add(labelVideoResolution);
             p2.add(comboVideoSize, "left, spanx, split 3");
-            p2.add(GUI.createLabel(x_FramePerSec), "gapleft 20");
+            p2.add(labelVideoFPS, "gapleft 20");
             p2.add(comboVideoFPS, "wrap");
-            p2.add(GUI.createLabel(x_CustomOption), "");
+            p2.add(labelVideoCustom);
             p2.add(textVideoCustom, "left, spanx");
 
-            JPanel p3 = addGroupPanel(x_Audio);
-            p3.add(GUI.createLabel(x_Mode));
+            JPanel p3 = addGroupPanel(labelGrAudio);
+            p3.add(labelAudioMode);
             p3.add(comboAudioMode, "left, spanx, split 3");
             p3.add(textDestAudio, "growx");
             p3.add(buttonSelectAudio, "wrap");
-            p3.add(GUI.createLabel(x_Codec), "");
+            p3.add(labelAudioCodec);
             p3.add(comboAudioFormat, "left, spanx, split 2");
-            p3.add(GUI.createNoteLabel(x_NotePreDecoding), "wrap");
-            p3.add(GUI.createLabel(x_CustomOption), "");
+            p3.add(labelNote, "wrap");
+            p3.add(labelAudioCustom);
             p3.add(textAudioCustom, "left, spanx");
 
-            JPanel p4 = addGroupPanel(x_Sub);
-            p4.add(GUI.createLabel(x_Mode));
+            JPanel p4 = addGroupPanel(labelGrSub);
+            p4.add(labelSubMode);
             p4.add(comboSubMode, "left, spanx, split 3");
             p4.add(textDestSub, "growx");
             p4.add(buttonSelectSub, "wrap");
-            p4.add(GUI.createLabel(x_Format), "");
+            p4.add(labelSubFormat);
             p4.add(comboSubFormat, "left, spanx");
 
         } else { // Режим упрощенных настроек.
 
-            JPanel p2 = addGroupPanel(x_Video);
-            p2.add(GUI.createLabel(x_File));
+            JPanel p2 = addGroupPanel(labelGrVideo);
+            p2.add(labelVideoFile);
             p2.add(textDestVideo, "growx, spanx, split 2");
             p2.add(buttonSelectVideo, "wrap");
-            p2.add(GUI.createNoteLabel(x_NoteSimple), "skip, spanx");
+            p2.add(labelNoteSimple, "skip, spanx");
         }
 
         fireStartDateChange();
@@ -366,6 +420,65 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         fireSubFormatSelect();
     }
 
+    /**
+     * Актуализация контента при смене языка отображения.
+     */
+    public void updateLocale() {
+        labelGrSource.setText(x_Source);
+        labelGrVideo.setText(x_Video);
+        labelGrAudio.setText(x_Audio);
+        labelGrSub.setText(x_Sub);
+        
+        labelCam.setText(x_Cam);
+        labelPeriod1.setText(x_Period1);
+        labelPeriod2.setText(x_Period2);
+        labelVideoFile.setText(x_File);
+        labelVideoCodec.setText(x_Codec);
+        labelVideoResolution.setText(x_Resolution);
+        labelVideoFPS.setText(x_FramePerSec);
+        labelVideoCustom.setText(x_CustomOption);
+        labelAudioMode.setText(x_Mode);
+        labelAudioCodec.setText(x_Codec);
+        labelNote.setText(GUI.buildNoteLabelText(x_NotePreDecoding + " 'Signed PCM 16bit LowEndian'"));
+        labelAudioCustom.setText(x_CustomOption);
+        labelSubMode.setText(x_Mode);
+        labelSubFormat.setText(x_Format);
+        labelNoteSimple.setText(GUI.buildNoteLabelText(x_NoteSimple));
+        
+        checkExpert.setText(x_CheckExpert);
+        //dateStart = ;
+        //dateEnd = ;
+        buttonEstimate.setText(x_Evaluate);
+
+        buttonSelectVideo.setText(x_Select);
+        buttonSelectAudio.setText(x_Select);
+        buttonSelectSub.setText(x_Select);
+        
+        ((Item)comboVideoFormat.getItemObject(0)).title = x_WOConvert;
+        ((Item)comboVideoFormat.getItemObject(1000)).title = x_CustomOption;
+        
+        ((Item)comboVideoFPS.getItemObject(0)).title = x_WOConvert;
+        ((Item)comboVideoFPS.getItemObject(1000)).title = x_CustomOption;
+
+        ((Item)comboVideoSize.getItemObject(0)).title = x_WOConvert;
+        ((Item)comboVideoSize.getItemObject(1000)).title = x_CustomOption;
+
+        ((Item)comboAudioMode.getItemObject(-1)).title = x_NotSave;
+        if (FFMpeg.isAudio_pcm_s16le) {
+            ((Item)comboAudioMode.getItemObject(0)).title = x_ToFile;
+            ((Item)comboAudioMode.getItemObject(1)).title = x_ToVideo;
+        }
+
+        ((Item)comboAudioFormat.getItemObject(0)).title = x_WOConvert;
+        ((Item)comboAudioFormat.getItemObject(1000)).title = x_CustomOption;
+
+        ((Item)comboSubMode.getItemObject(-1)).title = x_NotSave;
+        ((Item)comboSubMode.getItemObject(0)).title = x_ToFile;
+        if (FFMpeg.isSub_srt) {
+            ((Item)comboSubMode.getItemObject(1)).title = x_ToVideo;
+        }
+    }
+    
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == dateStart) {

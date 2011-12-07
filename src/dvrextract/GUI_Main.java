@@ -4,7 +4,7 @@
  */
 package dvrextract;
 
-import dvrextract.I10n.Lang;
+import dvrextract.I18n.Lang;
 import dvrextract.gui.GUI;
 import dvrextract.gui.GUITabPane;
 import dvrextract.gui.GUIFrame;
@@ -27,6 +27,10 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
     // На всех вкладках.
     ////////////////////////////////////////////////////////////////////////////
     /**
+     * Надпись "Инфо".
+     */
+    private JLabel labelInfo;
+    /**
      * Строка состояния обработки.
      */
     private JTextField textInfo;
@@ -43,6 +47,10 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
      */
     private JComboBox comboLang;
     ////////////////////////////////////////////////////////////////////////////
+    /**
+     * Табулятор.
+     */
+    private GUITabPane tabPane;
     /**
      * Закладка "Источник".
      */
@@ -67,8 +75,9 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
     /**
      * Текстовые ресурсы для интерфейса.
      */
-    public static String x_Confirmation, x_ExitQuest, x_Help, x_Info, x_Log,
-            x_No, x_Process, x_Source, x_State, x_Yes, x_Interrupt;
+    public static String x_TabSource, x_TabProcess, x_TabState, x_TabLog, x_TabHelp,
+            x_LabelInfo, x_Confirmation, x_ExitQuest, x_Yes, x_No,
+            x_TitleSuffix, x_ButtonProcess, x_ButtonInterrupt;
 
     /**
      * Создание окна.
@@ -90,11 +99,11 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
 
         comboLang = new JComboBox(Lang.values());
         comboLang.addActionListener(GUI_Main.this);
-        buttonProcess = GUI.createButton(x_Process);
+        buttonProcess = GUI.createButton(x_ButtonProcess);
         buttonProcess.addActionListener(GUI_Main.this);
         progressBar = new JProgressBar();
         textInfo = GUI.createText(100);
-        
+
         tabSource = new GUI_TabSource();
         tabProcess = new GUI_TabProcess();
         tabLog = new GUI_TabLog();
@@ -107,29 +116,29 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
      * Построение пользовательского интерфейса.
      */
     public void createUI() {
-        setTitle("DVR Extractor v" + App.version + " (ознакомительная версия)");
+        setTitle("DVR Extractor v" + App.version + " " + x_TitleSuffix);
         setLayout(new BorderLayout());
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setPreferredSize(new Dimension(890, 640));
 
-        GUITabPane tabPane = new GUITabPane();
+        tabPane = new GUITabPane();
 
         // Вкладка "Источник"
-        tabPane.addTab(x_Source, tabSource);
+        tabPane.addTab(x_TabSource, tabSource);
 
         // Вкладка "Обработка"
-        tabPane.addTab(x_Process, tabProcess);
+        tabPane.addTab(x_TabProcess, tabProcess);
 
         // Вкладка "Состояние" (обработки - для реализации позже)
         JPanel panelTab3 = new JPanel(new MigLayout());
-        tabPane.addTab(x_State, panelTab3);
+        tabPane.addTab(x_TabState, panelTab3);
         tabPane.setEnable(panelTab3, false);
 
         // Вкладка "Лог"
-        tabPane.addTab(x_Log, tabLog);
+        tabPane.addTab(x_TabLog, tabLog);
 
         // Вкладка "О программе"
-        tabPane.addTab(x_Help, tabAbout);
+        tabPane.addTab(x_TabHelp, tabAbout);
 
         JPanel p = tabPane.getBarPanel();
         p.add(new JLabel(), "push");
@@ -140,8 +149,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         add(tabPane, BorderLayout.CENTER);
 
         JPanel panelButton = new JPanel(new MigLayout("", "[][grow,fill][10px]"));
-
-        panelButton.add(GUI.createLabel(x_Info));
+        panelButton.add(labelInfo = GUI.createLabel(x_LabelInfo));
         panelButton.add(textInfo, "");
         textInfo.setEditable(false);
         textInfo.setBackground(new Color(0xE0E0E0));
@@ -161,6 +169,32 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         validateLocks();
     }
 
+    /**
+     * Актуализация контента при смене языка отображения.
+     */
+    public void updateLocale() {
+
+        setTitle("DVR Extractor v" + App.version + " " + x_TitleSuffix);
+
+        tabPane.setTabTitle(0, x_TabSource);
+        tabPane.setTabTitle(1, x_TabProcess);
+        tabPane.setTabTitle(2, x_TabState);
+        tabPane.setTabTitle(3, x_TabLog);
+        tabPane.setTabTitle(4, x_TabHelp);
+
+        labelInfo.setText(x_LabelInfo);
+        textInfo.setText("");
+        
+        tabSource.updateLocale();
+        tabProcess.updateLocale();
+        tabLog.updateLocale();
+
+        // Обновляем состояния всех элементов исходя из условий.
+        validateLocks(); // Обновление надписи на кнопке Обработка согласно состоянию.
+
+        pack();
+    }
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == buttonProcess) {
@@ -172,8 +206,9 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
                 Task.terminate();
             }
         } else if (e.getSource() == comboLang) {
-            I10n.init((Lang)comboLang.getSelectedItem());
-            createUI();
+            I18n.init((Lang) comboLang.getSelectedItem());
+            //createUI();
+            updateLocale();
         }
     }
 
@@ -222,12 +257,12 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
                 if (Task.isAlive()) {
                     // Выполняется задача.
                     buttonProcess.setEnabled(true);
-                    buttonProcess.setText(x_Interrupt);
+                    buttonProcess.setText(x_ButtonInterrupt);
                     cancelState = true;
                 } else {
                     // Задач нет.
                     buttonProcess.setEnabled(isPossibleProcess());
-                    buttonProcess.setText(x_Process);
+                    buttonProcess.setText(x_ButtonProcess);
                     cancelState = false;
                 }
                 if (tabSource != null) {

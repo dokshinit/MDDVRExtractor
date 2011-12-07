@@ -12,6 +12,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
@@ -24,6 +25,10 @@ import net.miginfocom.swing.MigLayout;
 public final class GUI_TabSource extends JPanel implements ActionListener {
 
     /**
+     * Надпись Источник.
+     */
+    private JLabel labelSource;
+    /**
      * Путь к источнику.
      */
     private JTextField textSource;
@@ -32,9 +37,17 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
      */
     private JButton buttonSource;
     /**
+     * Надпись Тип.
+     */
+    private JLabel labelType;
+    /**
      * Тип источника.
      */
     private JTextField textType;
+    /**
+     * Надпись Камера.
+     */
+    private JLabel labelCam;
     /**
      * Список камер для выбора.
      */
@@ -50,19 +63,21 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
     /**
      * Текстовые ресурсы для интерфейса.
      */
-    public static String x_Cam, x_NotIndent, x_NotSelect, x_Select,
-            x_Source, x_Type;
+    public static String x_Cam, x_NotSelected, x_Select, x_Source, x_Type;
 
     /**
      * Конструктор.
      */
     public GUI_TabSource() {
+        labelSource = GUI.createLabel(x_Source);
         textSource = GUI.createText(300);
         buttonSource = GUI.createButton(x_Select);
         buttonSource.addActionListener(GUI_TabSource.this);
-        textType = GUI.createText(x_NotIndent, 10);
+        labelType = GUI.createLabel(x_Type);
+        textType = GUI.createText(App.Source.getType().title, 10);
+        labelCam = GUI.createLabel(x_Cam);
         comboCam = GUI.createCombo();
-        comboCam.addItem(0, x_NotSelect);
+        comboCam.addItem(0, x_NotSelected);
         comboCam.showData();
         comboCam.addActionListener(GUI_TabSource.this);
 
@@ -74,21 +89,23 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
      * Инициализация графических компонент.
      */
     public void createUI() {
+        removeAll();
+
         setLayout(new MigLayout("", "", "[]2[][fill, grow]"));
 
-        add(GUI.createLabel(x_Source));
+        add(labelSource);
         add(textSource, "growx, span, split 2");
         textSource.setEditable(false);
         add(buttonSource, "wrap");
 
         // Отображение типа источника.
-        add(GUI.createLabel(x_Type), "right");
+        add(labelType, "right");
         add(textType, "span, split 3");
         textType.setEditable(false);
         textType.setHorizontalAlignment(JTextField.CENTER);
 
         // Выбор камеры для обработки.
-        add(GUI.createLabel(x_Cam), "gapleft 20");
+        add(labelCam, "gapleft 20");
         add(comboCam, "w 110, wrap");
 
         JPanel panel = new JPanel(new BorderLayout());
@@ -104,6 +121,21 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
         JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, filesPanel, infoPanel);
         sp.setDividerSize(8);
         panel.add(sp, BorderLayout.CENTER);
+    }
+
+    /**
+     * Актуализация контента при смене языка отображения.
+     */
+    public void updateLocale() {
+        labelSource.setText(x_Source);
+        buttonSource.setText(x_Select);
+        labelType.setText(x_Type);
+        textType.setText(App.Source.getType().title);
+        labelCam.setText(x_Cam);
+        validateCamsListChange();
+        //
+        filesPanel.updateLocale();
+        infoPanel.updateLocale();
     }
 
     @Override
@@ -143,6 +175,8 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
 
             @Override
             public void run() {
+                int id = comboCam.getSelectedItem().id;
+
                 comboCam.removeItems();
                 for (int i = 1; i <= App.MAXCAMS; i++) {
                     CamInfo ci = App.Source.getCamInfo(i);
@@ -152,9 +186,12 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
                 }
                 // Если нет камер - ставим не выбрано.
                 if (comboCam.getListItemCount() == 0) {
-                    comboCam.addItem(0, x_NotSelect);
+                    comboCam.addItem(0, x_NotSelected);
                 }
                 comboCam.showData();
+                if (id > 0) { // Если была выбрана камера - пытаемся выбрать её же.
+                    comboCam.setSelectedId(id);
+                }
 
                 fireCamSelect(); // Выбор первой по списку камеры.
             }

@@ -37,7 +37,8 @@ public class JExtComboBox extends JComboBox {
      * Объекты записей списка.
      */
     protected ArrayList<ExtItem> items;
-
+    protected DefaultComboBoxModel model;
+    
     /**
      * Конструктор.
      */
@@ -50,7 +51,7 @@ public class JExtComboBox extends JComboBox {
      * Применение модели - отображение списка.
      */
     public void showData() {
-        setModel(new DefaultComboBoxModel(items.toArray()));
+        setModel(model = new DefaultComboBoxModel(items.toArray()));
         setEnabled(true);
     }
 
@@ -73,6 +74,18 @@ public class JExtComboBox extends JComboBox {
         addItem(new ExtItem(id, object));
     }
 
+    /**
+     * Возвращает объект с заданным id.
+     * @param id Числовой идентификатор объекта.
+     * @return Объект.
+     */
+    public Object getItemObject(int id) {
+        for (ExtItem i : items) {
+            if (i.id == id) return i.object;
+        }
+        return null;
+    }
+    
     /**
      * Очистка записей из списка 
      * (для отображения необходимо вызвать showData()).
@@ -116,15 +129,16 @@ public class JExtComboBox extends JComboBox {
     /**
      * Установка текущего выбранного элемента по его коду.
      * @param id Код.
+     * @return Результат выполнения: true - успешно, false - ошибка.
      */
-    public void setSelectedId(int id) {
+    public boolean setSelectedId(int id) {
         for (ExtItem i : items) {
             if (i.id == id) {
                 setSelectedItem(i);
-                return;
+                return true;
             }
         }
-        setSelectedItem(null);
+        return false;
     }
 
     /**

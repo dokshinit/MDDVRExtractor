@@ -44,8 +44,8 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
     /**
      * Текстовые ресурсы для интерфейса.
      */
-    public static String x_All, x_Cam, x_GoScan, x_Hint, x_NotIndent, x_Select,
-            x_Source, x_SourceScan, x_Type, x_SelectSource;
+    public static String x_All, x_Cam, x_GoScan, x_Hint, x_Select, x_Source, 
+            x_SourceScan, x_Type, x_SelectSource;
 
     /**
      * Конструктор.
@@ -71,7 +71,7 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         buttonSelect.addActionListener(this);
         // Тип источника:
         add(GUI.createLabel(x_Type), "right");
-        add(textType = GUI.createText(x_NotIndent, 10), "");
+        add(textType = GUI.createText(App.Source.getType().title, 10), "");
         textType.setEditable(false);
         textType.setHorizontalAlignment(JTextField.CENTER);
         // Примечание:
@@ -89,6 +89,7 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         // Кнопка начала сканиования:
         add(buttonScan = GUI.createButton(x_GoScan), "gapy 15, h 30, span, center, wrap");
         buttonScan.addActionListener(this);
+        buttonScan.setEnabled(!textSource.getText().isEmpty());
 
         pack();
         setResizable(false); // После вычисления размера - изменение ни к чему.
@@ -170,6 +171,7 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
             final File f = fc.getSelectedFile();
             textSource.setText(f.getAbsolutePath());
             textType.setText(SourceFileFilter.getType(f).title);
+            buttonScan.setEnabled(!textSource.getText().isEmpty());
         }
     }
 }
