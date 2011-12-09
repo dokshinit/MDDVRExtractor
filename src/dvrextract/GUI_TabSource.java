@@ -112,7 +112,6 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
         add(panel, "span, grow");
 
         // Панель отображения информации о файле.
-        infoPanel.setBackground(Color.cyan);
         infoPanel.setMinimumSize(new Dimension(300, 90));
         // Панель отображения файлов источника.
         filesPanel.setBackground(Color.blue);

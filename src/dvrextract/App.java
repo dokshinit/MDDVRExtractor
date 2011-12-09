@@ -4,12 +4,11 @@
  */
 package dvrextract;
 
+import com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel;
 import dvrextract.FFMpeg.Cmd;
 import dvrextract.gui.GUI;
 import dvrextract.I18n.Lang;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.plaf.metal.MetalLookAndFeel;
@@ -424,9 +423,15 @@ public class App {
      * Инициализация Look&Feel.
      */
     public static void initLAF() {
-        String laf = "javax.swing.plaf.metal.MetalLookAndFeel";
+        //String laf = "javax.swing.plaf.metal.MetalLookAndFeel";
+        String laf = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
+        //String laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+
+        /*
         // Отключение жирного шрифта в UI.
         UIManager.put("swing.boldMetal", Boolean.FALSE);
+
+        
         // Отключение уродского градиента.
         List buttonGradient = Arrays.asList(
                 new Object[]{new Float(1f), new Float(0f),
@@ -454,11 +459,12 @@ public class App {
         UIManager.put("ToolTip.border", GUI.borderToolTip);
         //JFrame.setDefaultLookAndFeelDecorated(true);
         //JDialog.setDefaultLookAndFeelDecorated(true);
+        //*/
 
         try {
             Class c = Class.forName(laf);
             UIManager.setLookAndFeel(laf);
-            MetalLookAndFeel.setCurrentTheme(new OceanTheme());
+            //MetalLookAndFeel.setCurrentTheme(new OceanTheme());
             //MetalLookAndFeel.setCurrentTheme(new DefaultMetalTheme());
         } catch (java.lang.ClassNotFoundException e) {
             App.log(x_LAFNotFound + " [" + laf + "]! " + e);

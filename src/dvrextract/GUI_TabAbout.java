@@ -37,7 +37,7 @@ public final class GUI_TabAbout extends JPanel {
      * Цвет фона подложки.
      */
     private static final Color scrollBackground = new Color(0xe8e5d9);
-    public static final String dot = "*";
+    public static final String dot = "<html><b>*</b></html>";
     /**
      * Скролл для всей закладки (добавляется в панель - единственный компонет в ней).
      */
@@ -59,7 +59,7 @@ public final class GUI_TabAbout extends JPanel {
     public GUI_TabAbout() {
         labelsGr = new JLabel[x_groups.length];
         for (int i = 0; i < x_groups.length; i++) {
-            labelsGr[i] = GUI.createLabel(x_groups[i]);
+            labelsGr[i] = GUI.createLabel(buildGroupText(x_groups[i]));
         }
         labels = new JLabel[x_labels.length];
         for (int i = 0; i < x_labels.length; i++) {
@@ -75,9 +75,9 @@ public final class GUI_TabAbout extends JPanel {
      * @param title Текст.
      * @return Метка.
      */
-    private JLabel createGroupLabel(String title) {
-        return GUI.createLabel("<html><font color=#4040BF style='font-size: 16pt; font-weight: bold'>"
-                + title + "</font></html>");
+    private String buildGroupText(String title) {
+        return "<html><font color=#4040BF style='font-size: 16pt; font-weight: bold'>"
+                + title + "</font></html>";
     }
 
     /**
@@ -112,7 +112,7 @@ public final class GUI_TabAbout extends JPanel {
      */
     private void addLine(JPanel panel, int ihead, int itext) {
         // Корректируем текст
-        labels[ihead].setText("<html><b>" + x_labels[ihead] + "</b></html>");
+        labels[ihead].setText("<html>" + x_labels[ihead] + "</html>");
         labels[itext].setText("<html>" + x_labels[itext] + "</html>");
         panel.add(labels[ihead], "top");
         panel.add(labels[itext], "top, wrap");
@@ -120,7 +120,7 @@ public final class GUI_TabAbout extends JPanel {
 
     private void addLine(JPanel panel, int itext) {
         // Корректируем текст
-        labels[itext].setText("<html><b>" + x_labels[itext] + "</b></html>");
+        labels[itext].setText("<html>" + x_labels[itext] + "</html>");
         panel.add(labels[itext], "spanx, left, top, wrap");
     }
 
@@ -131,13 +131,11 @@ public final class GUI_TabAbout extends JPanel {
         panel.add(labels[itext], "top, wrap");
     }
 
-    /**
-     * Добавляет на панель одиночный текстовый элемент.
-     * @param panel Панель.
-     * @param text Текст.
-     */
-    private void addLine(JPanel panel, String text) {
-        panel.add(GUI.createLabel("<html>" + text + "</html>"), "spanx, left, top, wrap");
+    private void addNumListLine(JPanel panel, String snum, int itext) {
+        // Корректируем текст
+        labels[itext].setText("<html>" + x_labels[itext] + "</html>");
+        panel.add(new JLabel(snum), "top");
+        panel.add(labels[itext], "top, wrap");
     }
 
     /**
@@ -187,33 +185,41 @@ public final class GUI_TabAbout extends JPanel {
         addListLine(p2, n++);
 
         JPanel p3 = addGroupPanel(gn++, "[10:10:10, right][]");
-        addLine(p3, "Исходные данные:");
-        addLine(p3, dot, "Файлы архивов выгружаемые видеорегистратором (*.exe).");
-        addLine(p3, dot, "Файлы файловой системы видеорегистратора (da#####).");
-        addLine(p3, "<b>Обработка:</b>");
-        addLine(p3, dot, "Выбор в качестве источника файла или каталога (при выборе каталога сканируются и принимаются к обработке все файлы каталога и вложенных подкаталогов подходящих форматов).");
-        addLine(p3, dot, "Выбор в качестве источника каталога. При этом сканируются и принимаются к обработке все файлы каталога и вложенных подкаталогов, которые являются источниками. Обработка в порядке возрастания времени первого кадра файла.");
-        addLine(p3, dot, "Выбор диапазона времени для сохраняемых данных. Диапазон может покрывать как часть файла, так и несколько файлов - на выходе будет один файл.");
-        addLine(p3, dot, "Сохранение видео/аудио без перекодирования (аудио декодируется в PCM в любом случае!).");
-        addLine(p3, dot, "Сохранение видео/аудио с перекодировкой в выбранный формат.");
-        addLine(p3, dot, "Сохранение информации о дате и времени в субтитрах.");
-        addLine(p3, dot, "Сохранение аудио/видео/субтитров в отдельные файлы.");
-        addLine(p3, dot, "Сохранение аудио и субтитров в файл видео.");
-        addLine(p3, "<b>Восстановление:</b>");
-        addLine(p3, dot, "При повреждении файла битые кадры исключаются из ряда, возможно появление артефактов.");
-        addLine(p3, "<b>В планах:</b>");
-        addLine(p3, dot, "Расширенная обработка повреждённых файлов.");
+        addLine(p3, n++);
+        for (int i = 0; i < 2; i++) {
+            addListLine(p3, n++);
+        }
+        addLine(p3, n++);
+        for (int i = 0; i < 8; i++) {
+            addListLine(p3, n++);
+        }
+        addLine(p3, n++);
+        addListLine(p3, n++);
+        addLine(p3, n++);
+        addListLine(p3, n++);
 
-        JPanel p4 = addGroupPanel(labelsGr[gn++], "[20:20:20, left][]");
-        addLine(p4, "1", "На закладке <b><i>Источник</i></b>:");
-        addLine(p4, "1.1", "Выбирается источник после чего происходит его предварительное сканирование.");
-        addLine(p4, "1.2", "Выбирается обрабатываемая камера из списка доступных.");
-        addLine(p4, "2", "На закладке <b><i>Обработка</i></b>:");
-        addLine(p4, "2.1", "Выбирается период сохраняемых данных.");
-        addLine(p4, "2.2", "Выбирается файл-приёмник для видео и если нужно - формат кодирования, размер кадра, частоту кадров.");
-        addLine(p4, "2.3", "Выбирается режим обработки аудио и если нужно - файл-приёмник, формат кодирования.");
-        addLine(p4, "2.4", "Выбирается режим создания субтитров и если нужно - файл-приёмник, формат кодирования.");
-        addLine(p4, "3", "Переход на закладку <b><i>Лог</i></b> для контроля (не обязательно).");
-        addLine(p4, "4", "Запуск обработки (возможно сделать находясь на любой закладке).");
+        JPanel p4 = addGroupPanel(gn++, "[20:20:20, left][]");
+        addNumListLine(p4, "1", n++);
+        addNumListLine(p4, "1.1", n++);
+        addNumListLine(p4, "1.2", n++);
+        addNumListLine(p4, "2", n++);
+        addNumListLine(p4, "2.1", n++);
+        addNumListLine(p4, "2.2", n++);
+        addNumListLine(p4, "2.3", n++);
+        addNumListLine(p4, "2.4", n++);
+        addNumListLine(p4, "3", n++);
+        addNumListLine(p4, "4", n++);
+    }
+
+    /**
+     * Актуализация контента при смене языка отображения.
+     */
+    public void updateLocale() {
+        for (int i = 0; i < labelsGr.length; i++) {
+            labelsGr[i].setText(buildGroupText(x_groups[i]));
+        }
+        for (int i = 0; i < labels.length; i++) {
+            labels[i].setText("<html>" + x_labels[i] + "</html>");
+        }
     }
 }

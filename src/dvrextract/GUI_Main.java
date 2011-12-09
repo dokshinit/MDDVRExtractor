@@ -188,6 +188,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         tabSource.updateLocale();
         tabProcess.updateLocale();
         tabLog.updateLocale();
+        tabAbout.updateLocale();
 
         // Обновляем состояния всех элементов исходя из условий.
         validateLocks(); // Обновление надписи на кнопке Обработка согласно состоянию.
