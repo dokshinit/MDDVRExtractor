@@ -19,7 +19,7 @@ public class GUIFrame extends JFrame {
     public GUIFrame() {
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
-        setBackground(GUI.bgPanel);
-        setForeground(GUI.bgPanel);
+        //setBackground(GUI.bgPanel);
+        //setForeground(GUI.fgPanel);
     }
 }

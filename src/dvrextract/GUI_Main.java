@@ -119,7 +119,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         setTitle("DVR Extractor v" + App.version + " " + x_TitleSuffix);
         setLayout(new BorderLayout());
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setPreferredSize(new Dimension(890, 640));
+        setPreferredSize(new Dimension(920, 660));
 
         tabPane = new GUITabPane();
 
@@ -193,7 +193,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         // Обновляем состояния всех элементов исходя из условий.
         validateLocks(); // Обновление надписи на кнопке Обработка согласно состоянию.
 
-        pack();
+        validate();
     }
 
     @Override

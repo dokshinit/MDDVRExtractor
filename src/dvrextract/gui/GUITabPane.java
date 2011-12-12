@@ -5,6 +5,7 @@
 package dvrextract.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -39,7 +40,8 @@ public class GUITabPane extends JPanel implements ActionListener {
         items = new ArrayList<Item>();
         index = -1;
         setLayout(new BorderLayout());
-        panelBar = new JPanel(new MigLayout("ins 5 5 5 5, gap 2"));
+        panelBar = new JPanel(new MigLayout("ins 5 5 3 5, gap 2"));
+        panelBar.setBorder(new TitleBorder(new Color(0x404080)));
         add(panelBar, BorderLayout.NORTH);
     }
 

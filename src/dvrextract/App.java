@@ -8,6 +8,7 @@ import com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel;
 import dvrextract.FFMpeg.Cmd;
 import dvrextract.gui.GUI;
 import dvrextract.I18n.Lang;
+import java.awt.Color;
 import java.util.Date;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
@@ -426,16 +427,19 @@ public class App {
         //String laf = "javax.swing.plaf.metal.MetalLookAndFeel";
         String laf = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
         //String laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
-
-        /*
-        // Отключение жирного шрифта в UI.
-        UIManager.put("swing.boldMetal", Boolean.FALSE);
+        UIManager.put("nimbusBase", new Color(0x909090));
+        UIManager.put("nimbusBlueGrey", new Color(0xB0B0B0));
+        UIManager.put("control", new Color(0xD8D8D8));
 
         
+        // Отключение жирного шрифта в UI.
+        UIManager.put("swing.boldMetal", Boolean.FALSE);
+        
+        /*
         // Отключение уродского градиента.
         List buttonGradient = Arrays.asList(
-                new Object[]{new Float(1f), new Float(0f),
-                    GUI.bgButton, GUI.bgButton, GUI.bgButton});
+        new Object[]{new Float(1f), new Float(0f),
+        GUI.bgButton, GUI.bgButton, GUI.bgButton});
         List sliderGradient = Arrays.asList(new Object[]{});
         List menuGradient = Arrays.asList(new Object[]{});
         UIManager.put("Button.gradient", buttonGradient);
@@ -522,7 +526,7 @@ public class App {
                 }
             }
         });
-        
+
         //TODO: Два режима работы - графический и консольный?
         /*
          * Ориентировочный синтаксис использования из консоли:

@@ -198,7 +198,7 @@ public final class GUI_TabAbout extends JPanel {
         addLine(p3, n++);
         addListLine(p3, n++);
 
-        JPanel p4 = addGroupPanel(gn++, "[20:20:20, left][]");
+        JPanel p4 = addGroupPanel(gn++, "[25:25:25, left][]");
         addNumListLine(p4, "1", n++);
         addNumListLine(p4, "1.1", n++);
         addNumListLine(p4, "1.2", n++);

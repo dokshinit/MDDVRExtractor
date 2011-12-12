@@ -146,8 +146,8 @@ public class GUI {
     public static JFormattedTextField createFormattedText(MaskFormatter format) {
         JFormattedTextField text = new JFormattedTextField(format);
         text.setBorder(borderTextField);
-        text.setBackground(bgEdit);
-        text.setForeground(fgEdit);
+        //text.setBackground(bgEdit);
+        //text.setForeground(fgEdit);
         return text;
     }
 
@@ -158,8 +158,8 @@ public class GUI {
     public static JDateTimeField createDTText() {
         JDateTimeField text = new JDateTimeField();
         text.setBorder(borderTextField);
-        text.setBackground(bgEdit);
-        text.setForeground(fgEdit);
+        //text.setBackground(bgEdit);
+        //text.setForeground(fgEdit);
         return text;
     }
 
@@ -172,8 +172,8 @@ public class GUI {
     public static JTextField createText(String title, int size) {
         JTextField text = new JTextField(title, size);
         text.setBorder(borderTextField);
-        text.setBackground(bgEdit);
-        text.setForeground(fgEdit);
+        //text.setBackground(bgEdit);
+        //text.setForeground(fgEdit);
         return text;
     }
 
@@ -204,7 +204,7 @@ public class GUI {
      */
     public static JButton createButton(String title) {
         JButton b = new JButton(title);
-        b.setForeground(fgButton);
+        //b.setForeground(fgButton);
         return b;
     }
 
@@ -215,7 +215,7 @@ public class GUI {
      */
     public static JToggleButton createToggleButton(String title) {
         JToggleButton b = new JToggleButton(title);
-        b.setForeground(fgButton);
+        //b.setForeground(fgButton);
         return b;
     }
 
