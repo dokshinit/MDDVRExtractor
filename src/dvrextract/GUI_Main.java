@@ -15,6 +15,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import javax.swing.*;
+import javax.swing.plaf.UIResource;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -120,6 +121,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         setLayout(new BorderLayout());
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setPreferredSize(new Dimension(920, 660));
+        setMinimumSize(new Dimension(500, 400));
 
         tabPane = new GUITabPane();
 
@@ -129,10 +131,11 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         // Вкладка "Обработка"
         tabPane.addTab(x_TabProcess, tabProcess);
 
-        // Вкладка "Состояние" (обработки - для реализации позже)
-        JPanel panelTab3 = new JPanel(new MigLayout());
-        tabPane.addTab(x_TabState, panelTab3);
-        tabPane.setEnable(panelTab3, false);
+//        // Вкладка "Состояние" (обработки - для реализации позже)
+//        JPanel panelTab3 = new JPanel(new MigLayout());
+//        tabPane.addTab(x_TabState, panelTab3);
+//        //tabPane.setEnable(panelTab3, false);
+//        tabPane.setEnabledAt(2, false);
 
         // Вкладка "Лог"
         tabPane.addTab(x_TabLog, tabLog);
@@ -151,6 +154,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         JPanel panelButton = new JPanel(new MigLayout("", "[][grow,fill][10px]"));
         panelButton.add(labelInfo = GUI.createLabel(x_LabelInfo));
         panelButton.add(textInfo, "");
+        
         textInfo.setEditable(false);
         textInfo.setBackground(new Color(0xE0E0E0));
         panelButton.add(buttonProcess, "spany 2, growy, wrap");
@@ -176,11 +180,11 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
 
         setTitle("DVR Extractor v" + App.version + " " + x_TitleSuffix);
 
-        tabPane.setTabTitle(0, x_TabSource);
-        tabPane.setTabTitle(1, x_TabProcess);
-        tabPane.setTabTitle(2, x_TabState);
-        tabPane.setTabTitle(3, x_TabLog);
-        tabPane.setTabTitle(4, x_TabHelp);
+        tabPane.setTitleAt(0, x_TabSource);
+        tabPane.setTitleAt(1, x_TabProcess);
+        //tabPane.setTitleAt(2, x_TabState);
+        tabPane.setTitleAt(2, x_TabLog);
+        tabPane.setTitleAt(3, x_TabHelp);
 
         labelInfo.setText(x_LabelInfo);
         textInfo.setText("");
@@ -257,11 +261,13 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
             public void run() {
                 if (Task.isAlive()) {
                     // Выполняется задача.
+                    comboLang.setEnabled(false);
                     buttonProcess.setEnabled(true);
                     buttonProcess.setText(x_ButtonInterrupt);
                     cancelState = true;
                 } else {
                     // Задач нет.
+                    comboLang.setEnabled(true);
                     buttonProcess.setEnabled(isPossibleProcess());
                     buttonProcess.setText(x_ButtonProcess);
                     cancelState = false;

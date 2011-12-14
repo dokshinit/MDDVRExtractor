@@ -60,9 +60,19 @@ public class JDirectory extends JPanel {
 
         scrolled = false;
         table = new JXTable(tableModel, columnModel);
-        table.setColumnControlVisible(true);
+        table.setColumnControlVisible(false);
+        
+        Color tabColor = UIManager.getColor("Table.background");
+        Color rowColor1 = tabColor;
+        Color rowColor2 = new Color((int) (tabColor.getRed() * .95),
+                    (int) (tabColor.getGreen() * .95),
+                    (int) (tabColor.getBlue() * .95));
+        table.setRowHeight(table.getRowHeight() + 4);
+
+                    
         table.setHighlighters(HighlighterFactory.createAlternateStriping(
-                new Color(255, 255, 255), new Color(245, 250, 255)));
+                rowColor1, rowColor2));
+                //new Color(255, 255, 255), new Color(245, 250, 255)));
         // Установка параметров таблицы.
         // Сохранение редактируемого значения при потере фокуса ячейкой.
         table.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
@@ -112,6 +122,8 @@ public class JDirectory extends JPanel {
                 scrollComponentResized(evt);
             }
         });
+        //scroll.getViewport().setBackground(rowColors[1]);
+        table.setBackground(rowColor2);
         setLayout(new BorderLayout());
         add(scroll, BorderLayout.CENTER);
     }

@@ -4,7 +4,6 @@
  */
 package dvrextract;
 
-import dvrextract.gui.TitleBorder;
 import dvrextract.FFMpeg.Cmd;
 import dvrextract.FFMpeg.FFCodec;
 import dvrextract.gui.GUI;
@@ -12,11 +11,11 @@ import dvrextract.gui.JDateTimeField;
 import dvrextract.gui.JExtComboBox;
 import dvrextract.gui.JExtComboBox.ExtItem;
 import dvrextract.gui.JVScrolledPanel;
-import java.awt.Color;
+import dvrextract.gui.RoundPanel;
+import dvrextract.gui.GroupBorder;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -129,11 +128,6 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             x_ToVideo, x_Video, x_WOConvert, x_CalcEnd, x_CalcStart,
             x_SelectDestFile, x_NotePreDecoding, x_NoteSimple,
             x_CheckExpert;
-
-    private JLabel labelGrSource;
-    private JLabel labelGrVideo;
-    private JLabel labelGrAudio;
-    private JLabel labelGrSub;
     private JLabel labelCam;
     private JLabel labelPeriod1;
     private JLabel labelPeriod2;
@@ -162,11 +156,6 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         checkExpert = GUI.createCheck(x_CheckExpert, false);
         checkExpert.addActionListener(GUI_TabProcess.this);
 
-        labelGrSource = createGroupLabel(x_Source);
-        labelGrVideo = createGroupLabel(x_Video);
-        labelGrAudio = createGroupLabel(x_Audio);
-        labelGrSub = createGroupLabel(x_Sub);
-        
         labelCam = GUI.createLabel(x_Cam);
         labelPeriod1 = GUI.createLabel(x_Period1);
         labelPeriod2 = GUI.createLabel(x_Period2);
@@ -182,7 +171,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         labelSubMode = GUI.createLabel(x_Mode);
         labelSubFormat = GUI.createLabel(x_Format);
         labelNoteSimple = GUI.createNoteLabel(x_NoteSimple);
-        
+
         textCam = createText(10);
         textCam.setText(App.Source.getType().title);
         dateStart = GUI.createDTText();
@@ -305,23 +294,27 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         text.setEditable(false);
         return text;
     }
-    /**
-     * Окантовка панели названия группы.
-     */
-    private static final TitleBorder groupTitleBorder = new TitleBorder(new Color(0x808080));
-    /**
-     * Цвет фона панели названия группы.
-     */
-    private static final Color groupTitleBackground = new Color(0xC0C0C0);
 
-    /**
-     * Создание метки панели группы.
-     * @param title Текст.
-     * @return Метка.
-     */
-    private JLabel createGroupLabel(String title) {
-        return GUI.createLabel("<html><font color=#202020 style='font-size: 12pt; font-weight: bold'>"
-                + title + "</font></html>");
+    private GroupPanel gpVideo, gpAudio, gpSub, gpSource;
+
+    private class GroupPanel extends RoundPanel {
+
+        GroupBorder border;
+        JPanel content;
+
+        public GroupPanel(String title) {
+            super(new MigLayout("ins 3", "grow", ""), 16);
+            setBorder(border = new GroupBorder(title, false,
+                    GUI.Process.Group.gradient1, GUI.Process.Group.gradient2));
+            //setFont(UIManager.getFont("titleFont"));
+            setForeground(GUI.Process.Group.fgtitle);
+            setBackground(GUI.Process.Group.bgcontent);
+
+            content = new JPanel(new MigLayout("ins 0, gap 3", "[120:120:120, right][]"));
+            content.setForeground(GUI.Process.Group.fgcontent);
+            content.setBackground(GUI.Process.Group.bgcontent);
+            add(content, "gapleft 10, gapright 10, growx");
+        }
     }
 
     /**
@@ -329,20 +322,10 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      * @param title Метка названия.
      * @return Панель-тело для наполнения группы.
      */
-    private JPanel addGroupPanel(JLabel title) {
-        JPanel group = new JPanel(new MigLayout("ins 0", "grow", "[]5[]"));
-
-        JPanel gtitle = new JPanel(new MigLayout("ins 3", "grow"));
-        gtitle.add(title, "gapleft 5, left");
-        gtitle.setBorder(groupTitleBorder);
-        gtitle.setBackground(groupTitleBackground);
-
-        JPanel gcontent = new JPanel(new MigLayout("ins 0", "[120:120:120, right][]"));
-
-        group.add(gtitle, "growx, wrap");
-        group.add(gcontent, "gapleft 10, gapright 10, gapbottom 5, growx");
+    private GroupPanel addGroupPanel(String title) {
+        GroupPanel group = new GroupPanel(title);
         panel.add(group, "spanx, grow, gapbottom 5, wrap");
-        return gcontent;
+        return group;
     }
 
     /**
@@ -354,11 +337,14 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         panel.removeAll();
 
         setLayout(new MigLayout("ins 5, fill", "", "[][grow]"));
+        scroll.getViewport().setBackground(GUI.Process.bgscroll);
+        //panel.setBackground(bg);
 
         add(checkExpert, "wrap");
         add(scroll, "grow");
 
-        JPanel p1 = addGroupPanel(labelGrSource);
+        gpSource = addGroupPanel(x_Source);
+        JPanel p1 = gpSource.content;
         p1.add(labelCam);
         p1.add(textCam, "spanx, wrap");
 
@@ -370,7 +356,8 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
         if (checkExpert.isSelected()) { // Режим расширенных настроек.
 
-            JPanel p2 = addGroupPanel(labelGrVideo);
+            gpVideo = addGroupPanel(x_Video);
+            JPanel p2 = gpVideo.content;
             p2.add(labelVideoFile);
             p2.add(textDestVideo, "growx, spanx, split 2");
             p2.add(buttonSelectVideo, "wrap");
@@ -383,7 +370,8 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             p2.add(labelVideoCustom);
             p2.add(textVideoCustom, "left, spanx");
 
-            JPanel p3 = addGroupPanel(labelGrAudio);
+            gpAudio = addGroupPanel(x_Audio);
+            JPanel p3 = gpAudio.content;
             p3.add(labelAudioMode);
             p3.add(comboAudioMode, "left, spanx, split 3");
             p3.add(textDestAudio, "growx");
@@ -394,7 +382,8 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             p3.add(labelAudioCustom);
             p3.add(textAudioCustom, "left, spanx");
 
-            JPanel p4 = addGroupPanel(labelGrSub);
+            gpSub = addGroupPanel(x_Sub);
+            JPanel p4 = gpSub.content;
             p4.add(labelSubMode);
             p4.add(comboSubMode, "left, spanx, split 3");
             p4.add(textDestSub, "growx");
@@ -404,7 +393,8 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
         } else { // Режим упрощенных настроек.
 
-            JPanel p2 = addGroupPanel(labelGrVideo);
+            gpVideo = addGroupPanel(x_Video);
+            JPanel p2 = gpVideo.content;
             p2.add(labelVideoFile);
             p2.add(textDestVideo, "growx, spanx, split 2");
             p2.add(buttonSelectVideo, "wrap");
@@ -424,11 +414,13 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      * Актуализация контента при смене языка отображения.
      */
     public void updateLocale() {
-        labelGrSource.setText(x_Source);
-        labelGrVideo.setText(x_Video);
-        labelGrAudio.setText(x_Audio);
-        labelGrSub.setText(x_Sub);
-        
+        gpSource.border.setTitle(x_Source);
+        gpVideo.border.setTitle(x_Video);
+        if (checkExpert.isSelected()) {
+            gpAudio.border.setTitle(x_Audio);
+            gpSub.border.setTitle(x_Sub);
+        }
+
         labelCam.setText(x_Cam);
         labelPeriod1.setText(x_Period1);
         labelPeriod2.setText(x_Period2);
@@ -444,7 +436,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         labelSubMode.setText(x_Mode);
         labelSubFormat.setText(x_Format);
         labelNoteSimple.setText(GUI.buildNoteLabelText(x_NoteSimple));
-        
+
         checkExpert.setText(x_CheckExpert);
         //dateStart = ;
         //dateEnd = ;
@@ -453,32 +445,32 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         buttonSelectVideo.setText(x_Select);
         buttonSelectAudio.setText(x_Select);
         buttonSelectSub.setText(x_Select);
-        
-        ((Item)comboVideoFormat.getItemObject(0)).title = x_WOConvert;
-        ((Item)comboVideoFormat.getItemObject(1000)).title = x_CustomOption;
-        
-        ((Item)comboVideoFPS.getItemObject(0)).title = x_WOConvert;
-        ((Item)comboVideoFPS.getItemObject(1000)).title = x_CustomOption;
 
-        ((Item)comboVideoSize.getItemObject(0)).title = x_WOConvert;
-        ((Item)comboVideoSize.getItemObject(1000)).title = x_CustomOption;
+        ((Item) comboVideoFormat.getItemObject(0)).title = x_WOConvert;
+        ((Item) comboVideoFormat.getItemObject(1000)).title = x_CustomOption;
 
-        ((Item)comboAudioMode.getItemObject(-1)).title = x_NotSave;
+        ((Item) comboVideoFPS.getItemObject(0)).title = x_WOConvert;
+        ((Item) comboVideoFPS.getItemObject(1000)).title = x_CustomOption;
+
+        ((Item) comboVideoSize.getItemObject(0)).title = x_WOConvert;
+        ((Item) comboVideoSize.getItemObject(1000)).title = x_CustomOption;
+
+        ((Item) comboAudioMode.getItemObject(-1)).title = x_NotSave;
         if (FFMpeg.isAudio_pcm_s16le) {
-            ((Item)comboAudioMode.getItemObject(0)).title = x_ToFile;
-            ((Item)comboAudioMode.getItemObject(1)).title = x_ToVideo;
+            ((Item) comboAudioMode.getItemObject(0)).title = x_ToFile;
+            ((Item) comboAudioMode.getItemObject(1)).title = x_ToVideo;
         }
 
-        ((Item)comboAudioFormat.getItemObject(0)).title = x_WOConvert;
-        ((Item)comboAudioFormat.getItemObject(1000)).title = x_CustomOption;
+        ((Item) comboAudioFormat.getItemObject(0)).title = x_WOConvert;
+        ((Item) comboAudioFormat.getItemObject(1000)).title = x_CustomOption;
 
-        ((Item)comboSubMode.getItemObject(-1)).title = x_NotSave;
-        ((Item)comboSubMode.getItemObject(0)).title = x_ToFile;
+        ((Item) comboSubMode.getItemObject(-1)).title = x_NotSave;
+        ((Item) comboSubMode.getItemObject(0)).title = x_ToFile;
         if (FFMpeg.isSub_srt) {
-            ((Item)comboSubMode.getItemObject(1)).title = x_ToVideo;
+            ((Item) comboSubMode.getItemObject(1)).title = x_ToVideo;
         }
     }
-    
+
     @Override
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == dateStart) {

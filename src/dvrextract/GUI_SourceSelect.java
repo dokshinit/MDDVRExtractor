@@ -30,6 +30,10 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
      */
     private JButton buttonSelect;
     /**
+     * Кнопка отмены и выхода.
+     */
+    private JButton buttonCancel;
+    /**
      * Отображение типа источника.
      */
     private JTextField textType;
@@ -45,7 +49,7 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
      * Текстовые ресурсы для интерфейса.
      */
     public static String x_All, x_Cam, x_GoScan, x_Hint, x_Select, x_Source, 
-            x_SourceScan, x_Type, x_SelectSource;
+            x_SourceScan, x_Type, x_SelectSource, x_Cancel;
 
     /**
      * Конструктор.
@@ -87,9 +91,11 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         comboCam.showData();
         comboCam.addActionListener(this);
         // Кнопка начала сканиования:
-        add(buttonScan = GUI.createButton(x_GoScan), "gapy 15, h 30, span, center, wrap");
+        add(buttonScan = GUI.createButton(x_GoScan), "gapy 15, h 30, spanx, center, split 2");
         buttonScan.addActionListener(this);
         buttonScan.setEnabled(!textSource.getText().isEmpty());
+        add(buttonCancel = GUI.createButton(x_Cancel), "center, wrap");
+        buttonCancel.addActionListener(this);
 
         pack();
         setResizable(false); // После вычисления размера - изменение ни к чему.
@@ -107,6 +113,9 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         } else if (e.getSource() == buttonScan) {
             // Старт сканирования...
             fireScan();
+        } else if (e.getSource() == buttonCancel) {
+            // Выход
+            fireCancel();
         }
     }
 
@@ -130,6 +139,15 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         if (Task.start(new ScanTask())) {
             dispose(); // В случас успеха - закрываем окно.
         }
+    }
+
+    /**
+     * Обработка нажатия на кнопку сканирования.
+     * Стартует сканирование источника. Можно запускать только при отсутсвии 
+     * текущего процесса сканирования \ обработки.
+     */
+    private void fireCancel() {
+        dispose(); // Закрываем окно.
     }
 
     /**

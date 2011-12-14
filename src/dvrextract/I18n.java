@@ -75,11 +75,11 @@ public class I18n {
 
         // App
         App.x_LAFNotFound = text(
-                "Не найден Look&Feel", "Look&Feel is not found"); // Not found LAF
+                "Не найден Look&Feel", "Look&Feel not found"); // "Look&Feel is not found"
         App.x_LAFError = text(
-                "Ошибка включения Look&Feel", "Look&Feel aplying error"); // Error of LAF applying
+                "Ошибка включения Look&Feel", "Look&Feel activation error"); // "Look&Feel aplying error"
         App.x_FFMpegWrong = text(
-                "Некорректная работа FFMPEG", "FFMPEG is not working correctly");
+                "Некорректная работа FFMPEG", "FFMPEG works wrong"); // "FFMPEG is not working correctly"
         App.x_CodecsWrong = text(
                 "Ошибка запроса кодеков FFMPEG", "Error of FFMPEG codecs request");
 
@@ -89,31 +89,31 @@ public class I18n {
         DataProcessor.x_ProcessFile = text(
                 "Обработка файла (%d из %d)", "File processing (%d of %d)");
         DataProcessor.x_ProcessEnd = text(
-                "Процесс кодирования завершён.", "The encoding process is completed.");
+                "Процесс кодирования завершён.", "The encoding is completed."); // "The encoding process is completed."
         DataProcessor.x_ProcessSourceEnd = text(
-                "Обработка источника завершена.", "The source processing is completed.");
+                "Обработка источника завершена.", "Processing of the source is completed."); // "The source processing is completed."
         DataProcessor.x_FinalMakeStart = text(
-                "Запуск процесса сборки...", "Starting of process of final build...");
+                "Запуск процесса сборки...", "Starting the final build..."); // "Starting of process of final build..."
         DataProcessor.x_ErrorFinalMakeStart = text(
-                "Ошибка запуска процесса сборки!", "Error of starting of final build process!");
+                "Ошибка запуска процесса сборки!", "Error of starting the final build!"); // "Error of starting of final build process!"
         DataProcessor.x_FinalMakeStarted = text(
-                "Запущен процесс сборки.", "Running the final build process.");
+                "Запущен процесс сборки.", "The final build is running."); // "Running the final build process."
         DataProcessor.x_FFMpegVideoInputNotFound = text(
-                "Источник видео не найден!", "Video source is not found!");
+                "Источник видео не найден!", "Video source not found!"); // "Video source is not found!"
         DataProcessor.x_FFMpegProcessVideoInputFail = text(
                 "Ошибка при открытии источника видео!", "Error opening video source!");
         DataProcessor.x_UserPorcessCancel = text(
-                "Прерывание процесса пользователем!", "Process interrupt occurred by the user!");
+                "Прерывание процесса пользователем!", "Process interrupted by the user!"); // "Process interrupt occurred by the user!"
         DataProcessor.x_ErrorMakeIO = text(
                 "Ошибка I/O при сборке!", "Final build I/O error!");
         DataProcessor.x_FinalMakeEnd = text(
-                "Процесс сборки завершён.", "Final buid process is completed.");
+                "Процесс сборки завершён.", "Final buid is completed."); // "Final buid process is completed."
         DataProcessor.x_WrongOutVideoFile = text(
-                "Неверное имя файла-приёмника видео!", "Wrong name for the video destination file!");
+                "Неверное имя файла-приёмника видео!", "Wrong name of the video destination file!"); // "Wrong name for the video destination file!"
         DataProcessor.x_WrongOutAudioFile = text(
-                "Неверное имя файла-приёмника аудио!", "Wrong name for the audio destination file!");
+                "Неверное имя файла-приёмника аудио!", "Wrong name of the audio destination file!"); // "Wrong name for the audio destination file!"
         DataProcessor.x_WrongOutSubFile = text(
-                "Неверное имя файла-приёмника субтитров!", "Wrong name for the subtitles destination file!");
+                "Неверное имя файла-приёмника субтитров!", "Wrong name of the subtitles destination file!"); // "Wrong name for the subtitles destination file!"
         DataProcessor.x_ErrorFFMpegStart = text(
                 "Ошибка запуска!", "Failed to start!");
         DataProcessor.x_Delete = text(
@@ -127,20 +127,20 @@ public class I18n {
         DataProcessor.x_Finish = text(
                 "Завершить", "Finish");
         DataProcessor.x_WaitFinish = text(
-                "Ожидать завершения", "Expect completion");
+                "Ожидать завершения", "Wait for a completion"); // "Expect completion"
         DataProcessor.x_FinishProcess = text(
                 "Завершить процесс '%s' принудительно или ожидать ещё %d мсек.?",
-                "Terminate the '%s' process or expect another %d ms.?");
+                "To terminate the '%s' process or to wait %d ms.?"); // "Terminate the '%s' process or expect another %d ms.?"
         DataProcessor.x_FinishedProcess = text(
-                "Процесс '%s' завершен принудительно!", "'%s' process is interrupted!");
+                "Процесс '%s' завершен принудительно!", "The process '%s' is interrupted!"); // "'%s' process is interrupted!"
         DataProcessor.x_CoderStarting = text(
-                "Запуск процесса кодирования...", "Starting the process of encoding...");
+                "Запуск процесса кодирования...", "Starting the encoding..."); // "Starting the process of encoding..."
         DataProcessor.x_CoderStarted = text(
-                "Запущен процесс кодирования.", "The process of encoding is started.");
+                "Запущен процесс кодирования.", "The encoding is started."); // "The process of encoding is started."
 
         // Err
         Err.x_InitError = text(
-                "Ошибка инициализации журнала ошибок!", "Failure to initialize the error log!");
+                "Ошибка инициализации журнала ошибок!", "Failed to initialize the error log!"); // "Failure to initialize the error log!"
 
         // FileType
         FileType.NO.title = text(
@@ -154,11 +154,11 @@ public class I18n {
 
         // Files
         Files.x_BuildFileList = text(
-                "Построение списка файлов источника...", "Building a list of source files...");
+                "Построение списка файлов источника...", "Building the list of source files..."); // "Building a list of source files..."
         Files.x_FileScaning = text(
                 "Сканирование файла (%d из %d)", "Scanning file (%d of %d)");
         Files.x_ScanFinish = text(
-                "Сканирование источника завершено", "Scanning a source is completed");
+                "Сканирование источника завершено", "Scanning of the source is completed"); // "Scanning a source is completed"
         Files.x_ScanFinishBreak = text(
                 "прервано", "interrupted");
         Files.x_SourceScaning = text(
@@ -181,7 +181,7 @@ public class I18n {
                 "%d кадр./сек.", "%d fps.");
         GUIFileInfoPanel.x_HintChangeZoom = text(
                 "Изменение масштаба происходит по нажатию кнопки мыши на кадре.",
-                "Zooming is done by pressing the mouse button on the frame.");
+                "Zooming performs by pressing the mouse button on the frame."); // "Zooming is done by pressing the mouse button on the frame."
         GUIFileInfoPanel.x_NO = text(
                 "НЕТ", "NO");
         GUIFileInfoPanel.x_Name = text(
@@ -203,7 +203,7 @@ public class I18n {
         GUIFileSelectDialog.x_Cancel = text(
                 "Отмена", "Cancel");
         GUIFileSelectDialog.x_CancelSelect = text(
-                "Отмена выбора", "Cancel selection");
+                "Отмена выбора", "Cancel the selection"); // "Cancel selection"
         GUIFileSelectDialog.x_DatailView = text(
                 "Детальный вид", "Detail view");
         GUIFileSelectDialog.x_Date = text(
@@ -298,7 +298,7 @@ public class I18n {
                 "Сканировать", "Scan");
         GUI_SourceSelect.x_Hint = text(
                 "Выбор конкретной камеры может существенно<br>уменьшить время сканирования источника при<br>больших объёмах данных!",
-                "The choice of a particular camera can<br>significantly reduce the source scanning<br>time for large volumes of data!");
+                "The choosing of a particular camera can<br>drastically reduce the source scanning<br>time for large volumes of data!"); // "The choice of a particular camera can<br>significantly reduce the source scanning<br>time for large volumes of data!"
         GUI_SourceSelect.x_Select = text(
                 "Выбор", "Select");
         GUI_SourceSelect.x_Source = text(
@@ -309,6 +309,8 @@ public class I18n {
                 "Тип", "Type");
         GUI_SourceSelect.x_SelectSource = text(
                 "Выбор файла/каталога источника", "Select the source file/directory");
+        GUI_SourceSelect.x_Cancel = text(
+                "Отмена", "Cancel");
 
         // GUI_TabAbout (интернационализируется внутри!)
 
@@ -322,7 +324,7 @@ public class I18n {
         GUI_TabProcess.x_CustomOption = text(
                 "Ручные настройки", "Manual settings");
         GUI_TabProcess.x_Evaluate = text(
-                "Оценка", "Evaluation"); // calculate
+                "Оценка", "Evaluation");
         GUI_TabProcess.x_File = text(
                 "Файл", "File");
         GUI_TabProcess.x_Format = text(
@@ -346,17 +348,17 @@ public class I18n {
         GUI_TabProcess.x_Sub = text(
                 "Титры", "Subtitles");
         GUI_TabProcess.x_ToFile = text(
-                "В файл", "In file");
+                "В файл", "To the separate file"); // "In file"
         GUI_TabProcess.x_ToVideo = text(
-                "В видео", "In video");
+                "В видео", "To the video"); // "In video"
         GUI_TabProcess.x_Video = text(
                 "Видео", "Video");
         GUI_TabProcess.x_WOConvert = text(
                 "Без преобразования", "Without transcoding");
         GUI_TabProcess.x_CalcEnd = text(
-                "Подсчёт данных для обработки завершён.", "Calculation of data to process is completed.");
+                "Подсчёт данных для обработки завершён.", "Calculation of process is completed."); // "Calculation of data to process is completed."
         GUI_TabProcess.x_CalcStart = text(
-                "Подсчёт данных для обработки...", "Calculation of data to process...");
+                "Подсчёт данных для обработки...", "Calculation of process is running..."); // "Calculation of data to process..."
         GUI_TabProcess.x_SelectDestFile = text(
                 "Выбор файла приёмника", "Select destination file");
         GUI_TabProcess.x_NotePreDecoding = text(
@@ -389,7 +391,7 @@ public class I18n {
 
         // Task
         Task.x_CanNotStarted = text(
-                "Задание не может быть запущено!", "Task can not run!");
+                "Задание не может быть запущено!", "The task can not be run!"); // "Task can not run!"
         Task.x_Error = text(
                 "Ошибка", "Error");
 
@@ -398,13 +400,13 @@ public class I18n {
             text("О программе", "About"),
             text("Системные требования", "System requirements"),
             text("Возможности", "Features"),
-            text("Типовый порядок работы", "Typical procedure works.")
+            text("Типовый порядок работы", "Typical workflow")
         };
 
         GUI_TabAbout.x_labels = new String[]{
             text("<b>Назначение</b>", "<b>Purpose</b>"),
             text("Конвертация/извлечение данных видеонаблюдения регистраторов Microdigital.",
-            "Convert/extract surveillance video form recorders Microdigital."),
+            "Convert/extract of video surveillance data form Microdigital recorders."),
             text("<b>Версия</b>", "<b>Version</b>"),
             text(App.version + " от " + App.versionDate, App.version + " of " + App.versionDate),
             text("<b>Автор</b>", "<b>Author</b>"),
@@ -414,7 +416,7 @@ public class I18n {
             text("dant.it@gmail.com", "dant.it@gmail.com"),
             text("<b>Лицензия</b>", "<b>License</b>"),
             text("Ограниченная ознакомительная версия для ООО \"ЭМ ДИ РУС\"",
-            "Limited trial for company OOO \"MD RUS\""),
+            "Limited trial version for OOO \"MD RUS\" company"),
             text("Для запуска программы необходим Java SE (JRE/JDK) v1.6.x.",
             "To run the program requires Java SE (JRE / JDK) v1.6.x."),
             text("Страница загрузки:", "Download page:"),
@@ -422,55 +424,55 @@ public class I18n {
             "For processing and transcoding required ffmpeg v0.8.x (in earlier versions may be unavailable audio preservation and implementation of audio/subtitles in the video)."),
             text("Страница загрузки:", "Download page:"),
             text("Детальная информация по установке, настройкам и работе содержится в файле <b>readme.txt</b>. Также освещён процесс извлечения данных с HDD регистратора.",
-                "Detailed information on installing, configuring and working in the file <b>readme.txt</ b>. It is also illuminated the process of extracting data from the HDD recorder."),
+            "Detailed information on installing, configuring and working is in the file <b>readme.txt</ b>. It is also illuminated the process of extracting data from the HDD recorder."),
             text("<b>Источники данных:</b>", "<b>Data sources:</b>"),
             text("Файлы архивов выгружаемые видеорегистратором (*.exe).",
-                    "Archive files uploads video recorder (*.exe)."),
+            "Archive files uploads video recorder (*.exe)."),
             text("Файлы файловой системы видеорегистратора (da#####).",
-                "Files filesystem video recorder (da#####)."),
+            "Files filesystem video recorder (da#####)."),
             text("<b>Обработка:</b>", "<b>Processing:</b>"),
             text("Выбор в качестве источника файла или каталога (при выборе каталога сканируются и принимаются к обработке все файлы каталога и вложенных подкаталогов подходящих форматов).",
-                "The choice of the source file or directory (by selecting the directory are scanned and accepted for processing all the files directory and subdirectories of suitable formats)."),
+            "The choice of the source file or directory (by selecting the directory are scanned and accepted for processing all the files directory and subdirectories of suitable formats)."),
             text("Выбор в качестве источника каталога. При этом сканируются и принимаются к обработке все файлы каталога и вложенных подкаталогов, которые являются источниками. Обработка в порядке возрастания времени первого кадра файла.",
-                "The choice of the source directory. It scanned and accepted for processing all files and subdirectories that are sources. Processing in ascending order of the first frame file."),
+            "The choice of the source directory. It scanned and accepted for processing all files and subdirectories that are sources. Processing in ascending order of the first frame file."),
             text("Выбор диапазона времени для сохраняемых данных. Диапазон может покрывать как часть файла, так и несколько файлов - на выходе будет один файл.",
-                "The choice of time range for stored data. The range can be covered as part of a file or several files - the output is a single file."),
+            "The choice of time range for stored data. The range can be covered as part of a file or several files - the output is a single file."),
             text("Сохранение видео/аудио без перекодирования (аудио декодируется в PCM в любом случае!).",
-                "Preservation of video/audio without re-encoding (audio decoding to PCM anyway!)"),
+            "Preservation of video/audio without re-encoding (audio decoding to PCM anyway!)"),
             text("Сохранение видео/аудио с перекодировкой в выбранный формат.",
-                "Preservation of video/audio encoding with the selected format."),
+            "Preservation of video/audio encoding with the selected format."),
             text("Сохранение информации о дате и времени в субтитрах.",
-                "Save the date and time in the subtitles."),
+            "Save the date and time in the subtitles."),
             text("Сохранение аудио/видео/субтитров в отдельные файлы.",
-                "Preservation of audio/video/subtitle to separate files."),
+            "Preservation of audio/video/subtitle to separate files."),
             text("Сохранение аудио и субтитров в файл видео.",
-                "Saving audio and subtitles in the video file."),
+            "Saving audio and subtitles in the video file."),
             text("<b>Восстановление:</b>", "<b>Recovery:</b>"),
             text("При повреждении файла битые кадры исключаются из ряда, возможно появление артефактов.",
-                "When file is corrupted, broken frames are excluded from the series, the appearance of artifacts."),
+            "When file is corrupted, broken frames are excluded from the series, the appearance of artifacts."),
             text("<b>В планах:</b>", "<b>The plans:</b>"),
             text("Расширенная обработка повреждённых файлов.",
-                "Extended processing of damaged files."),
+            "Extended processing of damaged files."),
             text("На закладке <b><i>Источник</i></b>:",
-                "The tab <b><i>Source</i></b>:"),
+            "The tab <b><i>Source</i></b>:"),
             text("Выбирается источник после чего происходит его предварительное сканирование.",
-                "Select the source then it is pre-scan."),
+            "Select the source then it is pre-scan."),
             text("Выбирается обрабатываемая камера из списка доступных.",
-                "Select the processed camera from the list."),
+            "Select the processed camera from the list."),
             text("На закладке <b><i>Обработка</i></b>:",
-                "The tab <b><i>Processing</i></b>:"),
+            "The tab <b><i>Processing</i></b>:"),
             text("Выбирается период сохраняемых данных.",
-                "Select the period of stored data."),
+            "Select the period of stored data."),
             text("Выбирается файл-приёмник для видео и если нужно - формат кодирования, размер кадра, частоту кадров.",
-                "Select the file-receiver to the video and if necessary - the encoding format, frame size, frame rate."),
+            "Select the file-receiver to the video and if necessary - the encoding format, frame size, frame rate."),
             text("Выбирается режим обработки аудио и если нужно - файл-приёмник, формат кодирования.",
-                "Select mode audio processing and, if necessary - the file-receiver, the encoding format."),
+            "Select mode audio processing and, if necessary - the file-receiver, the encoding format."),
             text("Выбирается режим создания субтитров и если нужно - файл-приёмник, формат кодирования.",
-                "Select mode of creating subtitles and if necessary - the file-receiver, the encoding format."),
+            "Select mode of creating subtitles and if necessary - the file-receiver, the encoding format."),
             text("Переход на закладку <b><i>Лог</i></b> для контроля (не обязательно).",
-                "Go to the tab <b><i>Log</i></b> control (optional)."),
+            "Go to the tab <b><i>Log</i></b> to control (optional)."),
             text("Запуск обработки (возможно сделать находясь на любой закладке).",
-                "Start the process (perhaps to being on any tab).")
+            "Start the process (perhaps to being on any tab).")
         };
     }
 }

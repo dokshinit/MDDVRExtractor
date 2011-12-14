@@ -4,10 +4,11 @@
  */
 package dvrextract;
 
-import dvrextract.gui.TitleBorder;
 import dvrextract.gui.GUI;
+import dvrextract.gui.GroupBorder;
 import dvrextract.gui.JVScrolledPanel;
-import java.awt.Color;
+import dvrextract.gui.RoundPanel;
+import java.awt.Component;
 import java.net.URI;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -21,22 +22,6 @@ import org.jdesktop.swingx.JXHyperlink;
  */
 public final class GUI_TabAbout extends JPanel {
 
-    /**
-     * Окантовка панели названия группы.
-     */
-    private static final TitleBorder groupTitleBorder = new TitleBorder(new Color(0x404080));
-    /**
-     * Цвет фона панели группы.
-     */
-    private static final Color groupBackground = new Color(0xfffef6);
-    /**
-     * Цвет фона панели названия группы.
-     */
-    private static final Color groupTitleBackground = new Color(0xBFCFFF);
-    /**
-     * Цвет фона подложки.
-     */
-    private static final Color scrollBackground = new Color(0xe8e5d9);
     public static final String dot = "<html><b>*</b></html>";
     /**
      * Скролл для всей закладки (добавляется в панель - единственный компонет в ней).
@@ -52,6 +37,7 @@ public final class GUI_TabAbout extends JPanel {
     private JLabel[] labelsGr;
     private JLabel[] labels;
     private Link linkJDK, linkFFMpegWin, linkFFMpegLinux;
+    private GroupPanel[] gp = new GroupPanel[5];
 
     /**
      * Конструктор.
@@ -59,7 +45,7 @@ public final class GUI_TabAbout extends JPanel {
     public GUI_TabAbout() {
         labelsGr = new JLabel[x_groups.length];
         for (int i = 0; i < x_groups.length; i++) {
-            labelsGr[i] = GUI.createLabel(buildGroupText(x_groups[i]));
+            labelsGr[i] = GUI.createLabel(x_groups[i]);
         }
         labels = new JLabel[x_labels.length];
         for (int i = 0; i < x_labels.length; i++) {
@@ -69,73 +55,83 @@ public final class GUI_TabAbout extends JPanel {
         linkFFMpegWin = new Link("Linux", "http://ffmpeg.org/download.html");
         linkFFMpegLinux = new Link("Windows", "http://ffmpeg.zeranoe.com/builds/");
     }
+    GroupPanel gpVideo, gpAudio, gpSub, gpSource;
 
-    /**
-     * Создание метки панели группы.
-     * @param title Текст.
-     * @return Метка.
-     */
-    private String buildGroupText(String title) {
-        return "<html><font color=#4040BF style='font-size: 16pt; font-weight: bold'>"
-                + title + "</font></html>";
+    private class GroupPanel extends RoundPanel {
+
+        GroupBorder border;
+        JPanel content;
+
+        public GroupPanel(String title, String cond) {
+            super(new MigLayout("ins 3", "grow", ""), 16);
+            
+            setBorder(border = new GroupBorder(title, true, 
+                    GUI.About.Group.gradient1, GUI.About.Group.gradient2));
+
+            setForeground(GUI.About.Group.fgtitle);
+            setBackground(GUI.About.Group.bgcontent);
+
+            content = new JPanel(new MigLayout("", cond));
+            content.setForeground(GUI.About.Group.fgcontent);
+            content.setBackground(GUI.About.Group.bgcontent);
+            super.add(content, "gapleft 10, gapright 10, growx");
+        }
+
+        @Override
+        public Component add(Component comp) {
+            return content.add(comp);
+        }
+
+        @Override
+        public void add(Component comp, Object constraints) {
+            content.add(comp, constraints);
+        }
+        
+        /**
+         * Добавляет на панель парный текстовый элемент - заголовок + текст.
+         * @param panel Панель.
+         * @param head Заголовок.
+         * @param text Текст.
+         */
+        private void addLine(int ihead, int itext) {
+            // Корректируем текст
+            labels[ihead].setText("<html>" + x_labels[ihead] + "</html>");
+            labels[itext].setText("<html>" + x_labels[itext] + "</html>");
+            content.add(labels[ihead], "top");
+            content.add(labels[itext], "top, wrap");
+        }
+
+        private void addLine(int itext) {
+            // Корректируем текст
+            labels[itext].setText("<html>" + x_labels[itext] + "</html>");
+            content.add(labels[itext], "spanx, left, top, wrap");
+        }
+
+        private void addListLine(int itext) {
+            // Корректируем текст
+            labels[itext].setText("<html>" + x_labels[itext] + "</html>");
+            content.add(new JLabel(dot), "top");
+            content.add(labels[itext], "top, wrap");
+        }
+
+        private void addNumListLine(String snum, int itext) {
+            // Корректируем текст
+            labels[itext].setText("<html>" + x_labels[itext] + "</html>");
+            content.add(new JLabel(snum), "top");
+            content.add(labels[itext], "top, wrap");
+        }
     }
 
     /**
-     * Добавляет панель группы и возвращает ссылку на панель контента группы.
-     * @param title Название группы.
-     * @param bodyConditions Дополнительные параметры геометрии панели контента.
-     * @return Ссылка на панель контента группы.
+     * Добавление панели группы на подложку.
+     * @param title Метка названия.
+     * @return Панель-тело для наполнения группы.
      */
-    private JPanel addGroupPanel(int ititle, String bodyConditions) {
-        JPanel group = new JPanel(new MigLayout("ins 0", "grow", "[]5[]"));
-        group.setBackground(groupBackground);
+    private GroupPanel addGroupPanel(int ind, String cond) {
+        GroupPanel group = new GroupPanel(x_groups[ind], cond);
+        panel.add(group, "spanx, grow, gapbottom 5, wrap");
+        return group;
 
-        JPanel gtitle = new JPanel(new MigLayout("ins 3", "grow"));
-        gtitle.add(labelsGr[ititle], "center");
-        gtitle.setBorder(groupTitleBorder);
-        gtitle.setBackground(groupTitleBackground);
-
-        JPanel gcontent = new JPanel(new MigLayout("ins 0", bodyConditions));
-        gcontent.setBackground(groupBackground);
-
-        group.add(gtitle, "growx, wrap");
-        group.add(gcontent, "gapleft 15, gapright 15, gapbottom 5, growx");
-        panel.add(group, "grow, wrap");
-        return gcontent;
-    }
-
-    /**
-     * Добавляет на панель парный текстовый элемент - заголовок + текст.
-     * @param panel Панель.
-     * @param head Заголовок.
-     * @param text Текст.
-     */
-    private void addLine(JPanel panel, int ihead, int itext) {
-        // Корректируем текст
-        labels[ihead].setText("<html>" + x_labels[ihead] + "</html>");
-        labels[itext].setText("<html>" + x_labels[itext] + "</html>");
-        panel.add(labels[ihead], "top");
-        panel.add(labels[itext], "top, wrap");
-    }
-
-    private void addLine(JPanel panel, int itext) {
-        // Корректируем текст
-        labels[itext].setText("<html>" + x_labels[itext] + "</html>");
-        panel.add(labels[itext], "spanx, left, top, wrap");
-    }
-
-    private void addListLine(JPanel panel, int itext) {
-        // Корректируем текст
-        labels[itext].setText("<html>" + x_labels[itext] + "</html>");
-        panel.add(new JLabel(dot), "top");
-        panel.add(labels[itext], "top, wrap");
-    }
-
-    private void addNumListLine(JPanel panel, String snum, int itext) {
-        // Корректируем текст
-        labels[itext].setText("<html>" + x_labels[itext] + "</html>");
-        panel.add(new JLabel(snum), "top");
-        panel.add(labels[itext], "top, wrap");
     }
 
     /**
@@ -165,50 +161,50 @@ public final class GUI_TabAbout extends JPanel {
         panel = new JVScrolledPanel(new MigLayout("ins 20, gap 10", "grow"));
         panel.setOpaque(false);
         scroll = new JScrollPane(panel);
-        scroll.getViewport().setBackground(scrollBackground);
+        scroll.getViewport().setBackground(GUI.About.bgscroll); 
         add(scroll, "grow");
 
         int n = 0, gn = 0;
-        JPanel p1 = addGroupPanel(gn++, "[right][]");
+        gp[0] = addGroupPanel(gn++, "[right][]");
         for (int i = 0; i < 5; i++) {
-            addLine(p1, n++, n++);
+            gp[0].addLine(n++, n++);
         }
 
-        JPanel p2 = addGroupPanel(gn++, "[10:10:10, right][]");
-        addListLine(p2, n++);
-        p2.add(labels[n++], "skip, spanx, split 2, left, bottom");
-        p2.add(linkJDK, "wrap");
-        addListLine(p2, n++);
-        p2.add(labels[n++], "skip, spanx, split 3, left, bottom");
-        p2.add(linkFFMpegWin, "bottom");
-        p2.add(linkFFMpegLinux, "bottom, wrap");
-        addListLine(p2, n++);
+        gp[1] = addGroupPanel(gn++, "[10:10:10, right][]");
+        gp[1].addListLine(n++);
+        gp[1].add(labels[n++], "skip, spanx, split 2, left, bottom");
+        gp[1].add(linkJDK, "wrap");
+        gp[1].addListLine(n++);
+        gp[1].add(labels[n++], "skip, spanx, split 3, left, bottom");
+        gp[1].add(linkFFMpegWin, "bottom");
+        gp[1].add(linkFFMpegLinux, "bottom, wrap");
+        gp[1].addListLine(n++);
 
-        JPanel p3 = addGroupPanel(gn++, "[10:10:10, right][]");
-        addLine(p3, n++);
+        gp[2] = addGroupPanel(gn++, "[10:10:10, right][]");
+        gp[2].addLine(n++);
         for (int i = 0; i < 2; i++) {
-            addListLine(p3, n++);
+            gp[2].addListLine(n++);
         }
-        addLine(p3, n++);
+        gp[2].addLine(n++);
         for (int i = 0; i < 8; i++) {
-            addListLine(p3, n++);
+            gp[2].addListLine(n++);
         }
-        addLine(p3, n++);
-        addListLine(p3, n++);
-        addLine(p3, n++);
-        addListLine(p3, n++);
+        gp[2].addLine(n++);
+        gp[2].addListLine(n++);
+        gp[2].addLine(n++);
+        gp[2].addListLine(n++);
 
-        JPanel p4 = addGroupPanel(gn++, "[25:25:25, left][]");
-        addNumListLine(p4, "1", n++);
-        addNumListLine(p4, "1.1", n++);
-        addNumListLine(p4, "1.2", n++);
-        addNumListLine(p4, "2", n++);
-        addNumListLine(p4, "2.1", n++);
-        addNumListLine(p4, "2.2", n++);
-        addNumListLine(p4, "2.3", n++);
-        addNumListLine(p4, "2.4", n++);
-        addNumListLine(p4, "3", n++);
-        addNumListLine(p4, "4", n++);
+        gp[3] = addGroupPanel(gn++, "[25:25:25, left][]");
+        gp[3].addNumListLine("1", n++);
+        gp[3].addNumListLine("1.1", n++);
+        gp[3].addNumListLine("1.2", n++);
+        gp[3].addNumListLine("2", n++);
+        gp[3].addNumListLine("2.1", n++);
+        gp[3].addNumListLine("2.2", n++);
+        gp[3].addNumListLine("2.3", n++);
+        gp[3].addNumListLine("2.4", n++);
+        gp[3].addNumListLine("3", n++);
+        gp[3].addNumListLine("4", n++);
     }
 
     /**
@@ -216,7 +212,7 @@ public final class GUI_TabAbout extends JPanel {
      */
     public void updateLocale() {
         for (int i = 0; i < labelsGr.length; i++) {
-            labelsGr[i].setText(buildGroupText(x_groups[i]));
+            gp[i].border.setTitle(x_groups[i]);
         }
         for (int i = 0; i < labels.length; i++) {
             labels[i].setText("<html>" + x_labels[i] + "</html>");

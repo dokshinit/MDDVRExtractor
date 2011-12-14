@@ -61,13 +61,13 @@ public class GUITabPane extends JPanel implements ActionListener {
         }
         panelBar.add(i.button);
     }
-    
+
     /**
      * Установка названия для вкладки.
      * @param index Номер вкладки (0..n-1).
      * @param title Название вкладки.
      */
-    public void setTabTitle(int index, String title) {
+    public void setTitleAt(int index, String title) {
         items.get(index).button.setText(title);
     }
 
@@ -78,13 +78,13 @@ public class GUITabPane extends JPanel implements ActionListener {
     public JPanel getBarPanel() {
         return panelBar;
     }
-    
+
     /**
      * Включение/выключение закладки (доступна/недоступна).
      * @param comp Содержимое закладки.
      * @param state Устанавливаемый режим доступности.
      */
-    public void setEnable(Component comp, boolean state) {
+    public void setEnableAt(Component comp, boolean state) {
         for (Item i : items) {
             if (i.comp == comp) {
                 i.button.setEnabled(state);

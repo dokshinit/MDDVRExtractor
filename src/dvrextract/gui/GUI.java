@@ -8,8 +8,11 @@ import dvrextract.Err;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
 import java.awt.Point;
 import java.awt.Toolkit;
+import java.awt.Transparency;
+import java.awt.image.BufferedImage;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.text.MaskFormatter;
@@ -24,70 +27,130 @@ public class GUI {
     // ЦВЕТ
     ////////////////////////////////////////////////////////////////////////////
     /**
-     * Цвет фона панелей.
+     * Цвета панелей групп вкладки Обработка.
      */
-    public final static Color bgPanel = new Color(0xEEEEEE);
+    public static final class Process {
+
+        public static final class Group {
+
+            public static Color fgtitle;
+            public static Color gradient1, gradient2;
+            public static Color fgcontent, bgcontent;
+        }
+        public static Color bgscroll;
+    }
+
     /**
-     * Цвет текста панелей.
+     * Цвета панелей групп вкладки Справка.
      */
-    public final static Color fgPanel = new Color(0x000000);
+    public static final class About {
+
+        public static final class Group {
+
+            public static Color fgtitle;
+            public static Color gradient1, gradient2;
+            public static Color fgcontent, bgcontent;
+        }
+        public static Color bgscroll;
+    }
+
     /**
-     * Цвет фона кнопок.
+     * Цвета и окантовки текста примечаний.
      */
-    public final static Color bgButton = new Color(0xF8F8F8);
+    public static final class Note {
+
+        public static Color fg, bg;
+        public static Border border;
+    }
+
     /**
-     * Цвет текста кнопок.
+     * Создание производного от HSB цвета из базы и указанных смещений для его 
+     * компонент.
+     * @param base Базовый цвет.
+     * @param dH Изменение цвета.
+     * @param dS Изменение насыщенности.
+     * @param dB Изменение яркости.
+     * @return Результирующий цвет.
      */
-    public final static Color fgButton = new Color(0x000000);
+    public static Color deriveColorHSB(Color base, float dH, float dS, float dB) {
+        float hsb[] = Color.RGBtoHSB(base.getRed(), base.getGreen(), base.getBlue(), null);
+        hsb[0] += dH;
+        hsb[1] += dS;
+        hsb[2] += dB;
+        return Color.getHSBColor(
+                hsb[0] < 0? 0 : (hsb[0] > 1? 1 : hsb[0]),
+                hsb[1] < 0? 0 : (hsb[1] > 1? 1 : hsb[1]),
+                hsb[2] < 0? 0 : (hsb[2] > 1? 1 : hsb[2]));
+                                               
+    }
+
     /**
-     * Цвет фона полей ввода при наличии значений.
+     * Создание производного цвета с новой прозрачностью.
+     * @param base Базовый цвет.
+     * @param alpha Значение прозрачности.
+     * @return Результирующий цвет.
      */
-    public final static Color bgEdit = new Color(0xFFFFFF);
+    public static Color deriveColorAlpha(Color base, int alpha) {
+        return new Color(base.getRed(), base.getGreen(), base.getBlue(), alpha);
+    }
+    
+    
     /**
-     * Цвет текста полей ввода при наличии значений.
+     * Создание изображения заданных размеров и с возможностью попиксельной прозрачности.
+     * @param width Ширина.
+     * @param height Высота.
+     * @return Изображение.
      */
-    public final static Color fgEdit = new Color(0x000000);
-    /**
-     * Цвет фона подсказок.
-     */
-    public final static Color colorToolTipBg = new Color(0x7070A0);
-    /**
-     * Цвет текста подсказок.
-     */
-    public final static Color colorToolTipFg = new Color(0xFFFFFF);
-    /**
-     * Цвет текста подсказок.
-     */
-    public final static Color colorToolTipBorder = new Color(0x505080);
-    /**
-     * Цвет фона примечаний.
-     */
-    public final static Color bgNoteLabel = new Color(0xF8F8FF);
-    /**
-     * Цвет текста примечаний.
-     */
-    public final static Color fgNoteLabel = new Color(0x6060F0);
+    public static BufferedImage createTranslucentImage(int width, int height) {
+        
+        return GraphicsEnvironment.getLocalGraphicsEnvironment().
+                    getDefaultScreenDevice().getDefaultConfiguration().createCompatibleImage(width, height, Transparency.TRANSLUCENT);
+               
+    }
+    
     ////////////////////////////////////////////////////////////////////////////
     // Окантовки
     ////////////////////////////////////////////////////////////////////////////
     /**
-     * Окантовка текстовых полей.
-     */
-    public static Border borderTextField = new CompoundBorder(
-            new LineBorder(new Color(0xC0C0C0)),
-            new EmptyBorder(3, 3, 3, 3));
-    /**
      * Окантовка подсказок.
      */
-    public static Border borderToolTip = new CompoundBorder(
-            new LineBorder(colorToolTipBorder),
-            new EmptyBorder(2, 2, 2, 2));
+    public static Border borderToolTip;
+
     /**
-     * Окантовка примечаний.
+     * Инициализация цветовых схем и компонентов интерфейса.
      */
-    public static CompoundBorder borderNoteLabel = new CompoundBorder(
-            new LineBorder(new Color(0xE0E0F0)),
-            new EmptyBorder(1, 1, 1, 1));
+    public static void init() {
+        // Определение цветов и рамок.
+        Color titleColor = UIManager.getColor("nimbusBase");
+
+        float hsb[] = Color.RGBtoHSB(titleColor.getRed(), titleColor.getGreen(),
+                titleColor.getBlue(), null);
+        //
+        Process.Group.gradient1 = Color.getHSBColor(hsb[0] - .013f, .15f, .85f);
+        Process.Group.gradient2 = Color.getHSBColor(hsb[0] - .005f, .24f, .80f);
+        Process.Group.fgtitle = Color.getHSBColor(hsb[0], .54f, .40f);
+        Color c = UIManager.getColor("Panel.background");
+        Process.Group.bgcontent = deriveColorHSB(c, 0, 0, .06f);
+        Process.bgscroll = deriveColorHSB(c, 0, 0, -.06f);
+        //
+        About.Group.gradient1 = Color.getHSBColor(hsb[0] - .013f, .15f, .85f);
+        About.Group.gradient2 = Color.getHSBColor(hsb[0] - .005f, .24f, .80f);
+        About.Group.fgtitle = Color.getHSBColor(hsb[0], .54f, .40f);
+        c = UIManager.getColor("info");
+        About.Group.bgcontent = deriveColorHSB(c, 0, -.18f, .08f);
+        About.bgscroll = deriveColorHSB(c, -0.04f, -.15f, -.02f);
+
+        c = UIManager.getColor("nimbusInfoBlue");
+        Note.fg = deriveColorHSB(c, 0, .2f, 0f);
+        c = UIManager.getColor("info");
+        Note.bg = deriveColorHSB(c, 0, -.15f, .05f);
+        Note.border = new CompoundBorder(
+                new LineBorder(deriveColorHSB(c, -0.04f, -.15f, -.1f)),
+                new EmptyBorder(1, 1, 1, 1));
+        
+        
+        
+    }
 
     /**
      * Создание конфигурированной текстовой метки.
@@ -118,12 +181,12 @@ public class GUI {
      */
     public static String buildNoteLabelText(String title) {
         StringBuilder sb = new StringBuilder();
-        sb.append("<html><table><td valign='top'><font color=#4040F0>\u2794</font></td><td valign='top'>");
+        sb.append("<html><table><td valign='top'>\u2794</td><td valign='top'>");
         sb.append(title);
         sb.append("</td></table></html>");
         return sb.toString();
     }
-    
+
     /**
      * Создание конфигурированной текстовой метки-примечания.
      * @param title Текст примечания.
@@ -131,9 +194,9 @@ public class GUI {
      */
     public static JLabel createNoteLabel(String title) {
         JLabel label = new JLabel(buildNoteLabelText(title));
-        label.setBorder(borderNoteLabel);
-        label.setBackground(bgNoteLabel);
-        label.setForeground(fgNoteLabel);
+        label.setBorder(Note.border);
+        label.setBackground(Note.bg);
+        label.setForeground(Note.fg);
         label.setOpaque(true);
         return label;
     }
@@ -145,9 +208,6 @@ public class GUI {
      */
     public static JFormattedTextField createFormattedText(MaskFormatter format) {
         JFormattedTextField text = new JFormattedTextField(format);
-        text.setBorder(borderTextField);
-        //text.setBackground(bgEdit);
-        //text.setForeground(fgEdit);
         return text;
     }
 
@@ -157,9 +217,6 @@ public class GUI {
      */
     public static JDateTimeField createDTText() {
         JDateTimeField text = new JDateTimeField();
-        text.setBorder(borderTextField);
-        //text.setBackground(bgEdit);
-        //text.setForeground(fgEdit);
         return text;
     }
 
@@ -171,9 +228,6 @@ public class GUI {
      */
     public static JTextField createText(String title, int size) {
         JTextField text = new JTextField(title, size);
-        text.setBorder(borderTextField);
-        //text.setBackground(bgEdit);
-        //text.setForeground(fgEdit);
         return text;
     }
 
@@ -204,7 +258,6 @@ public class GUI {
      */
     public static JButton createButton(String title) {
         JButton b = new JButton(title);
-        //b.setForeground(fgButton);
         return b;
     }
 
@@ -215,7 +268,6 @@ public class GUI {
      */
     public static JToggleButton createToggleButton(String title) {
         JToggleButton b = new JToggleButton(title);
-        //b.setForeground(fgButton);
         return b;
     }
 

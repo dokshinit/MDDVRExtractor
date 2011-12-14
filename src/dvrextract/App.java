@@ -4,16 +4,12 @@
  */
 package dvrextract;
 
-import com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel;
 import dvrextract.FFMpeg.Cmd;
 import dvrextract.gui.GUI;
 import dvrextract.I18n.Lang;
-import java.awt.Color;
 import java.util.Date;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
-import javax.swing.plaf.metal.MetalLookAndFeel;
-import javax.swing.plaf.metal.OceanTheme;
 
 /**
  * Глобальный класс приложения.
@@ -424,57 +420,21 @@ public class App {
      * Инициализация Look&Feel.
      */
     public static void initLAF() {
-        //String laf = "javax.swing.plaf.metal.MetalLookAndFeel";
         String laf = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
-        //String laf = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
-        UIManager.put("nimbusBase", new Color(0x909090));
-        UIManager.put("nimbusBlueGrey", new Color(0xB0B0B0));
-        UIManager.put("control", new Color(0xD8D8D8));
-
-        
-        // Отключение жирного шрифта в UI.
-        UIManager.put("swing.boldMetal", Boolean.FALSE);
-        
-        /*
-        // Отключение уродского градиента.
-        List buttonGradient = Arrays.asList(
-        new Object[]{new Float(1f), new Float(0f),
-        GUI.bgButton, GUI.bgButton, GUI.bgButton});
-        List sliderGradient = Arrays.asList(new Object[]{});
-        List menuGradient = Arrays.asList(new Object[]{});
-        UIManager.put("Button.gradient", buttonGradient);
-        UIManager.put("CheckBox.gradient", buttonGradient);
-        UIManager.put("CheckBoxMenuItem.gradient", buttonGradient);
-        UIManager.put("MenuBar.gradient", menuGradient);
-        UIManager.put("RadioButton.gradient", buttonGradient);
-        UIManager.put("RadioButtonMenuItem.gradient", buttonGradient);
-        UIManager.put("ScrollBar.gradient", buttonGradient);
-        UIManager.put("Slider.gradient", sliderGradient);
-        UIManager.put("ToggleButton.gradient", buttonGradient);
-        //
-        //UIManager.put("ToggleButton.background", new Color(0xF8F8F8));
-        //UIManager.put("ComboBox.background",  new Color(0xF8F8F8));
-        //UIManager.put("ComboBox.buttonBackground", Color.BLUE);
-        //UIManager.put("ComboBox.buttonDarkShadow", Color.red);
-        //UIManager.put("ComboBox.buttonHighlight", Color.red);
-        //UIManager.put("ComboBox.buttonShadow", Color.red);
-        UIManager.put("ToolTip.background", GUI.colorToolTipBg);
-        UIManager.put("ToolTip.foreground", GUI.colorToolTipFg);
-        UIManager.put("ToolTip.border", GUI.borderToolTip);
-        //JFrame.setDefaultLookAndFeelDecorated(true);
-        //JDialog.setDefaultLookAndFeelDecorated(true);
-        //*/
+        //UIManager.put("nimbusBase", new Color(0x909090));
+        //UIManager.put("nimbusBlueGrey", new Color(0xB0B0B0));
+        //UIManager.put("control", new Color(0xD8D8D8));
 
         try {
             Class c = Class.forName(laf);
             UIManager.setLookAndFeel(laf);
-            //MetalLookAndFeel.setCurrentTheme(new OceanTheme());
-            //MetalLookAndFeel.setCurrentTheme(new DefaultMetalTheme());
         } catch (java.lang.ClassNotFoundException e) {
             App.log(x_LAFNotFound + " [" + laf + "]! " + e);
         } catch (Exception e) {
             App.log(x_LAFError + " [" + laf + "]! " + e);
         }
+
+        GUI.init();
     }
 
     /**

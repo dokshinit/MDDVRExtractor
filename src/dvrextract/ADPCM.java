@@ -18,50 +18,6 @@ import java.nio.ByteOrder;
  */
 public class ADPCM {
 
-    public static void main(String[] args) throws FileNotFoundException, IOException {
-
-        byte[] inB = new byte[1024];
-        ByteBuffer bbi = ByteBuffer.wrap(inB);
-        bbi.order(ByteOrder.LITTLE_ENDIAN);
-        byte[] outB = new byte[1024];
-
-        FileInputStream is = new FileInputStream("/home/work/files/DVRVIDEO/audio1.raw");
-        File fos = new File("/home/work/files/DVRVIDEO/audio1.pcm");
-        fos.delete();
-        FileOutputStream os = new FileOutputStream(fos);
-
-        ADPCM p = new ADPCM(0x23, inB, outB);
-
-        while (true) {
-            if (is.available() == 0) {
-                break;
-            }
-
-            int len = is.read(inB, 0, 4);
-            if (len != 4) {
-                System.out.println("Error! Cant read 4b: read = " + len);
-                break;
-            }
-            len = bbi.get(2) & 0xFF;
-            if (len > 122) {
-                System.out.println("Error! Len = " + len);
-                break;
-            }
-            if (is.read(inB, 4, len * 2) != len * 2) {
-                System.out.println("Error! Cant read body: read = " + len);
-                break;
-            }
-            int res = p.HI_VOICE_Decode(0, 0);
-            if (res == 0) {
-                os.write(p.outBuffer, 0, p.outShift);
-            } else {
-                System.out.println("Error Decode: " + res);
-            }
-        }
-        is.close();
-        os.close();
-    }
-    ////////////////////////////////////////////////////////////////////////////
     /**
      * Константа - максимальный размер фрейма PCM в байтах.
      */
@@ -186,7 +142,7 @@ public class ADPCM {
             // Shifting (skip header).
             inPos += 4;
             inShift += 4;
-            
+
             // Mode
             if ((inBB.getShort(inpos) & 0x300) != 0x100) {
                 return -2;
@@ -220,7 +176,7 @@ public class ADPCM {
                     if (length * 4 - 7 > 0x1E1) {
                         return -11;
                     }
-                    return frameDecode()*100;
+                    return frameDecode() * 100;
                 case 0x03:
                 case 0x23: // n2
                     return -10;
