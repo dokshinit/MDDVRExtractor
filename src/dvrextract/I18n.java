@@ -405,8 +405,8 @@ public class I18n {
 
         GUI_TabAbout.x_labels = new String[]{
             text("<b>Назначение</b>", "<b>Purpose</b>"),
-            text("Конвертация/извлечение данных видеонаблюдения регистраторов Microdigital.",
-            "Convert/extract of video surveillance data form Microdigital recorders."),
+            text("Конвертация/извлечение данных видеонаблюдения регистраторов Microdigital",
+            "Convert/extract of video surveillance data form Microdigital recorders"),
             text("<b>Версия</b>", "<b>Version</b>"),
             text(App.version + " от " + App.versionDate, App.version + " of " + App.versionDate),
             text("<b>Автор</b>", "<b>Author</b>"),

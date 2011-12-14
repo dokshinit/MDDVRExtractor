@@ -138,10 +138,10 @@ public final class GUIFileInfoPanel extends JPanel {
         panelImage = new GUIImagePanel("<html><center>" + x_NO + "<br></html>");
         JLabel l = panelImage.getLabel();
         l.setFont(new Font(l.getFont().getName(), Font.BOLD, 50));
-        l.setForeground(new Color(0xA0A0B0));
-        panelImage.setBackground(new Color(0x8080A0));
+        l.setForeground(GUI.Preview.fg);
+        panelImage.setBackground(GUI.Preview.bg); //new Color(0x8080A0)
         setImageSize();
-        panelImage.setBorder(new LineBorder(Color.red));
+        panelImage.setBorder(new LineBorder(GUI.Preview.border));
         panelImage.addMouseListener(new ImageMouseAdapter());
         panelImage.setToolTipText(x_FirstKeyFrame);
         panelImage.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));

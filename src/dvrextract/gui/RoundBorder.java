@@ -18,12 +18,15 @@ import javax.swing.border.Border;
  */
 public class RoundBorder implements Border {
 
+    /**
+     * Радиус скругления углов.
+     */
     private int cornerRadius;
 
-    public RoundBorder() {
-        this(10);
-    }
-
+    /**
+     * Конструктор.
+     * @param cornerRadius Радиус скругления углов.
+     */
     public RoundBorder(int cornerRadius) {
         this.cornerRadius = cornerRadius;
     }
@@ -33,6 +36,12 @@ public class RoundBorder implements Border {
         return getBorderInsets(c, new Insets(0, 0, 0, 0));
     }
 
+    /**
+     * Устанавливает и возвращает отступы для данного типа рамки.
+     * @param c Компонент.
+     * @param insets Корректируемые отступы.
+     * @return Скорректированные отступы.
+     */
     public Insets getBorderInsets(Component c, Insets insets) {
         insets.top = insets.bottom = cornerRadius / 2;
         insets.left = insets.right = 1;

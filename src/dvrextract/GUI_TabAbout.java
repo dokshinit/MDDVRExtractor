@@ -22,7 +22,6 @@ import org.jdesktop.swingx.JXHyperlink;
  */
 public final class GUI_TabAbout extends JPanel {
 
-    public static final String dot = "<html><b>*</b></html>";
     /**
      * Скролл для всей закладки (добавляется в панель - единственный компонет в ней).
      */
@@ -31,18 +30,21 @@ public final class GUI_TabAbout extends JPanel {
      * Панель скролируемая только вертикально (добавляется в скролл).
      */
     private JVScrolledPanel panel;
+    /**
+     * Текстовые ресурсы для интерфейса (названия панелей групп и строки контента).
+     */
+    public static String[] x_groups, x_labels;
     //
-    public static String[] x_groups;
-    public static String[] x_labels;
     private JLabel[] labelsGr;
     private JLabel[] labels;
     private Link linkJDK, linkFFMpegWin, linkFFMpegLinux;
-    private GroupPanel[] gp = new GroupPanel[5];
+    private GroupPanel[] gp;
 
     /**
      * Конструктор.
      */
     public GUI_TabAbout() {
+        gp = new GroupPanel[x_groups.length];
         labelsGr = new JLabel[x_groups.length];
         for (int i = 0; i < x_groups.length; i++) {
             labelsGr[i] = GUI.createLabel(x_groups[i]);
@@ -110,7 +112,7 @@ public final class GUI_TabAbout extends JPanel {
         private void addListLine(int itext) {
             // Корректируем текст
             labels[itext].setText("<html>" + x_labels[itext] + "</html>");
-            content.add(new JLabel(dot), "top");
+            content.add(new JLabel("<html><b>*</b></html>"), "top");
             content.add(labels[itext], "top, wrap");
         }
 

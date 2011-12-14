@@ -20,11 +20,11 @@ public class App {
     /**
      * Дата релиза версии программы.
      */
-    public static final String versionDate = "01.12.2011";
+    public static final String versionDate = "14.12.2011";
     /**
      * Версия программы.
      */
-    public static final String version = "1.0rc2";
+    public static final String version = "1.0";
     /**
      * Максимальное кол-во обрабатываемых камер.
      */

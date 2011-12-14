@@ -17,8 +17,16 @@ import org.jdesktop.swingx.JXPanel;
  */
 public class RoundPanel extends JXPanel {
 
+    /**
+     * Радиус скругления углов.
+     */
     private transient RoundRectangle2D.Float roundBounds;
 
+    /**
+     * Конструктор.
+     * @param layout Менеджер раскладки.
+     * @param cornerRadius Радиус скругления углов.
+     */
     public RoundPanel(LayoutManager layout, int cornerRadius) {
         super(layout);
         this.roundBounds = new RoundRectangle2D.Float(

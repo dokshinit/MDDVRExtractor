@@ -64,6 +64,15 @@ public class GUI {
     }
 
     /**
+     * Цвета панели предпросмотра первого кадра.
+     */
+    public static final class Preview {
+
+        public static Color fg, bg;
+        public static Color border;
+    }
+
+    /**
      * Создание производного от HSB цвета из базы и указанных смещений для его 
      * компонент.
      * @param base Базовый цвет.
@@ -112,27 +121,22 @@ public class GUI {
     // Окантовки
     ////////////////////////////////////////////////////////////////////////////
     /**
-     * Окантовка подсказок.
-     */
-    public static Border borderToolTip;
-
-    /**
      * Инициализация цветовых схем и компонентов интерфейса.
      */
     public static void init() {
-        // Определение цветов и рамок.
-        Color titleColor = UIManager.getColor("nimbusBase");
+        
+        Color c = UIManager.getColor("nimbusBase");
 
-        float hsb[] = Color.RGBtoHSB(titleColor.getRed(), titleColor.getGreen(),
-                titleColor.getBlue(), null);
-        //
+        float hsb[] = Color.RGBtoHSB(c.getRed(), c.getGreen(),
+                c.getBlue(), null);
+        
         Process.Group.gradient1 = Color.getHSBColor(hsb[0] - .013f, .15f, .85f);
         Process.Group.gradient2 = Color.getHSBColor(hsb[0] - .005f, .24f, .80f);
         Process.Group.fgtitle = Color.getHSBColor(hsb[0], .54f, .40f);
-        Color c = UIManager.getColor("Panel.background");
+        c = UIManager.getColor("Panel.background");
         Process.Group.bgcontent = deriveColorHSB(c, 0, 0, .06f);
         Process.bgscroll = deriveColorHSB(c, 0, 0, -.06f);
-        //
+        
         About.Group.gradient1 = Color.getHSBColor(hsb[0] - .013f, .15f, .85f);
         About.Group.gradient2 = Color.getHSBColor(hsb[0] - .005f, .24f, .80f);
         About.Group.fgtitle = Color.getHSBColor(hsb[0], .54f, .40f);
@@ -148,8 +152,10 @@ public class GUI {
                 new LineBorder(deriveColorHSB(c, -0.04f, -.15f, -.1f)),
                 new EmptyBorder(1, 1, 1, 1));
         
-        
-        
+        c = UIManager.getColor("nimbusBase");
+        Preview.fg = deriveColorHSB(c, 0, -.3f, .2f);
+        Preview.bg = deriveColorHSB(c, 0, -.3f, 0f);
+        Preview.border = Color.WHITE;
     }
 
     /**

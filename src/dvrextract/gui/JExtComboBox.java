@@ -37,7 +37,6 @@ public class JExtComboBox extends JComboBox {
      * Объекты записей списка.
      */
     protected ArrayList<ExtItem> items;
-    protected DefaultComboBoxModel model;
     
     /**
      * Конструктор.
@@ -51,7 +50,7 @@ public class JExtComboBox extends JComboBox {
      * Применение модели - отображение списка.
      */
     public void showData() {
-        setModel(model = new DefaultComboBoxModel(items.toArray()));
+        setModel(new DefaultComboBoxModel(items.toArray()));
         setEnabled(true);
     }
 
