@@ -4,11 +4,6 @@
  */
 package dvrextract;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -197,7 +192,7 @@ public class ADPCM {
                     return -20;
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            Err.log(ex);
             return -100000;
         }
     }

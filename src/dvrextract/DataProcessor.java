@@ -435,7 +435,7 @@ public class DataProcessor {
         try {
             processVideo = startProcess(vcmd);
         } catch (IOException ex) {
-            throw new FatalException("FFMPEG-VIDEO: "+ x_ErrorFFMpegStart);
+            throw new FatalException("FFMPEG-VIDEO: " + x_ErrorFFMpegStart);
         }
 
         // Стартуем процесс обработки аудио.
@@ -443,7 +443,7 @@ public class DataProcessor {
             try {
                 processAudio = startProcess(acmd);
             } catch (IOException ex) {
-                throw new FatalException("FFMPEG-AUDIO: "+ x_ErrorFFMpegStart);
+                throw new FatalException("FFMPEG-AUDIO: " + x_ErrorFFMpegStart);
             }
         }
 
@@ -452,7 +452,7 @@ public class DataProcessor {
             try {
                 processSubOut = new PrintStream(new FileOutputStream(subName, true));
             } catch (IOException ex) {
-                throw new FatalException("FFMPEG-SUB: "+ x_ErrorFFMpegStart);
+                throw new FatalException("FFMPEG-SUB: " + x_ErrorFFMpegStart);
             }
         }
     }
@@ -648,7 +648,11 @@ public class DataProcessor {
                         // Отбрасываем кадры, которые ранее последнего записанного кадра 
                         // (направление времени только на увеличение, а т.к. 
                         // дискретность времени в DVR-секунды, то неравенство не строгое!)
-                        if (timeMax == -1 || time >= timeMax) {
+                        if ((timeMax == -1 || time >= timeMax)
+                                && // Ограничение по времени.
+                                (time >= App.Dest.getTimeStart().getTime()
+                                && time <= App.Dest.getTimeEnd().getTime())) {
+
                             // Если не было обработанных кадров - начинаем только с ключевого,
                             // если были - включаем любые.
                             if (f.isMain || frameProcessCount > 0) {
@@ -666,7 +670,7 @@ public class DataProcessor {
                                             np += decoder.getInShift();
                                         } else {
                                             np += 168; // Пропускаем кадр, размер по умолчанию.
-                                            App.log("ErrAudio="+res);
+                                            App.log("ErrAudio=" + res);
                                         }
                                     }
                                 }

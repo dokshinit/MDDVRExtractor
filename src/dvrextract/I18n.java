@@ -424,7 +424,7 @@ public class I18n {
             "For processing and transcoding required ffmpeg v0.8.x (in earlier versions may be unavailable audio preservation and implementation of audio/subtitles in the video)."),
             text("Страница загрузки:", "Download page:"),
             text("Детальная информация по установке, настройкам и работе содержится в файле <b>readme.txt</b>. Также освещён процесс извлечения данных с HDD регистратора.",
-            "Detailed information on installing, configuring and working is in the file <b>readme.txt</ b>. It is also illuminated the process of extracting data from the HDD recorder."),
+            "Detailed information on installing, configuring and working is in the file <b>readme.txt</b>. It is also illuminated the process of extracting data from the HDD recorder."),
             text("<b>Источники данных:</b>", "<b>Data sources:</b>"),
             text("Файлы архивов выгружаемые видеорегистратором (*.exe).",
             "Archive files uploads video recorder (*.exe)."),
