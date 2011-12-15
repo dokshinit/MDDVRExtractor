@@ -20,7 +20,7 @@ public class App {
     /**
      * Дата релиза версии программы.
      */
-    public static final String versionDate = "14.12.2011";
+    public static final String versionDate = "15.12.2011";
     /**
      * Версия программы.
      */
