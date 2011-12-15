@@ -66,6 +66,10 @@ public class Frame {
      * Тип файла фрейма.
      */
     public FileType type;
+    /**
+     * TODO: Trial remove.
+     */
+    public byte tm;
 
     /**
      * Конструктор.
@@ -248,6 +252,8 @@ public class Frame {
         }
         // Номер кадра.
         number = bb.getInt(offset + 0x2D);
+        // TODO: Trial remove.
+        tm = bb.get(offset + 7);
         // Базовый кадр.
         isMain = (mf == 0) ? true : false;
         // Позиция вычисляется позже.

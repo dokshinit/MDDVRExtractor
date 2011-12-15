@@ -421,10 +421,6 @@ public class App {
      */
     public static void initLAF() {
         String laf = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
-        //UIManager.put("nimbusBase", new Color(0x909090));
-        //UIManager.put("nimbusBlueGrey", new Color(0xB0B0B0));
-        //UIManager.put("control", new Color(0xD8D8D8));
-
         try {
             Class c = Class.forName(laf);
             UIManager.setLookAndFeel(laf);
@@ -486,38 +482,5 @@ public class App {
                 }
             }
         });
-
-        //TODO: Два режима работы - графический и консольный?
-        /*
-         * Ориентировочный синтаксис использования из консоли:
-         * 
-         * info     Сбор и отображение информации о данных.
-         *          Если источник hdd - собирает инфу о всех файлах.
-         *          Если источник exe - выводит инфу о файле.
-         * 
-         * process  Обработка данных. Сначала делает шаг info, потом производит
-         *          обработку данных для указанной камеры. Если не задано ни 
-         *          одного действия по обработке, выполняется вхолостую с 
-         *          выводом детальной инфы.
-         * 
-         * -src=<источник>
-         *          Задание источника (файл - *.exe или daNNNNN \ каталог (hdd)).
-         * 
-         * ? -type=<тип>
-         *          Задание типа данных источника. Если не задан - определяется
-         *          исходя из названия файла (*.exe - archive, da* - hdd).
-         *              hdd - каталог с файлами диска.
-         *              archive - файл архивных данных.
-         * 
-         * -cam=<номер>
-         *          Номер камеры.
-         * 
-         * -start=YYYY.MM.DD,HH:MM:SS
-         *          Дата и время начала сохранения данных.
-         * 
-         * -end=YYYY.MM.DD,HH:MM:SS
-         *          Дата и время конца сохранения данных.
-         * 
-         */
     }
 }

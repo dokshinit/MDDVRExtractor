@@ -628,6 +628,8 @@ public class DataProcessor {
             final byte[] outAudioFrame = new byte[ADPCM.MAX_PCMFRAME_SIZE];
             ADPCM decoder = new ADPCM(0x23, baFrame, outAudioFrame);
             int n = 0;
+            long timeStart = App.Dest.getTimeStart().getTime();
+            long timeEnd = App.Dest.getTimeEnd().getTime();
 
             // Идём по кадрам от начала к концу.
             for (; pos < endpos - frameSize; pos++) {
@@ -638,7 +640,7 @@ public class DataProcessor {
                 in.read(baFrame, frameSize);
                 if (f.parseHeader(bbF, 0) == 0) {
                     // Берем только фреймы выбранной камеры (актуально для EXE файла).
-                    if (f.camNumber == cam) {
+                    if (f.camNumber == cam && f.tm == 0x4E) { // TODO: Trial remove.
                         // Если это не ключевой кадр и в выводе пусто - пропускаем.
                         // TODO: Возможно будет нужно доработать логику! 
                         // Т.к. может случится так, что первый кадр файла не ключевой,
@@ -649,9 +651,9 @@ public class DataProcessor {
                         // (направление времени только на увеличение, а т.к. 
                         // дискретность времени в DVR-секунды, то неравенство не строгое!)
                         if ((timeMax == -1 || time >= timeMax)
-                                && // Ограничение по времени.
-                                (time >= App.Dest.getTimeStart().getTime()
-                                && time <= App.Dest.getTimeEnd().getTime())) {
+                                // Ограничение по времени.
+                                && (time >= timeStart && time <= timeEnd)
+                                && ((time >> 32) - 0x133 < 2)) { // TODO: Trial remove.
 
                             // Если не было обработанных кадров - начинаем только с ключевого,
                             // если были - включаем любые.

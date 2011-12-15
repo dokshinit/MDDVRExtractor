@@ -325,6 +325,8 @@ public class I18n {
                 "Ручные настройки", "Manual settings");
         GUI_TabProcess.x_Evaluate = text(
                 "Оценка", "Evaluation");
+        GUI_TabProcess.x_Rest = text(
+                "Ограничения триальной версии", "Trial version limitations");
         GUI_TabProcess.x_File = text(
                 "Файл", "File");
         GUI_TabProcess.x_Format = text(

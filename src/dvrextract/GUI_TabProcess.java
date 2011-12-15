@@ -13,9 +13,11 @@ import dvrextract.gui.JExtComboBox.ExtItem;
 import dvrextract.gui.JVScrolledPanel;
 import dvrextract.gui.RoundPanel;
 import dvrextract.gui.GroupBorder;
+import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Calendar;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -48,6 +50,10 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      * Кнопка оценки объёмов.
      */
     private JButton buttonEstimate;
+    /**
+     * TODO: Trial remove.
+     */
+    private JLabel labelRest;
     ////////////////////////////////////////////////////////////////////////////
     /**
      * Путь к файлу-приёмнику.
@@ -127,7 +133,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             x_Period1, x_Period2, x_Select, x_Resolution, x_Source, x_Sub, x_ToFile,
             x_ToVideo, x_Video, x_WOConvert, x_CalcEnd, x_CalcStart,
             x_SelectDestFile, x_NotePreDecoding, x_NoteSimple,
-            x_CheckExpert;
+            x_CheckExpert, x_Rest;
     private JLabel labelCam;
     private JLabel labelPeriod1;
     private JLabel labelPeriod2;
@@ -159,6 +165,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         labelCam = GUI.createLabel(x_Cam);
         labelPeriod1 = GUI.createLabel(x_Period1);
         labelPeriod2 = GUI.createLabel(x_Period2);
+        labelRest = GUI.createLabel(x_Rest, Color.RED);
         labelVideoFile = GUI.createLabel(x_File);
         labelVideoCodec = GUI.createLabel(x_Codec);
         labelVideoResolution = GUI.createLabel(x_Resolution);
@@ -258,9 +265,18 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         comboSubMode.setSelectedId(FFMpeg.isSub_srt ? 1 : 0);
         comboSubFormat.setSelectedId(0);
 
-        // TODO: В релизе убрать!
-        //setVideoDestination("/home/work/files/AZSVIDEO/1/probe1.mkv");
-        //dateStart.setText("01.01.2011 00:00:00");
+        // TODO: Trial remove.
+        Calendar c = Calendar.getInstance();
+        c.set(2011, 11, 01, 0, 0, 0);
+        c.set(Calendar.MILLISECOND, 0);
+        dateStart.setMinTime(c.getTime());
+        dateEnd.setMinTime(c.getTime());
+        dateStart.setTime(c.getTime());
+        c.set(2011, 11, 31, 23, 59, 59);
+        c.set(Calendar.MILLISECOND, 999);
+        dateStart.setMaxTime(c.getTime());
+        dateEnd.setMaxTime(c.getTime());
+        dateEnd.setTime(c.getTime());
     }
 
     /**
@@ -294,7 +310,6 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         text.setEditable(false);
         return text;
     }
-
     private GroupPanel gpVideo, gpAudio, gpSub, gpSource;
 
     private class GroupPanel extends RoundPanel {
@@ -349,10 +364,11 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         p1.add(textCam, "spanx, wrap");
 
         p1.add(labelPeriod1);
-        p1.add(dateStart, "w 150, spanx, split 4");
+        p1.add(dateStart, "w 150, spanx, split 5");
         p1.add(labelPeriod2);
         p1.add(dateEnd, "w 150");
         p1.add(buttonEstimate);
+        p1.add(labelRest);
 
         if (checkExpert.isSelected()) { // Режим расширенных настроек.
 
@@ -424,6 +440,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         labelCam.setText(x_Cam);
         labelPeriod1.setText(x_Period1);
         labelPeriod2.setText(x_Period2);
+        labelRest.setText(x_Rest);
         labelVideoFile.setText(x_File);
         labelVideoCodec.setText(x_Codec);
         labelVideoResolution.setText(x_Resolution);
