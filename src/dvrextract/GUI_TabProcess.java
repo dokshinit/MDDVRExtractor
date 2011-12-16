@@ -267,7 +267,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
         // TODO: Trial remove.
         Calendar c = Calendar.getInstance();
-        c.set(2011, 11, 01, 0, 0, 0);
+        c.set(2011, 7, 01, 0, 0, 0);
         c.set(Calendar.MILLISECOND, 0);
         dateStart.setMinTime(c.getTime());
         dateEnd.setMinTime(c.getTime());
@@ -540,6 +540,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
                 isCustom = true;
             } else {
                 s.add("-vcodec", ((Item) i.object).name);
+                s.add("-sameq"); // Без потери качества!
             }
             i = comboVideoFPS.getSelectedItem();
             if (i.id == 1000) {
@@ -556,8 +557,8 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             if (isCustom) {
                 s.add(textVideoCustom.getText().trim());
             }
-        } else {  // Режим упрощенных настроек.
-            s.add("-vcodec", "mpeg4", "-r", "{origfps}", "-s", "{origsize}");
+        } else {  // Режим упрощенных настроек (без потери качества).
+            s.add("-vcodec", "mpeg4", "-sameq", "-r", "{origfps}", "-s", "{origsize}");
         }
         return s;
     }

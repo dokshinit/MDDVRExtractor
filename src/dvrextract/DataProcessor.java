@@ -605,7 +605,7 @@ public class DataProcessor {
 
             OutputStream videoOut = processVideo.getOutputStream();
             OutputStream audioOut = isAudio ? processAudio.getOutputStream() : null;
-            OutputFile rawAOut = isAudio ? new OutputFile(fileInfo.fileName + ".audio.raw") : null;
+            //OutputFile rawAOut = isAudio ? new OutputFile(fileInfo.fileName + ".audio.raw") : null;
 
             int cam = App.Source.getSelectedCam();
             Frame f = new Frame(fileInfo.fileType);
@@ -640,7 +640,7 @@ public class DataProcessor {
                 in.read(baFrame, frameSize);
                 if (f.parseHeader(bbF, 0) == 0) {
                     // Берем только фреймы выбранной камеры (актуально для EXE файла).
-                    if (f.camNumber == cam && f.tm == 0x4E) { // TODO: Trial remove.
+                    if (f.camNumber == cam) { // && f.tm == 0x4E) { // TODO: Trial remove.
                         // Если это не ключевой кадр и в выводе пусто - пропускаем.
                         // TODO: Возможно будет нужно доработать логику! 
                         // Т.к. может случится так, что первый кадр файла не ключевой,
@@ -652,8 +652,8 @@ public class DataProcessor {
                         // дискретность времени в DVR-секунды, то неравенство не строгое!)
                         if ((timeMax == -1 || time >= timeMax)
                                 // Ограничение по времени.
-                                && (time >= timeStart && time <= timeEnd)
-                                && ((time >> 32) - 0x133 < 2)) { // TODO: Trial remove.
+                                && (time >= timeStart && time <= timeEnd)) {
+                                //&& ((time >> 32) - 0x133 < 2)) { // TODO: Trial remove.
 
                             // Если не было обработанных кадров - начинаем только с ключевого,
                             // если были - включаем любые.
@@ -664,7 +664,7 @@ public class DataProcessor {
                                 videoOut.write(baFrame, 0, f.videoSize);
                                 // Пишем аудио в поток.
                                 if (isAudio) {
-                                    rawAOut.write(baFrame, f.videoSize, f.audioSize);
+                                    //rawAOut.write(baFrame, f.videoSize, f.audioSize);
                                     for (int np = 0; np < f.audioSize;) {
                                         int res = decoder.HI_VOICE_Decode(f.videoSize + np, 0);
                                         if (res == 0) {
@@ -708,7 +708,7 @@ public class DataProcessor {
             if (isSub) {
                 writeSub(new Date(), true);
             }
-            rawAOut.closeSafe();
+            //rawAOut.closeSafe();
 
             if (App.isDebug) {
                 App.log("Frame parsed = " + frameParsedCount);
