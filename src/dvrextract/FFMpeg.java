@@ -186,9 +186,17 @@ public final class FFMpeg {
                 byte[] ba = new byte[frame.videoSize];
                 in.read(ba, frame.videoSize);
                 in.close();
+
+                // TODO: для отладки убрать в релизе!                
+//                OutputFile of = new OutputFile("1.raw");
+//                of.write(ba, 0, ba.length);
+//                of.closeSafe();
+
                 Dimension d = info.frameFirst.getResolution();
 
-                Cmd cmd = new Cmd("-dframes", "1", "-r", "1", "-s", "" + d.width + "x" + d.height, "-i", "-", "-f", "image2", "-");
+                Cmd cmd = new Cmd("-f", "h264", "-dframes", "1", "-r", "1", "-i", "-", "-f", "image2", "-s", "" + d.width + "x" + d.height, "-");
+                App.log(cmd.toString());
+
                 process = Runtime.getRuntime().exec(cmd.getArray());
                 InputStream is = process.getInputStream();
                 OutputStream os = process.getOutputStream();
