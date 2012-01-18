@@ -99,6 +99,7 @@ public class Frame {
                 // Размер заголовка фрейма в архивных файлах выгрузки.
                 return 93;
             case HDD:
+            case XFS:
                 // Размер заголовка фрейма в файлах на HDD.
                 return 77;
             default:
@@ -166,10 +167,12 @@ public class Frame {
         // Приведение к дате в счислении Java: кол-во мс от 01.01.1970.
         // отнимаем 60 минут чтобы компенсировать ленее время - ПРОКОНТРОЛИРОВАТЬ НА СТЫКЕ!
         // long: младший int - мсек, старший - сек.
-        long sec = bdate >> 32;
+        long sec = (bdate >> 32) & 0xFFFFFFFFL;
         long msec = bdate & 0xFFFFFFFFL;
         if (msec < 0 || msec > 999) {
-            return null; // Не верный формат времени!
+            // TODO: Временно убрана проверка для проверки ЦМС данных.
+            //return null; // Не верный формат времени! 
+            msec = msec / 1000;
         }
         long javaDate = sec * 1000 + msec;
         // Внесение коррекции на часовой пояс.
@@ -203,6 +206,7 @@ public class Frame {
                 nameofs = 0x41;
                 break;
             case HDD:
+            case XFS:
                 nameofs = 0x31;
                 break;
             default:
@@ -247,7 +251,7 @@ public class Frame {
         }
         // Дата-время (смещение в секундах от 1970 г.)
         time = dateFromRAW(bb.getLong(offset));
-        if (time == null || (time.getTime() < 1104541200000L)) { // 
+        if (time == null) {// || (time.getTime() < 1104541200000L)) { // 
             return 8;
         }
         // Номер кадра.

@@ -201,7 +201,7 @@ public final class GUIFileInfoPanel extends JPanel {
             panelImage.setImage(null);
         } else {
             if (curInfo != info) {
-                infoName.text.setText(info.fileName);
+                infoName.text.setText(info.fileName.toString());
                 infoSize.text.setText(NumberTools.doubleToFormatString((double) info.fileSize, NumberTools.format0, "", "") + " " + x_Bytes);
                 infoType.text.setText(info.fileType.title);
                 infoCams.text.setText(info.getCamsToString());

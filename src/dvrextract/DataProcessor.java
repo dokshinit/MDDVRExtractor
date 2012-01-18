@@ -16,6 +16,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Date;
 import javax.swing.JOptionPane;
+import xfsengine.XFS.XFSException;
 
 /**
  * Процесс обработки данных.
@@ -122,7 +123,7 @@ public class DataProcessor {
                 msg = String.format(x_ProcessFile, i + 1, camInfo.files.size());
                 App.log(msg + ": " + fi.fileName);
                 App.gui.setProgressInfo(msg);
-                App.gui.setProgressText(fi.fileName);
+                App.gui.setProgressText(fi.fileName.toString());
 
                 // Выбираем только те файлы, промежутки которых попадают в 
                 if (!fi.frameFirst.time.after(App.Dest.getTimeEnd())
@@ -212,10 +213,12 @@ public class DataProcessor {
 
         InputFile in;
         try {
-            in = new InputFile(videoName);
+            in = new InputFile(new FileDesc(videoName));
         } catch (FileNotFoundException ex) {
             throw new FatalException("FFMPEG-VIDEO: " + x_FFMpegVideoInputNotFound + " [" + videoName + "]");
         } catch (IOException ex) {
+            throw new FatalException("FFMPEG-VIDEO: " + x_FFMpegProcessVideoInputFail);
+        } catch (XFSException ex) {
             throw new FatalException("FFMPEG-VIDEO: " + x_FFMpegProcessVideoInputFail);
         }
 
@@ -582,6 +585,8 @@ public class DataProcessor {
             throw new SourceException("File not found = " + fileinfo.fileName);
         } catch (IOException ex) {
             throw new SourceException("File IO = " + fileinfo.fileName);
+        } catch (XFSException ex) {
+            throw new SourceException("XFS Error = " + fileinfo.fileName);
         }
 
         fileInfo = fileinfo; // Нужно для успешного старта FFMpeg (дефолтные фпс и размеры)
@@ -601,7 +606,7 @@ public class DataProcessor {
 
         try {
             App.gui.startProgress(0, 100);
-            App.gui.setProgressText(fileInfo.fileName);
+            App.gui.setProgressText(fileInfo.fileName.toString());
 
             OutputStream videoOut = processVideo.getOutputStream();
             OutputStream audioOut = isAudio ? processAudio.getOutputStream() : null;

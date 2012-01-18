@@ -266,17 +266,17 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         comboSubFormat.setSelectedId(0);
 
         // TODO: Trial remove.
-        Calendar c = Calendar.getInstance();
-        c.set(2011, 7, 01, 0, 0, 0);
-        c.set(Calendar.MILLISECOND, 0);
-        dateStart.setMinTime(c.getTime());
-        dateEnd.setMinTime(c.getTime());
-        dateStart.setTime(c.getTime());
-        c.set(2011, 11, 31, 23, 59, 59);
-        c.set(Calendar.MILLISECOND, 999);
-        dateStart.setMaxTime(c.getTime());
-        dateEnd.setMaxTime(c.getTime());
-        dateEnd.setTime(c.getTime());
+//        Calendar c = Calendar.getInstance();
+//        c.set(2011, 7, 01, 0, 0, 0);
+//        c.set(Calendar.MILLISECOND, 0);
+//        dateStart.setMinTime(c.getTime());
+//        dateEnd.setMinTime(c.getTime());
+//        dateStart.setTime(c.getTime());
+//        c.set(2011, 11, 31, 23, 59, 59);
+//        c.set(Calendar.MILLISECOND, 999);
+//        dateStart.setMaxTime(c.getTime());
+//        dateEnd.setMaxTime(c.getTime());
+//        dateEnd.setTime(c.getTime());
     }
 
     /**

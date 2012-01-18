@@ -30,6 +30,10 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
      */
     private JButton buttonSelect;
     /**
+     * Кнопка выбора источника-устройства.
+     */
+    private JButton buttonSelectDev;
+    /**
      * Кнопка отмены и выхода.
      */
     private JButton buttonCancel;
@@ -45,11 +49,12 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
      * Кнопка сканирования источника - подтверждение выбора.
      */
     private JButton buttonScan;
+    private boolean isxfs;
     /**
      * Текстовые ресурсы для интерфейса.
      */
     public static String x_All, x_Cam, x_GoScan, x_Hint, x_Select, x_Source, 
-            x_SourceScan, x_Type, x_SelectSource, x_Cancel;
+            x_Title, x_Type, x_SelectSource, x_Cancel, x_SelectDev;
 
     /**
      * Конструктор.
@@ -63,16 +68,18 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
      * Инициализация графических компонетов.
      */
     private void createUI() {
-        setTitle(x_SourceScan);
+        setTitle(x_Title);
         setLayout(new MigLayout("fill"));
 
         // Источник:
         add(GUI.createLabel(x_Source), "right");
-        add(textSource = GUI.createText(30), "span, growx, split 2");
-        textSource.setText(App.Source.getName());
+        add(textSource = GUI.createText(30), "span, growx, split 3");
+        textSource.setText(App.Source.getName().name);
         textSource.setEditable(false);
-        add(buttonSelect = GUI.createButton(x_Select), "wrap");
+        add(buttonSelect = GUI.createButton(x_Select), "");
         buttonSelect.addActionListener(this);
+        add(buttonSelectDev = GUI.createButton(x_SelectDev), "wrap");
+        buttonSelectDev.addActionListener(this);
         // Тип источника:
         add(GUI.createLabel(x_Type), "right");
         add(textType = GUI.createText(App.Source.getType().title, 10), "");
@@ -100,7 +107,8 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         pack();
         setResizable(false); // После вычисления размера - изменение ни к чему.
 
-        textType.setText(SourceFileFilter.getType(textSource.getText()).title);
+        textType.setText(SourceFileFilter.getType(App.Source.getName()).title);
+        isxfs = App.Source.getName().id != 0;
     }
 
     @Override
@@ -110,6 +118,9 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         } else if (e.getSource() == buttonSelect) {
             // Выбор каталога или файла.
             fireSelect();
+        } else if (e.getSource() == buttonSelectDev) {
+            // Выбор устройства.
+            fireSelectDev();
         } else if (e.getSource() == buttonScan) {
             // Старт сканирования...
             fireScan();
@@ -125,6 +136,16 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
      */
     private void fireSelect() {
         SelectDialog dlg = new SelectDialog();
+        GUI.centerizeFrame(dlg, App.gui);
+        dlg.setVisible(true);
+    }
+
+    /**
+     * Обработка нажатия на кнопку выбора устройства-источника.
+     * Вызывается диалог выбора устройства.
+     */
+    private void fireSelectDev() {
+        SelectDevDialog dlg = new SelectDevDialog();
         GUI.centerizeFrame(dlg, App.gui);
         dlg.setVisible(true);
     }
@@ -158,7 +179,9 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         @Override
         public void task() {
             // Сканирование источника.
-            Files.scan(textSource.getText(), comboCam.getSelectedItem().id);
+            // FileDesc.id - тут как маркер xfs, в любом случае будет 
+            // вычислен реальный корневой узел для сканирования.
+            Files.scan(new FileDesc(isxfs ? 1 : 0, textSource.getText()), comboCam.getSelectedItem().id);
         }
     }
 
@@ -181,15 +204,39 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
             fc.addChoosableFileFilter(SourceFileFilter.instALL);
             fc.addChoosableFileFilter(SourceFileFilter.instEXE);
             fc.addChoosableFileFilter(SourceFileFilter.instHDD);
-            fc.setFileFilter(SourceFileFilter.get(textSource.getText()));
+            fc.setFileFilter(SourceFileFilter.get(new FileDesc(textSource.getText())));
         }
 
         @Override
         public void fireApply(FileChooser fc) throws CancelActionExeption {
             final File f = fc.getSelectedFile();
             textSource.setText(f.getAbsolutePath());
-            textType.setText(SourceFileFilter.getType(f).title);
+            textType.setText(SourceFileFilter.getType(new FileDesc(f.getName())).title);
             buttonScan.setEnabled(!textSource.getText().isEmpty());
+            isxfs = false;
+        }
+    }
+
+    /**
+     * Диалог выбора устройства-источника.
+     */
+    private class SelectDevDialog extends GUIDeviceSelectDialog {
+
+        /**
+         * Конструктор.
+         */
+        private SelectDevDialog() {
+            super(GUI_SourceSelect.this);
+        }
+
+        @Override
+        public void fireSelect() {
+            String dev = (String)comboDev.getSelectedItem().object;
+            textSource.setText(dev);
+            textType.setText(FileType.XFS.title);
+            buttonScan.setEnabled(!textSource.getText().isEmpty());
+            isxfs = true;
+            super.fireSelect();
         }
     }
 }

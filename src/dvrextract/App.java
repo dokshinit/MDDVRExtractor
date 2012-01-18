@@ -7,9 +7,14 @@ package dvrextract;
 import dvrextract.FFMpeg.Cmd;
 import dvrextract.gui.GUI;
 import dvrextract.I18n.Lang;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Date;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
+import xfsengine.Device;
+import xfsengine.XFS;
+import xfsengine.XFS.XFSException;
 
 /**
  * Глобальный класс приложения.
@@ -61,7 +66,20 @@ public class App {
         /**
          * Полное имя файла или каталога.
          */
-        private static String name = "";
+        private static FileDesc name = new FileDesc(0, "");
+        private static XFS xfs = null;
+        public static XFS getXFS() {
+            return xfs;
+        }
+        public static XFS openXFS(String devname) throws FileNotFoundException, IOException, XFSException {
+            return xfs = new XFS(new Device(name.name));
+        }
+        public static void closeXFS() {
+            if (xfs != null) {
+                xfs.device.close();
+            }
+        }
+        
         /**
          * Тип источника: 0-EXE, 1-HDD
          */
@@ -83,7 +101,7 @@ public class App {
          * Возвращает путь\файл источника.
          * @return Путь\файл источника.
          */
-        public static String getName() {
+        public static FileDesc getName() {
             return name;
         }
 
@@ -126,11 +144,11 @@ public class App {
          * @param newType Тип источника.
          * @param limited Жесткое ограничение по камере (0 - без ограничений).
          */
-        public static void set(String newName, FileType newType, int limited) {
+        public static void set(FileDesc newName, FileType newType, int limited) {
             if (newName == null) {
-                newName = "";
+                newName = new FileDesc(0, "");
             }
-            name = newName.trim();
+            name = new FileDesc(newName.id, newName.name.trim());
             type = newType;
             limitedCam = limited;
 
@@ -421,6 +439,7 @@ public class App {
      */
     public static void initLAF() {
         String laf = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
+        //String laf = "javax.swing.plaf.metal.MetalLookAndFeel";
         try {
             Class c = Class.forName(laf);
             UIManager.setLookAndFeel(laf);

@@ -199,6 +199,18 @@ public class I18n {
         GUIFileInfoPanel.x_Type = text(
                 "Тип", "Type");
 
+        // GUIDeviceSelectDialog
+        GUIDeviceSelectDialog.x_Title = text(
+                "Выбор устройства источника", "Select the source device");
+        GUIDeviceSelectDialog.x_Dev = text(
+                "Устройство", "Device");
+        GUIDeviceSelectDialog.x_Hint = text(
+                "Примечение", "Note");
+        GUIDeviceSelectDialog.x_Select = text(
+                "Выбрать", "Select");
+        GUIDeviceSelectDialog.x_Cancel = text(
+                "Отмена", "Cancel");
+
         // GUIFileSelectDialog
         GUIFileSelectDialog.x_Cancel = text(
                 "Отмена", "Cancel");
@@ -300,10 +312,12 @@ public class I18n {
                 "Выбор конкретной камеры может существенно<br>уменьшить время сканирования источника при<br>больших объёмах данных!",
                 "The choosing of a particular camera can<br>drastically reduce the source scanning<br>time for large volumes of data!"); // "The choice of a particular camera can<br>significantly reduce the source scanning<br>time for large volumes of data!"
         GUI_SourceSelect.x_Select = text(
-                "Выбор", "Select");
+                "Файл", "File");
+        GUI_SourceSelect.x_SelectDev = text(
+                "HDD", "HDD");
         GUI_SourceSelect.x_Source = text(
                 "Источник", "Source");
-        GUI_SourceSelect.x_SourceScan = text(
+        GUI_SourceSelect.x_Title = text(
                 "Сканирование источника", "Scanning the source");
         GUI_SourceSelect.x_Type = text(
                 "Тип", "Type");

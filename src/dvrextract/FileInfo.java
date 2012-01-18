@@ -20,7 +20,7 @@ public final class FileInfo {
     /**
      * Имя файла.
      */
-    public String fileName;
+    public FileDesc fileName;
     /**
      * Размер файла.
      */

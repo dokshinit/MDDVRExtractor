@@ -6,7 +6,7 @@ package dvrextract;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.RandomAccessFile;
+import xfsengine.XFS.XFSException;
 
 /**
  * Низкоуровневые операции с файлом-источником.
@@ -17,25 +17,38 @@ public class InputFile {
     /**
      * Имя файла.
      */
-    private String name;
+    private FileDesc desc;
     /**
      * Файл с произвольным доступом (из-за EXE и сканирования).
      */
-    private RandomAccessFile in;
+    private NativeReader in;
 
     /**
      * Конструктор.
-     * @param fileName Имя файла-источника.
+     * @param fileDesc Имя файла-источника.
      * @throws FileNotFoundException Ошибка при отсутствии файла.
      * @throws IOException Ошибка при позиционировании.
      */
-    public InputFile(String fileName) throws FileNotFoundException, IOException {
-        name = fileName;
+    public InputFile(FileDesc fileDesc) throws FileNotFoundException, IOException, XFSException {
+        desc = fileDesc;
         in = null;
-        if (name != null) {
-            in = new RandomAccessFile(name, "r");
+        if (desc != null) {
+            if (desc.id == 0) {
+                in = new NativeFileReader(desc.name);
+            } else {
+                in = new NativeXFSReader(desc.id, desc.name);
+            }
             in.seek(0);
         }
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+            in.close();
+        } catch (Exception e) {
+        }
+        super.finalize();
     }
 
     /**
@@ -44,7 +57,7 @@ public class InputFile {
      * @throws IOException Ошибка ввода-вывода.
      */
     public long getSize() throws IOException {
-        return in.length();
+        return in.getSize();
     }
 
     /**
@@ -64,9 +77,7 @@ public class InputFile {
      * @throws IOException Ошибка ввода-вывода.
      */
     public void skip(int n) throws IOException {
-        while (n > 0) {
-            n -= in.skipBytes(n);
-        }
+        in.skip(n);
     }
 
     /**
@@ -76,11 +87,7 @@ public class InputFile {
      * @throws IOException Ошибка ввода-вывода.
      */
     public void read(byte[] ba, int size) throws IOException {
-        int readed = 1, pos = 0;
-        while (readed >= 0 && pos < size) {
-            readed = in.read(ba, pos, size - pos);
-            pos += readed;
-        }
+        in.read(ba, 0, size);
     }
 
     /**
@@ -88,18 +95,13 @@ public class InputFile {
      * @throws IOException Ошибка ввода-вывода.
      */
     public void close() throws IOException {
-        if (in != null) {
-            in.close();
-        }
+        in.close();
     }
-
+    
     /**
      * Безопасный вариант закрытия файла-источника (не вызывает исключений).
      */
     public void closeSafe() {
-        try {
-            close();
-        } catch (IOException ex) {
-        }
+        in.closeSafe();
     }
 }

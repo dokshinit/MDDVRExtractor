@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import xfsengine.XFS.XFSException;
 
 /**
  * Файл для буферизованного чтения с кешированием данных.
@@ -21,11 +22,11 @@ public class InputBufferedFile {
     /**
      * Имя файла.
      */
-    private String name;
+    private FileDesc desc;
     /**
      * Файл с произвольным доступом (из-за EXE и сканирования).
      */
-    private RandomAccessFile in;
+    private NativeReader in;
     /**
      * Размер файла (считывается при инициализации).
      */
@@ -85,17 +86,33 @@ public class InputBufferedFile {
      * @throws FileNotFoundException Ошибка при отсутствии файла.
      * @throws IOException Ошибка при позиционировании.
      */
-    public InputBufferedFile(String fileName, int bufsize, int cachesize) throws FileNotFoundException, IOException {
+    public InputBufferedFile(FileDesc desc, int bufsize, int cachesize) throws FileNotFoundException, IOException, XFSException {
         // Буфер парсинга данных.
         parseArray = new byte[16]; // byte/int/long/double (<= 8 bytes.)
         parseBuffer = ByteBuffer.wrap(parseArray);
         parseBuffer.order(ByteOrder.LITTLE_ENDIAN);
-        name = fileName;
-        in = new RandomAccessFile(name, "r");
-        fileSize = in.length();
+        this.desc = desc;
+        if (desc != null) {
+            if (desc.id == 0) {
+                in = new NativeFileReader(desc.name);
+            } else {
+                in = new NativeXFSReader(desc.id, desc.name);
+            }
+            in.seek(0);
+        }
+        fileSize = in.getSize();
         bufferPosition = 0;
         position = 0;
         setBuffer(bufsize, cachesize);
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        try {
+            in.close();
+        } catch (Exception e) {
+        }
+        super.finalize();
     }
 
     /**
@@ -338,19 +355,14 @@ public class InputBufferedFile {
      * @throws IOException Ошибка ввода-вывода.
      */
     public void close() throws IOException {
-        if (in != null) {
-            in.close();
-        }
+        in.close();
     }
-
+    
     /**
      * Безопасный вариант закрытия файла-источника (не вызывает исключений).
      */
     public void closeSafe() {
-        try {
-            close();
-        } catch (IOException ex) {
-        }
+        in.closeSafe();
     }
 
     /**

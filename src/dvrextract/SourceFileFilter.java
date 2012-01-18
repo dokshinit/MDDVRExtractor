@@ -5,8 +5,10 @@
 package dvrextract;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.regex.Pattern;
 import javax.swing.filechooser.FileFilter;
+import xfsengine.XFS.Node;
 
 /**
  * Фильтр по файлам для выбора источника.
@@ -17,15 +19,15 @@ public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
     /**
      * Общий фильтр для всех типов файлов.
      */
-    public static final SourceFileFilter instALL = new SourceFileFilter("(.+\\.exe$|^da\\d+)", "Все файлы DVR");
+    public static final SourceFileFilter instALL = new SourceFileFilter("^(.*[/\\\\])*(.+\\.exe$|^da\\d+)", "Все файлы DVR");
     /**
      * Фильтр для EXE файлов.
      */
-    public static final SourceFileFilter instEXE = new SourceFileFilter(".+\\.exe$", "Файлы EXE-архивы DVR");
+    public static final SourceFileFilter instEXE = new SourceFileFilter("^(.*[/\\\\])*.+\\.exe$", "Файлы EXE-архивы DVR");
     /**
      * Фильтр для HDD файлов.
      */
-    public static final SourceFileFilter instHDD = new SourceFileFilter("^da\\d+", "Файлы HDD DVR");
+    public static final SourceFileFilter instHDD = new SourceFileFilter("^(.*[/\\\\])*da\\d+", "Файлы HDD DVR");
     /**
      * Маска фильтрации файлов.
      */
@@ -58,6 +60,10 @@ public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
         return pattern.matcher(f.getName()).matches();
     }
 
+    public boolean accept(String filename) {
+        return pattern.matcher(filename).matches();
+    }
+
     /**
      * Описание фильтра.
      * @return Описание фильтра.
@@ -72,26 +78,20 @@ public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
      * @param f Файл.
      * @return Тип файла.
      */
-    public static FileType getType(File f) {
-        if (f.isDirectory()) {
+    public static FileType getType(FileDesc f) {
+        if (f.id != 0) { // Только XFS HDD!!!
+            return FileType.XFS;
+        }
+        File n = new File(f.name);
+        if (n.isDirectory()) {
             return FileType.DIR;
-        } else if (instEXE.accept(f)) {
+        } else if (instEXE.accept(f.name)) {
             return FileType.EXE;
-        } else if (instHDD.accept(f)) {
+        } else if (instHDD.accept(f.name)) {
             return FileType.HDD;
         } else {
             return FileType.NO;
         }
-    }
-
-    /**
-     * Возвращает тип файла.
-     * @param name Имя файла.
-     * @return Тип файла.
-     */
-    public static FileType getType(String name) {
-        File f = new File(name);
-        return getType(f);
     }
 
     /**
@@ -104,6 +104,7 @@ public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
             case EXE:
                 return instEXE;
             case HDD:
+            case XFS:
                 return instHDD;
             default:
                 return instALL;
@@ -115,7 +116,7 @@ public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
      * @param file Имя файла.
      * @return Фильтр.
      */
-    public static SourceFileFilter get(String file) {
+    public static SourceFileFilter get(FileDesc file) {
         return get(getType(file));
     }
 }

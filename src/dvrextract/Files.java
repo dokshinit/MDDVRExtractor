@@ -6,11 +6,12 @@ package dvrextract;
 
 import dvrextract.LogTableModel.Type;
 import java.io.File;
-import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collections;
+import xfsengine.XFS.DirEntry;
+import xfsengine.XFS.Node;
 
 /**
  * Осуществление действий с источником: сканирование, обработка.
@@ -47,7 +48,7 @@ public class Files {
     /**
      * Список для занесение всех файлов для сканирования.
      */
-    private static final ArrayList<File> files = new ArrayList<File>();
+    private static final ArrayList<FileDesc> files = new ArrayList<FileDesc>();
     /**
      * Текстовые ресурсы для интерфейса.
      */
@@ -60,10 +61,11 @@ public class Files {
      * все файлы в каталоге и во всех подкаталогах. Распознанные файлы 
      * распределяются по камерам и в итоге сортируются по возрастанию по времени 
      * первого кадра.
-     * @param startpath Источник (файл или каталог).
+     * @param startpath Источник (файл / каталог / устройство).
+     * @param isxfs true - устройство XFS, false - файл/каталог.
      * @param cam Номер камеры по которой жёстко ограничено сканирование.
      */
-    public static void scan(String startpath, int cam) {
+    public static void scan(FileDesc startpath, int cam) {
         // Установка источника.
         App.Source.set(startpath, SourceFileFilter.getType(startpath), cam);
 
@@ -77,7 +79,18 @@ public class Files {
         files.clear();
 
         // Построение списка файлов для сканирования.
-        scanDir(startpath, cam);
+        long id = 0;
+        if (startpath.id != 0) {
+            try {
+                App.Source.openXFS(startpath.name);
+                Node f = App.Source.getXFS().openRootNode();
+                scanXFSDir(f, "/", cam);
+            } catch (Exception ex) {
+                return;
+            }
+        } else {
+            scanDir(startpath.name, cam);
+        }
 
         msg = x_SourceScaning;
         App.log(msg);
@@ -91,7 +104,7 @@ public class Files {
                     break;
                 }
                 final String msg1 = String.format(x_FileScaning, n + 1, files.size());
-                final String msg2 = files.get(n).getPath();
+                final String msg2 = files.get(n).name;
                 App.gui.setProgressInfo(msg1);
                 App.gui.setProgressText(msg2);
                 App.log(msg1 + ": " + msg2);
@@ -149,8 +162,53 @@ public class Files {
                     return;
                 }
                 // Простой файл.
-                files.add(fa[i]);
+                files.add(new FileDesc(fa[i].getPath()));
                 App.gui.setProgressText(fa[i].getPath());
+            }
+        } catch (Exception ex) {
+            Err.log("File path = " + path);
+            Err.log(ex);
+        }
+    }
+
+    /**
+     * Построение списка файлов источника с рекурсией вглубь.
+     * @param path Источник (файл или каталог).
+     */
+    private static void scanXFSDir(Node dir, String path, int cam) {
+        try {
+            ArrayList<DirEntry> fa = dir.fileList();
+            if (fa == null) {
+                return;
+            }
+            if (Task.isTerminate()) {
+                return;
+            }
+            int nnn = 0;
+            for (int i = 0; i < fa.size(); i++) {
+                if (".".equals(fa.get(i).fileName) || "..".equals(fa.get(i).fileName)) {
+                    continue;
+                }
+                // Если не совпадает с маской - значит может быть только каталогом... или не интересует.
+                if (!SourceFileFilter.instHDD.accept(fa.get(i).fileName)) {
+                    Node f = App.Source.getXFS().openNode(fa.get(i).idNode);
+                    if (f.isDirectory()) {
+                        scanXFSDir(f, path + fa.get(i).fileName + "/", cam); // Переходим глубже на один уровень.
+                    } else {
+                        continue;
+                    }
+                } else {
+                    // Простой файл.
+                    files.add(new FileDesc(fa.get(i).idNode, path + fa.get(i).fileName));
+                    nnn++;
+                    if (nnn >= 1000) {
+                    App.gui.setProgressText(path + fa.get(i).fileName);
+                        nnn=0;
+                    }
+                }
+                if (Task.isTerminate()) {
+                    return;
+                }
             }
         } catch (Exception ex) {
             Err.log("File path = " + path);
@@ -162,10 +220,10 @@ public class Files {
      * Сканирование файла-источника.
      * @param path Источник (файл или каталог).
      */
-    private static void scanFile(File file, int cam) {
+    private static void scanFile(FileDesc file, int cam) {
         try {
             FileType type = SourceFileFilter.getType(file);
-            FileInfo info = parseFile(file.getPath(), type, cam);
+            FileInfo info = parseFile(file, type, cam);
             if (info != null) {
                 // Обрабатываем инфу - добавляем файл ко всем камерам, какие в нём перечислены.
                 for (FileInfo.CamData n : info.camInfo) {
@@ -176,7 +234,7 @@ public class Files {
                 if (App.isDebug) {
                     App.log(Type.INFO,
                             (info.frameFirst.pos > 0 ? "Pos=" + info.frameFirst.pos + " " : "")
-                            + "file=" + file.getName() + " cams=" + info.camInfo.size()
+                            + "file=" + file.name + " cams=" + info.camInfo.size()
                             + " [" + info.frameFirst.time.toString()
                             + " - " + info.frameLast.time.toString() + "]");
                 }
@@ -196,7 +254,7 @@ public class Files {
      * @param cam Ограничение по камере (0-по всем, иначе только для данной камеры).
      * @return 
      */
-    private static FileInfo parseFile(String fileName, FileType type, int cam) {
+    private static FileInfo parseFile(FileDesc fileName, FileType type, int cam) {
         try {
             final InputBufferedFile in = new InputBufferedFile(fileName, 100000, 100);
             final int exeplayersize = 1000000; // Минимальный размер встроенного плеера.
@@ -301,7 +359,7 @@ public class Files {
             in.close();
             return info;
 
-        } catch (IOException ioe) {
+        } catch (Exception ioe) {
             Err.log("Source file = " + fileName);
             Err.log(ioe);
             return null;
@@ -364,7 +422,7 @@ public class Files {
             in.close();
             return null;
 
-        } catch (IOException ioe) {
+        } catch (Exception ioe) {
             Err.log("File info = " + info.toString());
             Err.log(ioe);
             return null;

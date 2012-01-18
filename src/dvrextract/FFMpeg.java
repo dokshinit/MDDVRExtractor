@@ -213,7 +213,7 @@ public final class FFMpeg {
                 // Поток тормознут, если exitValue не вызывает исключение!
                 image = ImageIO.read(is);
                 is.close();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 Err.log(e);
             } finally {
                 if (process != null) {

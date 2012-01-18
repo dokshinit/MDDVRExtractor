@@ -156,7 +156,7 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
             @Override
             public void run() {
                 // Отображаем новый источник и его тип.
-                textSource.setText(App.Source.getName());
+                textSource.setText(App.Source.getName().name);
                 textType.setText(App.Source.getType().title);
                 // Подразумевается, что инфа о камерах уже актуальная (очищена).
                 // Сигнализируем о изменении списка камер.

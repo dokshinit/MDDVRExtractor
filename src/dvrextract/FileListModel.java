@@ -93,7 +93,7 @@ public class FileListModel extends AbstractTableModel {
                 case 0:
                     return files.get(row); // Невидимый!
                 case 1:
-                    return files.get(row).fileName;
+                    return files.get(row).fileName.toString();
                 case 2:
                     return files.get(row).fileType.title;
                 case 3:
