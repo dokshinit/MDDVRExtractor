@@ -317,7 +317,7 @@ public class GUI {
      * Если не в потоке Swing - ставится на выполнение в очередь и ожидает завершения.
      * @param obj Задание.
      */
-    public static void InSwingWait(Runnable obj) {
+    public static void InSwingWait(final Runnable obj) {
         try {
             if (SwingUtilities.isEventDispatchThread()) {
                 obj.run();
@@ -336,7 +336,7 @@ public class GUI {
      * Если не в потоке Swing - ставится на выполнение в очередь и выходит.
      * @param obj Задание.
      */
-    public static void InSwingLater(Runnable obj) {
+    public static void InSwingLater(final Runnable obj) {
         try {
             if (SwingUtilities.isEventDispatchThread()) {
                 obj.run();

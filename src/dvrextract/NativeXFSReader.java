@@ -1,6 +1,6 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (c) 2011-2012, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Contacts: dant.it@gmail.com, dokshin@list.ru.
  */
 package dvrextract;
 
@@ -10,8 +10,8 @@ import xfsengine.XFS.Node;
 import xfsengine.XFS.XFSException;
 
 /**
- *
- * @author lex
+ * Реализация ридера данных для работы с XFS (в т.ч. DVR XFSv1).
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class NativeXFSReader implements NativeReader {
 
@@ -61,7 +61,11 @@ public class NativeXFSReader implements NativeReader {
 
     @Override
     public int read(byte[] ba, int index, int size) throws IOException {
-        return in.read(ba, index, size);
+        try {
+            return in.read(ba, index, size);
+        } catch (XFSException ex) {
+            throw new IOException(ex.getMessage(), ex);
+        }
     }
 
     @Override

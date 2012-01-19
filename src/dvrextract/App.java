@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Copyright (c) 2011-2012, Aleksey Nikolaevich Dokshin. All right reserved.
  * Contacts: dant.it@gmail.com, dokshin@list.ru.
  */
 package dvrextract;
@@ -25,11 +25,11 @@ public class App {
     /**
      * Дата релиза версии программы.
      */
-    public static final String versionDate = "15.12.2011";
+    public static final String versionDate = "18.01.2012";
     /**
      * Версия программы.
      */
-    public static final String version = "1.0";
+    public static final String version = "1.1";
     /**
      * Максимальное кол-во обрабатываемых камер.
      */
@@ -64,22 +64,13 @@ public class App {
     public static class Source {
 
         /**
-         * Полное имя файла или каталога.
+         * Полное имя файла / каталога / устройства с XFS.
          */
         private static FileDesc name = new FileDesc(0, "");
+        /**
+         * ФС XFS.
+         */
         private static XFS xfs = null;
-        public static XFS getXFS() {
-            return xfs;
-        }
-        public static XFS openXFS(String devname) throws FileNotFoundException, IOException, XFSException {
-            return xfs = new XFS(new Device(name.name));
-        }
-        public static void closeXFS() {
-            if (xfs != null) {
-                xfs.device.close();
-            }
-        }
-        
         /**
          * Тип источника: 0-EXE, 1-HDD
          */
@@ -103,6 +94,44 @@ public class App {
          */
         public static FileDesc getName() {
             return name;
+        }
+
+        /**
+         * Возвращает текущую XFS.
+         * @return XFS.
+         */
+        public static XFS getXFS() {
+            return xfs;
+        }
+
+        /**
+         * Открывает XFS для текущего устройства.
+         * Если уже открыта - предварительно закрывает старую.
+         * @return XFS.
+         * @throws FileNotFoundException Файл устройства не найден.
+         * @throws IOException Ошибка ввода-вывода.
+         * @throws xfsengine.XFS.XFSException Ошибка структуры XFS.
+         */
+        public static XFS openXFS() throws FileNotFoundException, IOException, XFSException {
+            if (xfs != null) {
+                closeXFS();
+            }
+            return xfs = new XFS(new Device(name.name));
+        }
+
+        /**
+         * Закрывает (если открыта) текущую XFS и связанное устройство.
+         */
+        public static void closeXFS() {
+            if (xfs != null) {
+                try {
+                    Device dev = xfs.device;
+                    xfs.close();
+                    dev.close();
+                } catch (IOException ex) {
+                }
+                xfs = null;
+            }
         }
 
         /**
@@ -439,7 +468,6 @@ public class App {
      */
     public static void initLAF() {
         String laf = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
-        //String laf = "javax.swing.plaf.metal.MetalLookAndFeel";
         try {
             Class c = Class.forName(laf);
             UIManager.setLookAndFeel(laf);

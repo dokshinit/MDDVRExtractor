@@ -1,14 +1,14 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright (c) 2011-2012, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Contacts: dant.it@gmail.com, dokshin@list.ru.
  */
 package dvrextract;
 
 import java.io.IOException;
 
 /**
- *
- * @author lex
+ * Интерфейс для ридера данных.
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public interface NativeReader {
 

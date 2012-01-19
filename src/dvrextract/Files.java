@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Copyright (c) 2011-2012, Aleksey Nikolaevich Dokshin. All right reserved.
  * Contacts: dant.it@gmail.com, dokshin@list.ru.
  */
 package dvrextract;
@@ -82,13 +82,14 @@ public class Files {
         long id = 0;
         if (startpath.id != 0) {
             try {
-                App.Source.openXFS(startpath.name);
+                App.Source.openXFS();
                 Node f = App.Source.getXFS().openRootNode();
                 scanXFSDir(f, "/", cam);
             } catch (Exception ex) {
                 return;
             }
         } else {
+            App.Source.closeXFS();
             scanDir(startpath.name, cam);
         }
 

@@ -1,14 +1,12 @@
 /*
- * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Copyright (c) 2011-2012, Aleksey Nikolaevich Dokshin. All right reserved.
  * Contacts: dant.it@gmail.com, dokshin@list.ru.
  */
 package dvrextract;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.regex.Pattern;
 import javax.swing.filechooser.FileFilter;
-import xfsengine.XFS.Node;
 
 /**
  * Фильтр по файлам для выбора источника.
