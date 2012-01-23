@@ -92,7 +92,7 @@ public class Files {
 
                 case FileDesc.XFS:
                     App.Source.openXFS();
-                    Node f = App.Source.getXFS().openRootNode();
+                    Node f = App.Source.getXFS().openNode("/");
                     scanXFSDir(f, "/", cam);
                     break;
             }
