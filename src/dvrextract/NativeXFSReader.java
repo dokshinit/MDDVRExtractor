@@ -11,6 +11,7 @@ import xfsengine.XFS.XFSException;
 
 /**
  * Реализация ридера данных для работы с XFS (в т.ч. DVR XFSv1).
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class NativeXFSReader implements NativeReader {
@@ -26,17 +27,18 @@ public class NativeXFSReader implements NativeReader {
 
     /**
      * Конструктор.
-     * @param fileDesc Имя файла-источника.
-     * @throws FileNotFoundException Ошибка при отсутствии файла.
+     *
+     * @param name Имя файла-источника.
      * @throws IOException Ошибка при позиционировании.
+     * @throws XFSException Ошибка XFS.
      */
-    public NativeXFSReader(long id, String name) throws IOException, XFSException  {
-        this.name = name;
-        in = null;
-        if (name != null && id > 0) {
-            in = App.Source.getXFS().openNode(id);
-            in.seek(0);
+    public NativeXFSReader(String name) throws IOException, XFSException {
+        if (name == null) {
+            throw new IOException("Name is null!");
         }
+        this.name = name;
+        in = App.Source.getXFS().openNode(name);
+        in.seek(0);
     }
 
     @Override
@@ -70,14 +72,12 @@ public class NativeXFSReader implements NativeReader {
 
     @Override
     public void close() throws IOException {
-        in.close();
+        // Фактически файлы отсутствуют - закрывать ничего не надо.
+        // Т.к. при закрытии узла (из кэша) в кэше оставался бы нерабочий узел (!!!).
+        // Вместо этого в конце работы с ФС закрывается файл устройства!
     }
 
     @Override
     public void closeSafe() {
-        try {
-            close();
-        } catch (IOException ex) {
-        }
     }
 }

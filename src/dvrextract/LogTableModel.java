@@ -4,11 +4,13 @@
  */
 package dvrextract;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
 import javax.swing.table.AbstractTableModel;
 
 /**
  * Модель табличных данных адаптированная для работы с БД
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class LogTableModel extends AbstractTableModel {
@@ -56,6 +58,7 @@ public class LogTableModel extends AbstractTableModel {
 
         /**
          * Конструктор.
+         *
          * @param type Тип маркировки.
          * @param dt Дата добавления.
          * @param text Текст сообщения.
@@ -68,7 +71,7 @@ public class LogTableModel extends AbstractTableModel {
     }
     /**
      * Типы столбцов.
-     */ 
+     */
     private static Class[] colTypes = {Row.class, Date.class, String.class};
     /**
      * Имена столбцов.
@@ -76,7 +79,7 @@ public class LogTableModel extends AbstractTableModel {
     private static String[] colNames = {"ID", "dt", "text"};
     /**
      * Строки.
-     */ 
+     */
     private ArrayList<Row> data;
 
     /**
@@ -89,6 +92,7 @@ public class LogTableModel extends AbstractTableModel {
 
     /**
      * Возвращает количество строк.
+     *
      * @return Количество строк.
      */
     @Override
@@ -100,6 +104,7 @@ public class LogTableModel extends AbstractTableModel {
 
     /**
      * Возвращает количество столбцов.
+     *
      * @return Количество столбцов.
      */
     @Override
@@ -109,6 +114,7 @@ public class LogTableModel extends AbstractTableModel {
 
     /**
      * Возвращает тип данных столбца.
+     *
      * @param column Номер столбца.
      * @return Тип данных столбца.
      */
@@ -119,6 +125,7 @@ public class LogTableModel extends AbstractTableModel {
 
     /**
      * Название столбца.
+     *
      * @param column Столбец.
      * @return Название.
      */
@@ -129,6 +136,7 @@ public class LogTableModel extends AbstractTableModel {
 
     /**
      * Данные в ячейке.
+     *
      * @param row Строка.
      * @param column Столбец.
      * @return Значение.
@@ -150,6 +158,7 @@ public class LogTableModel extends AbstractTableModel {
 
     /**
      * Установка значения в ячейку.
+     *
      * @param value Значение.
      * @param row Строка.
      * @param column Столбец.
@@ -160,6 +169,7 @@ public class LogTableModel extends AbstractTableModel {
 
     /**
      * Статус редактируемости для ячейки.
+     *
      * @param rowIndex Строка.
      * @param columnIndex Столбец.
      * @return Статус (у нас всегда false - нельзя).
@@ -171,6 +181,7 @@ public class LogTableModel extends AbstractTableModel {
 
     /**
      * Добавление строки.
+     *
      * @param type Тип маркировки.
      * @param dt Дата добавления.
      * @param text Текст сообщения.
@@ -184,6 +195,7 @@ public class LogTableModel extends AbstractTableModel {
 
     /**
      * Добавление строки.
+     *
      * @param type Тип маркировки.
      * @param text Текст сообщения.
      */
@@ -197,6 +209,7 @@ public class LogTableModel extends AbstractTableModel {
     /**
      * Обновляется последняя строка лога - добавляется текст и устанавливается
      * тип. Время не изменяется!
+     *
      * @param type Новый тип.
      * @param text Добавляемый к концу строки текст.
      */

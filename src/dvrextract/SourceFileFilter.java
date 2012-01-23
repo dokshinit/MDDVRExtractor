@@ -10,6 +10,7 @@ import javax.swing.filechooser.FileFilter;
 
 /**
  * Фильтр по файлам для выбора источника.
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
@@ -17,15 +18,18 @@ public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
     /**
      * Общий фильтр для всех типов файлов.
      */
-    public static final SourceFileFilter instALL = new SourceFileFilter("^(.*[/\\\\])*(.+\\.exe$|^da\\d+)", "Все файлы DVR");
+    public static final SourceFileFilter instALL =
+            new SourceFileFilter("^(.*[/\\\\])*(.+\\.exe$|^da\\d+)", "Все файлы DVR");
     /**
      * Фильтр для EXE файлов.
      */
-    public static final SourceFileFilter instEXE = new SourceFileFilter("^(.*[/\\\\])*.+\\.exe$", "Файлы EXE-архивы DVR");
+    public static final SourceFileFilter instEXE =
+            new SourceFileFilter("^(.*[/\\\\])*.+\\.exe$", "Файлы EXE-архивы DVR");
     /**
      * Фильтр для HDD файлов.
      */
-    public static final SourceFileFilter instHDD = new SourceFileFilter("^(.*[/\\\\])*da\\d+", "Файлы HDD DVR");
+    public static final SourceFileFilter instHDD =
+            new SourceFileFilter("^(.*[/\\\\])*da\\d+", "Файлы HDD DVR");
     /**
      * Маска фильтрации файлов.
      */
@@ -37,6 +41,7 @@ public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
 
     /**
      * Конструктор.
+     *
      * @param ptrn Регулярное выражение для фильтрации.
      * @param desc Описание фильтра.
      */
@@ -47,6 +52,7 @@ public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
 
     /**
      * Метод фильтрации (разрешаем каталоги и файлы по фильтру).
+     *
      * @param f Проверяемый файл.
      * @return true - разрешаем, false - запрещаем.
      */
@@ -58,12 +64,21 @@ public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
         return pattern.matcher(f.getName()).matches();
     }
 
+    /**
+     * Проверка имени файла на соответствие шаблону. Отличается от файловой
+     * проверки тем, что проверяется только имя, безотносительно к сущности
+     * (файл/каталог).
+     *
+     * @param filename Имя файла.
+     * @return Флаг: true - соответствует шаблону, false - нет.
+     */
     public boolean accept(String filename) {
         return pattern.matcher(filename).matches();
     }
 
     /**
      * Описание фильтра.
+     *
      * @return Описание фильтра.
      */
     @Override
@@ -72,20 +87,21 @@ public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
     }
 
     /**
-     * Возвращает тип файла.
-     * @param f Файл.
+     * Возвращает тип файла по его дескриптору.
+     *
+     * @param desc Дескриптор файла.
      * @return Тип файла.
      */
-    public static FileType getType(FileDesc f) {
-        if (f.id != 0) { // Только XFS HDD!!!
+    public static FileType getType(FileDesc desc) {
+        if (desc.type == FileDesc.XFS) { // Только XFS-HDD!!!
             return FileType.XFS;
         }
-        File n = new File(f.name);
+        File n = new File(desc.name);
         if (n.isDirectory()) {
             return FileType.DIR;
-        } else if (instEXE.accept(f.name)) {
+        } else if (instEXE.accept(desc.name)) {
             return FileType.EXE;
-        } else if (instHDD.accept(f.name)) {
+        } else if (instHDD.accept(desc.name)) {
             return FileType.HDD;
         } else {
             return FileType.NO;
@@ -94,6 +110,7 @@ public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
 
     /**
      * Возвращает фильтр по типу файла.
+     *
      * @param type Тип файла.
      * @return Фильтр.
      */
@@ -110,11 +127,12 @@ public class SourceFileFilter extends FileFilter implements java.io.FileFilter {
     }
 
     /**
-     * Возвращает фильтр по названию файла.
-     * @param file Имя файла.
+     * Возвращает фильтр по дескриптору файла (имя + тип).
+     *
+     * @param desc Дескриптор файла.
      * @return Фильтр.
      */
-    public static SourceFileFilter get(FileDesc file) {
-        return get(getType(file));
+    public static SourceFileFilter get(FileDesc desc) {
+        return get(getType(desc));
     }
 }

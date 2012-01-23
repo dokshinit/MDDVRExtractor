@@ -15,8 +15,9 @@ import xfsengine.XFS.Node;
 
 /**
  * Осуществление действий с источником: сканирование, обработка.
+ * <pre>
  * -----------------------------------------------------------------------------
- * ФОРМАТ ОПИСАТЕЛЯ EXE ФАЙЛА:
+ * ФОРМАТ ОПИСАТЕЛЯ ДАННЫХ EXE ФАЙЛА:
  * <конец данных>
  * int ?; =2
  * int ?; =1
@@ -35,6 +36,8 @@ import xfsengine.XFS.Node;
  * long[16] frameCount;  // Общее кол-во кадров по камерам.
  * <конец файла>
  * -----------------------------------------------------------------------------
+ * </pre>
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class Files {
@@ -53,16 +56,17 @@ public class Files {
      * Текстовые ресурсы для интерфейса.
      */
     public static String x_BuildFileList, x_FileScaning, x_ScanFinish,
-            x_ScanFinishBreak, x_SourceScaning;
+            x_ScanFinishBreak, x_SourceScaning, x_ScanError;
 
     /**
      * Сканирование источника (с рекурсивным обходом подкаталогов).
-     * Если источник файл - сканируется один файл, если каталог - сканируются 
-     * все файлы в каталоге и во всех подкаталогах. Распознанные файлы 
-     * распределяются по камерам и в итоге сортируются по возрастанию по времени 
+     *
+     * Если источник файл - сканируется один файл, если каталог - сканируются
+     * все файлы в каталоге и во всех подкаталогах. Распознанные файлы
+     * распределяются по камерам и в итоге сортируются по возрастанию по времени
      * первого кадра.
+     *
      * @param startpath Источник (файл / каталог / устройство).
-     * @param isxfs true - устройство XFS, false - файл/каталог.
      * @param cam Номер камеры по которой жёстко ограничено сканирование.
      */
     public static void scan(FileDesc startpath, int cam) {
@@ -78,48 +82,54 @@ public class Files {
         // Очистка всех данных о предыдущем сканировании.
         files.clear();
 
-        // Построение списка файлов для сканирования.
-        long id = 0;
-        if (startpath.id != 0) {
-            try {
-                App.Source.openXFS();
-                Node f = App.Source.getXFS().openRootNode();
-                scanXFSDir(f, "/", cam);
-            } catch (Exception ex) {
-                return;
-            }
-        } else {
-            App.Source.closeXFS();
-            scanDir(startpath.name, cam);
-        }
-
-        msg = x_SourceScaning;
-        App.log(msg);
-        App.gui.setProgressInfo(msg);
-        if (files.size() > 0) {
-            App.gui.startProgress(1, files.size());
-
-            // Сканирование.
-            for (int n = 0; n < files.size(); n++) {
-                if (Task.isTerminate()) {
+        try {
+            // Построение списка файлов для сканирования.
+            switch (startpath.type) {
+                case FileDesc.FS:
+                    App.Source.closeXFS();
+                    scanDir(startpath.name, cam);
                     break;
-                }
-                final String msg1 = String.format(x_FileScaning, n + 1, files.size());
-                final String msg2 = files.get(n).name;
-                App.gui.setProgressInfo(msg1);
-                App.gui.setProgressText(msg2);
-                App.log(msg1 + ": " + msg2);
-                scanFile(files.get(n), cam);
-                App.gui.setProgress(n + 1);
-            }
-            App.gui.setProgress(files.size());
 
-            // Сортировка списков файлов.
-            for (int i = 1; i <= App.MAXCAMS; i++) {
-                Collections.sort(App.Source.getCamInfo(i).files, FileInfo.getComparator());
+                case FileDesc.XFS:
+                    App.Source.openXFS();
+                    Node f = App.Source.getXFS().openRootNode();
+                    scanXFSDir(f, "/", cam);
+                    break;
             }
+
+            msg = x_SourceScaning;
+            App.log(msg);
+            App.gui.setProgressInfo(msg);
+            if (files.size() > 0) {
+                App.gui.startProgress(1, files.size());
+
+                // Сканирование.
+                for (int n = 0; n < files.size(); n++) {
+                    if (Task.isTerminate()) {
+                        break;
+                    }
+                    final String msg1 = String.format(x_FileScaning, n + 1, files.size());
+                    final String msg2 = files.get(n).name;
+                    App.gui.setProgressInfo(msg1);
+                    App.gui.setProgressText(msg2);
+                    App.log(msg1 + ": " + msg2);
+                    scanFile(files.get(n), cam);
+                    App.gui.setProgress(n + 1);
+                }
+                App.gui.setProgress(files.size());
+
+                // Сортировка списков файлов.
+                for (int i = 1; i <= App.MAXCAMS; i++) {
+                    Collections.sort(App.Source.getCamInfo(i).files, FileInfo.getComparator());
+                }
+            }
+            files.clear();
+
+        } catch (Exception ex) {
+            Task.terminate(); // Для отображения "прервано".
+            App.log(x_ScanError + " [" + ex.getMessage() + "]");
+            Err.log(ex);
         }
-        files.clear();
 
         App.gui.stopProgress();
         msg = x_ScanFinish + (Task.isTerminate() ? " (" + x_ScanFinishBreak + ")" : "") + ".";
@@ -130,12 +140,13 @@ public class Files {
 
     /**
      * Построение списка файлов источника с рекурсией вглубь.
+     *
      * @param path Источник (файл или каталог).
      */
     private static void scanDir(String path, int cam) {
         try {
             File f = new File(path);
-            File[] fa = null;
+            File[] fa;
             // Если источник - каталог, то получаем список его файлов.
             if (f.isDirectory()) {
                 fa = f.listFiles(SourceFileFilter.instALL);
@@ -174,6 +185,7 @@ public class Files {
 
     /**
      * Построение списка файлов источника с рекурсией вглубь.
+     *
      * @param path Источник (файл или каталог).
      */
     private static void scanXFSDir(Node dir, String path, int cam) {
@@ -187,11 +199,14 @@ public class Files {
             }
             int nnn = 0;
             for (int i = 0; i < fa.size(); i++) {
+                // Ссылки на родителя и на тек.каталог - пропускаем.
                 if (".".equals(fa.get(i).fileName) || "..".equals(fa.get(i).fileName)) {
                     continue;
                 }
                 // Если не совпадает с маской - значит может быть только каталогом... или не интересует.
                 if (!SourceFileFilter.instHDD.accept(fa.get(i).fileName)) {
+                    // Для скорости обращаемся напрямую по номеру узла, чтобы
+                    // избежать парсинга при обращении по имени.
                     Node f = App.Source.getXFS().openNode(fa.get(i).idNode);
                     if (f.isDirectory()) {
                         scanXFSDir(f, path + fa.get(i).fileName + "/", cam); // Переходим глубже на один уровень.
@@ -200,11 +215,11 @@ public class Files {
                     }
                 } else {
                     // Простой файл.
-                    files.add(new FileDesc(fa.get(i).idNode, path + fa.get(i).fileName));
+                    files.add(new FileDesc(path + fa.get(i).fileName, FileDesc.XFS));
                     nnn++;
-                    if (nnn >= 1000) {
-                    App.gui.setProgressText(path + fa.get(i).fileName);
-                        nnn=0;
+                    if (nnn >= 1) {
+                        App.gui.setProgressText(path + fa.get(i).fileName);
+                        nnn = 0;
                     }
                 }
                 if (Task.isTerminate()) {
@@ -219,6 +234,7 @@ public class Files {
 
     /**
      * Сканирование файла-источника.
+     *
      * @param path Источник (файл или каталог).
      */
     private static void scanFile(FileDesc file, int cam) {
@@ -247,13 +263,16 @@ public class Files {
     }
 
     /**
-     * Распарсивание файла-источника. Если это EXE - чтение инфы. Распознавание 
-     * начального и конечного кадров файла.
-     * Используется буферизированный на чтение файл с кешем.
+     * Распарсивание файла-источника.
+     *
+     * Если это EXE - чтение инфы. Распознавание начального и конечного кадров
+     * файла. Используется буферизированный на чтение файл с кэшем.
+     *
      * @param fileName Имя файла-источника.
      * @param type Тип файла-источника.
-     * @param cam Ограничение по камере (0-по всем, иначе только для данной камеры).
-     * @return 
+     * @param cam Ограничение по камере (0-по всем, иначе только для данной
+     * камеры).
+     * @return
      */
     private static FileInfo parseFile(FileDesc fileName, FileType type, int cam) {
         try {
@@ -369,13 +388,15 @@ public class Files {
 
     /**
      * Получение первого ключевого кадра из файла для заданной камеры.
+     *
      * Если данный кадр не распознан - производится поиск и сохранение в инфе,
      * при повторном обращении - возвращает из инфы.
+     *
      * @param info Инфа о файле.
      * @param cam Номер камеры.
      * @return Фрейм.
      */
-    public static Frame getFirstMainFrame(FileInfo info, int cam) {
+    public static Frame getFirstKeyFrame(FileInfo info, int cam) {
         try {
             if (cam < 1 || cam > App.MAXCAMS || info == null) {
                 return null;
@@ -432,6 +453,7 @@ public class Files {
 
     /**
      * Возвращает имя файла/пути без расширения.
+     *
      * @param name Имя файла.
      * @return Имя файла без расширения.
      */

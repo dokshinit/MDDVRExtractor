@@ -6,6 +6,7 @@ package dvrextract;
 
 /**
  * Интернационализация интерфейса.
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class I18n {
@@ -32,6 +33,7 @@ public class I18n {
 
     /**
      * Возвращает текущий устновленный язык интерфейса.
+     *
      * @return Язык интерфейса.
      */
     public static Lang getLanguage() {
@@ -40,7 +42,9 @@ public class I18n {
 
     /**
      * Формирует текстовое сообщение из аргументов исходя из текущего языка.
+     *
      * При мультиязычности - текст на разных языках идёт аргументами (!)
+     *
      * @param rus Русский текст.
      * @return Строка на текущем языке (если тек.язык не известен - на русском).
      */
@@ -66,6 +70,7 @@ public class I18n {
 
     /**
      * Инициализация графических компонент.
+     *
      * @param lang Язык интерфейса.
      */
     public static void init(Lang lang) {
@@ -163,6 +168,8 @@ public class I18n {
                 "прервано", "interrupted");
         Files.x_SourceScaning = text(
                 "Сканирование источника...", "Scanning a source...");
+        Files.x_ScanError = text(
+                "Прерывание по критической ошибке", "Critial error occurred"); // "Building a list of source files..."
 
         // GUIFileInfoPanel
         GUIFileInfoPanel.x_Cams = text(
@@ -204,8 +211,12 @@ public class I18n {
                 "Выбор устройства источника", "Select the source device");
         GUIDeviceSelectDialog.x_Dev = text(
                 "Устройство", "Device");
-        GUIDeviceSelectDialog.x_Hint = text(
-                "Примечение", "Note");
+        GUIDeviceSelectDialog.x_NoteLinux = text(
+                "Пользователь должен иметь права на чтение файла устройства.",
+                "The user must have read permission for the device.");
+        GUIDeviceSelectDialog.x_NoteWindows = text(
+                "Пользователь должен обладать правами администратора.",
+                "The user must have administrative rights.");
         GUIDeviceSelectDialog.x_Select = text(
                 "Выбрать", "Select");
         GUIDeviceSelectDialog.x_Cancel = text(

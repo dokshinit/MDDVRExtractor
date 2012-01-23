@@ -1,26 +1,29 @@
 /*
- * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Copyright (c) 2011-2012, Aleksey Nikolaevich Dokshin. All right reserved.
  * Contacts: dant.it@gmail.com, dokshin@list.ru.
  */
 package dvrextract.gui;
 
 import java.util.ArrayList;
 import java.util.Comparator;
-import javax.swing.table.*;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableColumnModel;
+import javax.swing.table.TableColumn;
 import org.jdesktop.swingx.table.TableColumnExt;
 //import org.jdesktop.swingx.table.TableColumnExt;
 
 /**
  * Модель колонок таблицы
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class TableColumnModel extends DefaultTableColumnModel {
 
     /**
-     * Массив в котором сохраняются предпочитаемые ширины колонок
-     * Используется в механизме изменения размеров компонента (включение и
-     * выключение скроллинга) для корректного растяжения столбцов после
-     * отключения скроллинга
+     * Массив в котором сохраняются предпочитаемые ширины колонок Используется в
+     * механизме изменения размеров компонента (включение и выключение
+     * скроллинга) для корректного растяжения столбцов после отключения
+     * скроллинга
      */
     private ArrayList<Integer> columnSavedWidth;
 
@@ -33,6 +36,7 @@ public class TableColumnModel extends DefaultTableColumnModel {
 
     /**
      * Возвращает сохраненный предпочитаемый размер для колонки
+     *
      * @param index Индекс колонки
      * @return Предпочтительная ширина колонки
      */
@@ -42,11 +46,12 @@ public class TableColumnModel extends DefaultTableColumnModel {
 
     /**
      * Добавление в модель колонки с заданием ее параметров
-     * @param colname   Наименование столбца в модели данных
-     * @param header    Текст заголовка столбца
-     * @param width     Ширина столбца предпочтительная (-1 - не задано)
-     * @param minwidth  Минимальная ширина (-1 - не задано)
-     * @param maxwidth  Максимальная ширина (-1 - не задано)
+     *
+     * @param colname Наименование столбца в модели данных
+     * @param header Текст заголовка столбца
+     * @param width Ширина столбца предпочтительная (-1 - не задано)
+     * @param minwidth Минимальная ширина (-1 - не задано)
+     * @param maxwidth Максимальная ширина (-1 - не задано)
      * @return Добавленный столбец (для возможной дополнительной настройки)
      */
     public TableColumnExt add(String colname, String header,
@@ -70,7 +75,9 @@ public class TableColumnModel extends DefaultTableColumnModel {
     }
 
     /**
-     * Сопоставление столбцов и данных (по идентификаторам), присваивоение индексов.
+     * Сопоставление столбцов и данных (по идентификаторам), присваивоение
+     * индексов.
+     *
      * @param model Модель данных таблицы.
      */
     public void linkToData(AbstractTableModel model) {
@@ -83,9 +90,10 @@ public class TableColumnModel extends DefaultTableColumnModel {
             }
         }
     }
-    
+
     /**
      * Возвращает столбец соответствующий указанному номеру В МОДЕЛИ (!).
+     *
      * @param index Номер столбца в модели (0..n-1).
      * @return Столбец или null если не найден.
      */
@@ -103,6 +111,7 @@ public class TableColumnModel extends DefaultTableColumnModel {
     /**
      * Устанавливает отображаемое название столбцу соответствующему заданному
      * номеру столбца В МОДЕЛИ (!).
+     *
      * @param index Номер столбца В МОДЕЛИ (!).
      * @param title Название столбца.
      * @return Результат операции: true - успех, false - ошибка.

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Copyright (c) 2011-2012, Aleksey Nikolaevich Dokshin. All right reserved.
  * Contacts: dant.it@gmail.com, dokshin@list.ru.
  */
 package dvrextract.gui;
@@ -12,6 +12,7 @@ import net.miginfocom.swing.MigLayout;
 
 /**
  * Панель содержащая изображение.
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class GUIImagePanel extends JPanel {
@@ -34,14 +35,16 @@ public class GUIImagePanel extends JPanel {
 
     /**
      * Конструктор.
-     * @param image Изображение. 
+     *
+     * @param image Изображение.
      */
     public GUIImagePanel(Image image) {
         this(image, null);
     }
 
     /**
-     * Конструктор. 
+     * Конструктор.
+     *
      * @param title Текстовая ссылка.
      */
     public GUIImagePanel(String title) {
@@ -49,7 +52,8 @@ public class GUIImagePanel extends JPanel {
     }
 
     /**
-     * Конструктор. 
+     * Конструктор.
+     *
      * @param image Изображение.
      * @param title Текстовая ссылка.
      */
@@ -62,6 +66,7 @@ public class GUIImagePanel extends JPanel {
 
     /**
      * Устанавливает текст надписи.
+     *
      * @param title Текст надписи.
      */
     public final void setLabelText(String title) {
@@ -70,6 +75,7 @@ public class GUIImagePanel extends JPanel {
 
     /**
      * Возвращает граф.элемент текстовой надписи.
+     *
      * @return Лейбл текстововй надписи.
      */
     public final JLabel getLabel() {
@@ -78,6 +84,7 @@ public class GUIImagePanel extends JPanel {
 
     /**
      * Устанавливает изображение панели.
+     *
      * @param image Изображение.
      */
     public final void setImage(Image image) {
@@ -89,6 +96,7 @@ public class GUIImagePanel extends JPanel {
 
     /**
      * Возвращает изображение панели.
+     *
      * @return Изображение.
      */
     public Image getImage() {
@@ -97,6 +105,7 @@ public class GUIImagePanel extends JPanel {
 
     /**
      * Отрисовка компонента.
+     *
      * @param g Контекст.
      */
     @Override

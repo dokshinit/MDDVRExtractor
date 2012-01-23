@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Copyright (c) 2011-2012, Aleksey Nikolaevich Dokshin. All right reserved.
  * Contacts: dant.it@gmail.com, dokshin@list.ru.
  */
 package dvrextract.gui;
@@ -13,6 +13,7 @@ import org.jdesktop.swingx.JXPanel;
 
 /**
  * Панель с закруглёнными краями (только под рамку!).
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class RoundPanel extends JXPanel {
@@ -24,6 +25,7 @@ public class RoundPanel extends JXPanel {
 
     /**
      * Конструктор.
+     *
      * @param layout Менеджер раскладки.
      * @param cornerRadius Радиус скругления углов.
      */

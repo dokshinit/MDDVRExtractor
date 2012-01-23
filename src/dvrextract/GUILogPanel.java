@@ -23,7 +23,9 @@ import org.jdesktop.swingx.table.TableColumnExt;
 
 /**
  * Панель для вывода логов.
+ *
  * TODO: Реализовать просмотр/копирование содержимого ячейки в буфер (?).
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class GUILogPanel extends JPanel {
@@ -98,6 +100,7 @@ public class GUILogPanel extends JPanel {
 
     /**
      * Добавление строки лога.
+     *
      * @param type Тип сообщения.
      * @param text Текст сообщения.
      */
@@ -116,6 +119,7 @@ public class GUILogPanel extends JPanel {
 
     /**
      * Обновление последней строки лога. Если лог пуст - добавление строки.
+     *
      * @param type Тип сообщения.
      * @param text Текст сообщения.
      */

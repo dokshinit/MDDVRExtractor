@@ -18,12 +18,14 @@ import org.jdesktop.swingx.JXHyperlink;
 
 /**
  * Вкладка "О программе".
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class GUI_TabAbout extends JPanel {
 
     /**
-     * Скролл для всей закладки (добавляется в панель - единственный компонет в ней).
+     * Панель прокрутки для всей закладки (добавляется в панель - единственный
+     * компонет в ней).
      */
     private JScrollPane scroll;
     /**
@@ -31,7 +33,8 @@ public final class GUI_TabAbout extends JPanel {
      */
     private JVScrolledPanel panel;
     /**
-     * Текстовые ресурсы для интерфейса (названия панелей групп и строки контента).
+     * Текстовые ресурсы для интерфейса (названия панелей групп и строки
+     * контента).
      */
     public static String[] x_groups, x_labels;
     //
@@ -53,21 +56,38 @@ public final class GUI_TabAbout extends JPanel {
         for (int i = 0; i < x_labels.length; i++) {
             labels[i] = GUI.createLabel(x_labels[i]);
         }
-        linkJDK = new Link("Oracle Java SE (JRE/JDK)", "http://www.oracle.com/technetwork/java/javase/downloads/index.html");
+        linkJDK = new Link("Oracle Java SE (JRE/JDK)",
+                "http://www.oracle.com/technetwork/java/javase/downloads/index.html");
         linkFFMpegWin = new Link("Linux", "http://ffmpeg.org/download.html");
         linkFFMpegLinux = new Link("Windows", "http://ffmpeg.zeranoe.com/builds/");
     }
     GroupPanel gpVideo, gpAudio, gpSub, gpSource;
 
+    /**
+     * Панель группы элементов.
+     */
     private class GroupPanel extends RoundPanel {
 
+        /**
+         * Рамка окна.
+         */
         GroupBorder border;
+        /**
+         * Панель контента.
+         */
         JPanel content;
 
+        /**
+         * Конструктор.
+         *
+         * @param title Название панели.
+         * @param cond Доп.уловия на столбцы для менеджера раскладки для панели
+         * контента.
+         */
         public GroupPanel(String title, String cond) {
             super(new MigLayout("ins 3", "grow", ""), 16);
-            
-            setBorder(border = new GroupBorder(title, true, 
+
+            setBorder(border = new GroupBorder(title, true,
                     GUI.About.Group.gradient1, GUI.About.Group.gradient2));
 
             setForeground(GUI.About.Group.fgtitle);
@@ -88,9 +108,10 @@ public final class GUI_TabAbout extends JPanel {
         public void add(Component comp, Object constraints) {
             content.add(comp, constraints);
         }
-        
+
         /**
          * Добавляет на панель парный текстовый элемент - заголовок + текст.
+         *
          * @param panel Панель.
          * @param head Заголовок.
          * @param text Текст.
@@ -103,12 +124,20 @@ public final class GUI_TabAbout extends JPanel {
             content.add(labels[itext], "top, wrap");
         }
 
+        /**
+         * Добавляет на панель текстовый элемент.
+         * @param itext Текст.
+         */
         private void addLine(int itext) {
             // Корректируем текст
             labels[itext].setText("<html>" + x_labels[itext] + "</html>");
             content.add(labels[itext], "spanx, left, top, wrap");
         }
 
+        /**
+         * Добавляет на панель строку списка (спиосок со свездочками).
+         * @param itext Текст.
+         */
         private void addListLine(int itext) {
             // Корректируем текст
             labels[itext].setText("<html>" + x_labels[itext] + "</html>");
@@ -116,6 +145,11 @@ public final class GUI_TabAbout extends JPanel {
             content.add(labels[itext], "top, wrap");
         }
 
+        /**
+         * Добавляет на панель строку нумерованного списка.
+         * @param snum Текст-номер.
+         * @param itext Текст.
+         */
         private void addNumListLine(String snum, int itext) {
             // Корректируем текст
             labels[itext].setText("<html>" + x_labels[itext] + "</html>");
@@ -126,6 +160,7 @@ public final class GUI_TabAbout extends JPanel {
 
     /**
      * Добавление панели группы на подложку.
+     *
      * @param title Метка названия.
      * @return Панель-тело для наполнения группы.
      */
@@ -143,6 +178,7 @@ public final class GUI_TabAbout extends JPanel {
 
         /**
          * Конструктор.
+         *
          * @param title Название (как будет выглядеть).
          * @param url Адрес ссылки.
          */
@@ -163,7 +199,7 @@ public final class GUI_TabAbout extends JPanel {
         panel = new JVScrolledPanel(new MigLayout("ins 20, gap 10", "grow"));
         panel.setOpaque(false);
         scroll = new JScrollPane(panel);
-        scroll.getViewport().setBackground(GUI.About.bgscroll); 
+        scroll.getViewport().setBackground(GUI.About.bgscroll);
         add(scroll, "grow");
 
         int n = 0, gn = 0;

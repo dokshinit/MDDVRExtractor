@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Copyright (c) 2011-2012, Aleksey Nikolaevich Dokshin. All right reserved.
  * Contacts: dant.it@gmail.com, dokshin@list.ru.
  */
 package dvrextract.gui;
@@ -10,12 +10,15 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import javax.swing.*;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JToggleButton;
 import net.miginfocom.swing.MigLayout;
 
 /**
- * Табулятор с заголовком из кнопок с состоянием.
- * (штатный уж очень мне не нравился!)
+ * Табулятор с заголовком из кнопок с состоянием. (штатный уж очень мне не
+ * нравился!)
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class GUITabPane extends JPanel implements ActionListener {
@@ -29,7 +32,8 @@ public class GUITabPane extends JPanel implements ActionListener {
      */
     private ArrayList<Item> items;
     /**
-     * Индекс текущей выбранной закладки (в массиве items, если -1 - нет закладок).
+     * Индекс текущей выбранной закладки (в массиве items, если -1 - нет
+     * закладок).
      */
     private int index;
 
@@ -47,6 +51,7 @@ public class GUITabPane extends JPanel implements ActionListener {
 
     /**
      * Добавление закладки.
+     *
      * @param title Отображаемое название.
      * @param comp Содержимое.
      */
@@ -64,6 +69,7 @@ public class GUITabPane extends JPanel implements ActionListener {
 
     /**
      * Установка названия для вкладки.
+     *
      * @param index Номер вкладки (0..n-1).
      * @param title Название вкладки.
      */
@@ -73,6 +79,7 @@ public class GUITabPane extends JPanel implements ActionListener {
 
     /**
      * Возвращает панель с кнопками-закладками.
+     *
      * @return Панель кнопок-закладок.
      */
     public JPanel getBarPanel() {
@@ -81,6 +88,7 @@ public class GUITabPane extends JPanel implements ActionListener {
 
     /**
      * Включение/выключение закладки (доступна/недоступна).
+     *
      * @param comp Содержимое закладки.
      * @param state Устанавливаемый режим доступности.
      */
@@ -95,6 +103,7 @@ public class GUITabPane extends JPanel implements ActionListener {
 
     /**
      * Обработка нажатий на закладки.
+     *
      * @param e Событие.
      */
     @Override
@@ -141,6 +150,7 @@ public class GUITabPane extends JPanel implements ActionListener {
 
         /**
          * Конструктор.
+         *
          * @param index Индекс.
          * @param title Отображаемое название.
          * @param comp Содержимое.
@@ -154,6 +164,7 @@ public class GUITabPane extends JPanel implements ActionListener {
 
         /**
          * Возвращает индекс закладки.
+         *
          * @return Индекс.
          */
         public int getIndex() {
@@ -162,6 +173,7 @@ public class GUITabPane extends JPanel implements ActionListener {
 
         /**
          * Возвращает содерживмое закладки.
+         *
          * @return Компонент.
          */
         public Component getComp() {
@@ -170,6 +182,7 @@ public class GUITabPane extends JPanel implements ActionListener {
 
         /**
          * Возвращает кнопку закладки.
+         *
          * @return Кнопка закладки.
          */
         public JToggleButton getButton() {

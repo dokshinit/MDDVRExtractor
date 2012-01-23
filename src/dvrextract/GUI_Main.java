@@ -6,8 +6,8 @@ package dvrextract;
 
 import dvrextract.I18n.Lang;
 import dvrextract.gui.GUI;
-import dvrextract.gui.GUITabPane;
 import dvrextract.gui.GUIFrame;
+import dvrextract.gui.GUITabPane;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -19,6 +19,7 @@ import net.miginfocom.swing.MigLayout;
 
 /**
  * Основное окно приложения.
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class GUI_Main extends GUIFrame implements ActionListener {
@@ -68,8 +69,8 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
      */
     public GUI_TabAbout tabAbout;
     /**
-     * Сосотояние кнопки "Обработка".
-     * Если true - "Отмена" (остановка текущей задачи), false - "Обработка" (запуск обработки).
+     * Сосотояние кнопки "Обработка". Если true - "Отмена" (остановка текущей
+     * задачи), false - "Обработка" (запуск обработки).
      */
     private boolean cancelState = true;
     /**
@@ -153,7 +154,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         JPanel panelButton = new JPanel(new MigLayout("", "[][grow,fill][10px]"));
         panelButton.add(labelInfo = GUI.createLabel(x_LabelInfo));
         panelButton.add(textInfo, "");
-        
+
         textInfo.setEditable(false);
         textInfo.setBackground(new Color(0xE0E0E0));
         panelButton.add(buttonProcess, "spany 2, growy, wrap");
@@ -187,7 +188,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
 
         labelInfo.setText(x_LabelInfo);
         textInfo.setText("");
-        
+
         tabSource.updateLocale();
         tabProcess.updateLocale();
         tabLog.updateLocale();
@@ -218,6 +219,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
 
     /**
      * Определение возможности запуска обработки.
+     *
      * @return Флаг состояния: true - можно, false - нельзя.
      */
     private boolean isPossibleProcess() {
@@ -250,7 +252,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
     }
 
     /**
-     * Выставление блокировок всех элементов согласно текущему состоянию - 
+     * Выставление блокировок всех элементов согласно текущему состоянию -
      * отложенный запуск.
      */
     public void validateLocks() {
@@ -283,6 +285,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
 
     /**
      * Установка текстового сообщения в статусной строке.
+     *
      * @param text Сообщение.
      */
     public void setProgressInfo(final String text) {
@@ -297,6 +300,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
 
     /**
      * Установка текстового сообщения в прогрессе.
+     *
      * @param text Сообщение.
      */
     public void setProgressText(final String text) {
@@ -313,8 +317,11 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
     }
 
     /**
-     * Инициализация и запуск нового прогресса. Если нач.и кон.позиции = -1, то
-     * стартует непрерывный процесс без показателя процента выполнения.
+     * Инициализация и запуск нового прогресса.
+     *
+     * Если нач.и кон.позиции = -1, то стартует непрерывный процесс без
+     * показателя процента выполнения.
+     *
      * @param startpos Начальная позиция.
      * @param endpos Конечная позиция.
      */
@@ -342,6 +349,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
 
     /**
      * Установка значения позиции для прогресса.
+     *
      * @param pos Позиция.
      */
     public void setProgress(final int pos) {
@@ -373,6 +381,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
 
     /**
      * Обработка событий окна для отлова попытки закрытия окна.
+     *
      * @param e Событие окна.
      */
     @Override

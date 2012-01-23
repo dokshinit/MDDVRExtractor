@@ -11,6 +11,7 @@ import org.jdesktop.swingx.decorator.ComponentAdapter;
 
 /**
  * Подсвечивание строк таблицы лога.
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class LogHighlighter extends AbstractHighlighter {
@@ -39,6 +40,7 @@ public class LogHighlighter extends AbstractHighlighter {
 
     /**
      * Подсветка компонента.
+     *
      * @param component Компонент.
      * @param adapter Адаптер компонента.
      * @return Обработанный компонент.

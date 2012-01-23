@@ -1,24 +1,16 @@
 /*
- * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Copyright (c) 2011-2012, Aleksey Nikolaevich Dokshin. All right reserved.
  * Contacts: dant.it@gmail.com, dokshin@list.ru.
  */
 package dvrextract.gui;
 
-import java.awt.AlphaComposite;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Font;
-import java.awt.FontMetrics;
-import java.awt.GradientPaint;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.RenderingHints;
+import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 
 /**
  * Рамка с заголовком для панелей групп.
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class GroupBorder extends RoundBorder {
@@ -29,6 +21,7 @@ public class GroupBorder extends RoundBorder {
 
     /**
      * Конструктор.
+     *
      * @param title Текст заголовка.
      * @param isCenterized Флаг необходимости центрирования текста заголовка.
      * @param gradient1 Цвет начала градиента.
@@ -45,6 +38,7 @@ public class GroupBorder extends RoundBorder {
 
     /**
      * Установка строки заголовка.
+     *
      * @param title Текст заголовка.
      */
     public void setTitle(String title) {
@@ -59,7 +53,9 @@ public class GroupBorder extends RoundBorder {
     }
 
     /**
-     * Возвращает высоту заголовка для компонента (отталкиваясь от высоты текста!).
+     * Возвращает высоту заголовка для компонента (отталкиваясь от высоты
+     * текста!).
+     *
      * @param c Компонент.
      * @return Высота заголовка.
      */
@@ -103,7 +99,7 @@ public class GroupBorder extends RoundBorder {
         FontMetrics metrics = c.getFontMetrics(f);
         if (isCenterized) {
             Rectangle2D rect = metrics.getStringBounds(title, g);
-            g2.drawString(title, x + (c.getWidth() - (int)rect.getWidth()) / 2,
+            g2.drawString(title, x + (c.getWidth() - (int) rect.getWidth()) / 2,
                     y + (titleHeight - metrics.getHeight()) / 2 + metrics.getAscent());
         } else {
             g2.drawString(title, x + 8,

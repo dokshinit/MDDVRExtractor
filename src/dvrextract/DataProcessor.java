@@ -6,12 +6,7 @@ package dvrextract;
 
 import dvrextract.FFMpeg.Cmd;
 import java.awt.Dimension;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Date;
@@ -20,6 +15,7 @@ import xfsengine.XFS.XFSException;
 
 /**
  * Процесс обработки данных.
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 @SuppressWarnings("SleepWhileInLoop")
@@ -89,9 +85,9 @@ public class DataProcessor {
             x_FinalMakeStarted, x_FFMpegVideoInputNotFound,
             x_FFMpegProcessVideoInputFail, x_UserPorcessCancel, x_ErrorMakeIO,
             x_FinalMakeEnd, x_WrongOutVideoFile, x_WrongOutAudioFile,
-            x_WrongOutSubFile, x_ErrorFFMpegStart, x_Delete, x_LeaveAsIs, x_WhatDoTemp,
-            x_Confirmation, x_Finish, x_WaitFinish, x_FinishProcess, x_FinishedProcess,
-            x_CoderStarting, x_CoderStarted;
+            x_WrongOutSubFile, x_ErrorFFMpegStart, x_Delete, x_LeaveAsIs,
+            x_WhatDoTemp, x_Confirmation, x_Finish, x_WaitFinish,
+            x_FinishProcess, x_FinishedProcess, x_CoderStarting, x_CoderStarted;
 
     /**
      * Обработка данных.
@@ -160,6 +156,7 @@ public class DataProcessor {
 
     /**
      * Финальная сборка видеофайла.
+     *
      * @throws dvrextract.DataProcessor.FFMpegException Ошибка.
      */
     private static void finalMake() throws FatalException {
@@ -278,6 +275,7 @@ public class DataProcessor {
 
     /**
      * Удаление файла.
+     *
      * @param name Имя файла.
      * @return true - успешно, false - ошибка.
      */
@@ -291,6 +289,7 @@ public class DataProcessor {
 
     /**
      * Проверяем на валидность файл (на то, что его можно создать и открыть).
+     *
      * @return true - можно использовать файл для вывода, false - нельзя.
      */
     private static boolean allowOutFile(String name) {
@@ -308,6 +307,7 @@ public class DataProcessor {
 
     /**
      * Старт процесса выполнения команды.
+     *
      * @param cmd Текст команды.
      * @return Процесс выполнения команды.
      * @throws IOException Ошибка выполнения команды.
@@ -327,6 +327,7 @@ public class DataProcessor {
 
     /**
      * Запуск процесса FFMpeg c параметрами для обработки.
+     *
      * @exception FatalException Фатальная ошибка.
      */
     private static void startFFMpegProcess() throws FatalException {
@@ -507,9 +508,12 @@ public class DataProcessor {
     }
 
     /**
-     * Завершение процесса FFMpeg. Сначала закрывает принимающий поток, потом
-     * ожидает завершения процесса и при истечении таймаута, если процесс не
-     * завершился - завершает его принудительно.
+     * Завершение процесса FFMpeg.
+     *
+     * Сначала закрывает принимающий поток, потом ожидает завершения процесса и
+     * при истечении таймаута, если процесс не завершился - завершает его
+     * принудительно.
+     *
      * @param p Процесс.
      * @param title Название процесса.
      * @param timeout Таймаут ожидания выхода.
@@ -571,9 +575,11 @@ public class DataProcessor {
 
     /**
      * Обработка файла источника.
+     *
      * @param fileinfo Информация о файле.
      * @throws dvrextract.DataProcessor.SourceException Ошибка в источнике.
-     * @throws dvrextract.DataProcessor.FFMpegException Ошибка ffmpeg/крит.ошибка.
+     * @throws dvrextract.DataProcessor.FFMpegException Ошибка
+     * ffmpeg/крит.ошибка.
      */
     private static void processFile(FileInfo fileinfo) throws SourceException, FatalException {
         InputBufferedFile in = null;
@@ -658,7 +664,7 @@ public class DataProcessor {
                         if ((timeMax == -1 || time >= timeMax)
                                 // Ограничение по времени.
                                 && (time >= timeStart && time <= timeEnd)) {
-                                //&& ((time >> 32) - 0x133 < 2)) { // TODO: Trial remove.
+                            //&& ((time >> 32) - 0x133 < 2)) { // TODO: Trial remove.
 
                             // Если не было обработанных кадров - начинаем только с ключевого,
                             // если были - включаем любые.
@@ -750,9 +756,10 @@ public class DataProcessor {
     private static long subCount;
 
     /**
-     * Возвращает строку ВРЕМЕНИ в файле для предыдущего указанному номеру 
-     * кадра с заданным сдвигом в миллисекундах.
-     * Используется для записи в файл длительности титров.
+     * Возвращает строку ВРЕМЕНИ в файле для предыдущего указанному номеру кадра
+     * с заданным сдвигом в миллисекундах. Используется для записи в файл
+     * длительности титров.
+     *
      * @param frames Номер кадра (1-первый).
      * @param shift Сдвиг в миллисекундах (может быть отрицательным).
      * @return Строка времени.
@@ -770,7 +777,7 @@ public class DataProcessor {
     }
 
     /**
-     * Если для текущего фрейма необходимо - формирует субтитры согласно 
+     * Если для текущего фрейма необходимо - формирует субтитры согласно
      * настройкам и пишет их в поток.
      */
     private static void writeSub(Date dt, boolean isend) {
@@ -812,6 +819,7 @@ public class DataProcessor {
 
         /**
          * Конструктор.
+         *
          * @param msg Текст сообщения об ошибке.
          */
         public FatalException(String msg) {
@@ -826,6 +834,7 @@ public class DataProcessor {
 
         /**
          * Конструктор.
+         *
          * @param msg Текст сообщения об ошибке.
          */
         public SourceException(String msg) {

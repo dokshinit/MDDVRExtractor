@@ -11,6 +11,7 @@ import java.util.TimeZone;
 
 /**
  * Работа с кадрами источника.
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class Frame {
@@ -23,7 +24,7 @@ public class Frame {
     // Поля:
     ////////////////////////////////////////////////////////////////////////////
     /**
-     * Дата-время (смещение в секундах от 1970 г.)
+     * Дата-время (смещение в секундах от 1970 г.).
      */
     public Date time;
     /**
@@ -31,7 +32,8 @@ public class Frame {
      */
     public int camNumber;
     /**
-     * Код разрешениея: 4-352x288, 5-704x288, 6-704x576, 8-1280x720, 9-1920x1080.
+     * Код разрешениея: 4-352x288, 5-704x288, 6-704x576, 8-1280x720,
+     * 9-1920x1080.
      */
     public int idResolution;
     /**
@@ -73,6 +75,7 @@ public class Frame {
 
     /**
      * Конструктор.
+     *
      * @param type Тип файла.
      */
     public Frame(FileType type) {
@@ -91,6 +94,7 @@ public class Frame {
 
     /**
      * Возвращает размер заголовка для данного типа фрейма.
+     *
      * @return Размер в байтах.
      */
     public int getHeaderSize() {
@@ -109,6 +113,7 @@ public class Frame {
 
     /**
      * Проверяет является ли код разрешения видеокадра допустимым.
+     *
      * @return true - да, false - неизвестный код.
      */
     public boolean isValidResolution() {
@@ -122,7 +127,8 @@ public class Frame {
     /**
      * Возвращает разрешение видеокадра (или разрешение по умолчанию, если фрейм
      * не распознанн или неизвестный код разрешения).
-     * @return 
+     *
+     * @return
      */
     public Dimension getResolution() {
         switch (idResolution) {
@@ -142,6 +148,7 @@ public class Frame {
 
     /**
      * Установка зонального смещения (часовой пояс отн.мирового).
+     *
      * @param msec Новое смещение в миллисекундах).
      */
     public static void setZoneShift(long msec) {
@@ -150,6 +157,7 @@ public class Frame {
 
     /**
      * Возвращает зональное смещение в миллисекундах.
+     *
      * @return Смещение в миллисекундах.
      */
     public static long getZoneShift() {
@@ -157,8 +165,9 @@ public class Frame {
     }
 
     /**
-     * Преобразование даты регистратора в дату Java.
-     * Дата хранится в формате int - кол-во секунд от 01.01.1970.
+     * Преобразование даты регистратора в дату Java. Дата хранится в формате int
+     * - кол-во секунд от 01.01.1970.
+     *
      * @param bdate Дата в формате DVR.
      * @return Дата и время в формате джавы.
      */
@@ -183,6 +192,7 @@ public class Frame {
 
     /**
      * Обратное преобразование в время DVR.
+     *
      * @param date Дата.
      * @return Время в формате DVR.
      */
@@ -192,7 +202,9 @@ public class Frame {
     }
 
     /**
-     * Распарсивает буфер заголовка, если успешно - в переменных фрейма - значения.
+     * Распарсивает буфер заголовка, если успешно - в переменных фрейма -
+     * значения.
+     *
      * @param bb Буфер с исходными данными.
      * @param offset Начальное смещение в буфере.
      * @return 0 - успешно, иначе - код ошибки (>0).
@@ -200,7 +212,7 @@ public class Frame {
     public int parseHeader(ByteBuffer bb, int offset) {
         isParsed = false;
 
-        int nameofs = 0;
+        int nameofs;
         switch (type) {
             case EXE:
                 nameofs = 0x41;

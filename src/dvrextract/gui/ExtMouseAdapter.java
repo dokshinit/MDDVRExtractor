@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Copyright (c) 2011-2012, Aleksey Nikolaevich Dokshin. All right reserved.
  * Contacts: dant.it@gmail.com, dokshin@list.ru.
  */
 package dvrextract.gui;
@@ -13,9 +13,11 @@ import javax.swing.Timer;
 
 /**
  * Класс, обеспечивающий нормальную отработку события двойного клика мышкой.
+ *
  * Для JTable - срабатывает только если ячейка ридонли (иначе вызывается
- * редактирование)! В отличии от штатного - на срабатывания двойного клика не 
+ * редактирование)! В отличии от штатного - на срабатывания двойного клика не
  * влияет смещение указателя мыши в пределах ячейки (!).
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class ExtMouseAdapter extends MouseAdapter implements ActionListener {
@@ -61,6 +63,7 @@ public class ExtMouseAdapter extends MouseAdapter implements ActionListener {
 
     /**
      * Устанока компонента владельца.
+     *
      * @param obj Компонент.
      */
     private void setOwner(Object obj) {
@@ -75,8 +78,9 @@ public class ExtMouseAdapter extends MouseAdapter implements ActionListener {
     }
 
     /**
-     * Проверка является ли владелец таблицей и совпадает ли выделенная ячейка
-     * с хранимыми значениям столбца и строки.
+     * Проверка является ли владелец таблицей и совпадает ли выделенная ячейка с
+     * хранимыми значениям столбца и строки.
+     *
      * @param obj Компонент.
      * @return Флаг: true - совпадает, false - нет.
      */
@@ -130,6 +134,7 @@ public class ExtMouseAdapter extends MouseAdapter implements ActionListener {
 
     /**
      * Обработчик однократного клика.
+     *
      * @param e Событие.
      */
     protected void fireSingleClick(MouseEvent e) {
@@ -138,6 +143,7 @@ public class ExtMouseAdapter extends MouseAdapter implements ActionListener {
 
     /**
      * Обработчик двойного клика.
+     *
      * @param e Событие.
      */
     protected void fireDoubleClick(MouseEvent e) {

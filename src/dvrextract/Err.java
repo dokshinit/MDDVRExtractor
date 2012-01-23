@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 
 /**
  * Лог для отслеживания ошибок!
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class Err {
@@ -24,7 +25,7 @@ public final class Err {
      * Текстовые ресурсы для интерфейса.
      */
     public static String x_InitError;
-            
+
     /**
      * Инициализация.
      */
@@ -41,6 +42,7 @@ public final class Err {
 
     /**
      * Вывод стоки в лог.
+     *
      * @param msg Строка.
      */
     public static void log(String msg) {
@@ -52,6 +54,7 @@ public final class Err {
 
     /**
      * Вывод исключения в лог (со стеком).
+     *
      * @param ex Исключение.
      */
     public static void log(Throwable ex) {
@@ -75,11 +78,13 @@ public final class Err {
 
     /**
      * Добавление инфы о субисключении в построитель строки.
+     *
      * @param sb Построитель.
      * @param cause Субисключение.
      * @param causedTrace Стек трассировки.
      */
-    private static void addCause(StringBuilder sb, Throwable cause, StackTraceElement[] causedTrace) {
+    private static void addCause(StringBuilder sb, Throwable cause,
+            StackTraceElement[] causedTrace) {
 
         StackTraceElement[] trace = cause.getStackTrace();
         int m = trace.length - 1, n = causedTrace.length - 1;

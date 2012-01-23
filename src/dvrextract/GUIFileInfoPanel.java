@@ -7,7 +7,6 @@ package dvrextract;
 import dvrextract.gui.GUI;
 import dvrextract.gui.GUIImagePanel;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Font;
@@ -24,12 +23,14 @@ import util.NumberTools;
 
 /**
  * Панель с информацией о выбранном файле-источнике.
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class GUIFileInfoPanel extends JPanel {
 
     /**
-     * Скролл для всей инфо-панели (добавляется в панель - единственный компонет в ней).
+     * Поле прокрутки для всей инфо-панели (добавляется в панель - единственный
+     * компонет в ней).
      */
     private JScrollPane scrollPane;
     /**
@@ -76,7 +77,8 @@ public final class GUIFileInfoPanel extends JPanel {
      */
     private Info infoLastTime;
     /**
-     * Продолжительность видео (оценочная - как разница между концом и началом!).
+     * Продолжительность видео (оценочная - как разница между концом и
+     * началом!).
      */
     private Info infoAmountTime;
     /**
@@ -116,6 +118,7 @@ public final class GUIFileInfoPanel extends JPanel {
 
     /**
      * Воспомогательный метод для создания добавление метки+поля в инфу.
+     *
      * @param title Наименование в метке.
      * @param size Размер поля.
      * @param add Строка для MigLayout или null - если стандартно.
@@ -185,6 +188,7 @@ public final class GUIFileInfoPanel extends JPanel {
 
     /**
      * Отображение инфы заданного файла.
+     *
      * @param info Инфа о файле.
      */
     public void displayInfo(FileInfo info) {
@@ -202,7 +206,8 @@ public final class GUIFileInfoPanel extends JPanel {
         } else {
             if (curInfo != info) {
                 infoName.text.setText(info.fileName.toString());
-                infoSize.text.setText(NumberTools.doubleToFormatString((double) info.fileSize, NumberTools.format0, "", "") + " " + x_Bytes);
+                infoSize.text.setText(NumberTools.doubleToFormatString(
+                        (double) info.fileSize, NumberTools.format0, "", "") + " " + x_Bytes);
                 infoType.text.setText(info.fileType.title);
                 infoCams.text.setText(info.getCamsToString());
                 if (info.frameFirst != null) {
@@ -221,11 +226,12 @@ public final class GUIFileInfoPanel extends JPanel {
                     infoLastTime.text.setText("");
                 }
                 if (info.frameFirst != null && info.frameLast != null) {
-                    infoAmountTime.text.setText(timeToString(info.frameLast.time.getTime() - info.frameFirst.time.getTime()));
+                    infoAmountTime.text.setText(timeToString(
+                            info.frameLast.time.getTime() - info.frameFirst.time.getTime()));
                 } else {
                     infoAmountTime.text.setText("");
                 }
-                panelImage.setImage(FFMpeg.getFirstFrameImage(info, App.Source.getSelectedCam()));
+                panelImage.setImage(FFMpeg.getFirstKeyFrameImage(info, App.Source.getSelectedCam()));
             }
         }
         curInfo = info;
@@ -234,6 +240,7 @@ public final class GUIFileInfoPanel extends JPanel {
 
     /**
      * Конвертирует время (считая, что это длительность в мсек) в строку.
+     *
      * @param period Длительность в мсек.
      * @return Строка вида: * час. * мин. * сек. * мсек.
      */
@@ -244,8 +251,9 @@ public final class GUIFileInfoPanel extends JPanel {
         long ms = (period - h * 3600 * 1000 - m * 60 * 1000 - s * 1000);
         return String.format(x_DurationFormat, h, m, s, ms);
     }
-    /** 
-     * Текущий размер картинки: true - маленький (x=352,y-сжат), false - полный кадр.
+    /**
+     * Текущий размер картинки: true - маленький (x=352,y-сжат), false - полный
+     * кадр.
      */
     private boolean isSmallView = true;
 
@@ -273,7 +281,7 @@ public final class GUIFileInfoPanel extends JPanel {
     }
 
     /**
-     * Адаптер для обработка нажатий кнопок мыши на изображении с камеры.
+     * Адаптер для обработки нажатий кнопок мыши на изображении с камеры.
      */
     private class ImageMouseAdapter extends MouseAdapter {
 

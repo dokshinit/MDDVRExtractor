@@ -8,6 +8,7 @@ import javax.swing.JOptionPane;
 
 /**
  * Класс для запуска задач.
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class Task {
@@ -32,6 +33,7 @@ public final class Task {
 
     /**
      * Возвращает объект на который синхронизируется всё в задачах.
+     *
      * @return Объект синхронизации.
      */
     public static Object getSync() {
@@ -40,6 +42,7 @@ public final class Task {
 
     /**
      * Проверка флага необходимости остановки.
+     *
      * @return Флаг: true - остановка задачи, false - нет требования остановки.
      */
     public static boolean isTerminate() {
@@ -50,6 +53,7 @@ public final class Task {
 
     /**
      * Возвращает статус, выполняется ли задача.
+     *
      * @return true - выполняется, false - нет.
      */
     public static boolean isAlive() {
@@ -60,6 +64,7 @@ public final class Task {
 
     /**
      * Возвращает текущую задачу.
+     *
      * @return Задача / null.
      */
     public static Thread getTask() {
@@ -70,6 +75,7 @@ public final class Task {
 
     /**
      * Запуск задачи к исполнению в отдельном потоке.
+     *
      * @param t Задача.
      * @return Флаг успешности операции.
      */
@@ -92,7 +98,9 @@ public final class Task {
     }
 
     /**
-     * Отмена выполнения задачи (помечает флаг - задача его видит и сама останавливается).
+     * Отмена выполнения задачи (помечает флаг - задача его видит и сама
+     * останавливается).
+     *
      * @return Флаг успешности операции.
      */
     public static boolean terminate() {

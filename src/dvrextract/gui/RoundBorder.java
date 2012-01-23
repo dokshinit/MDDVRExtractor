@@ -1,19 +1,15 @@
 /*
- * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Copyright (c) 2011-2012, Aleksey Nikolaevich Dokshin. All right reserved.
  * Contacts: dant.it@gmail.com, dokshin@list.ru.
  */
 package dvrextract.gui;
 
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
-import java.awt.RenderingHints;
+import java.awt.*;
 import javax.swing.border.Border;
 
 /**
  * Рамка с закруглёнными краями.
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class RoundBorder implements Border {
@@ -25,6 +21,7 @@ public class RoundBorder implements Border {
 
     /**
      * Конструктор.
+     *
      * @param cornerRadius Радиус скругления углов.
      */
     public RoundBorder(int cornerRadius) {
@@ -38,6 +35,7 @@ public class RoundBorder implements Border {
 
     /**
      * Устанавливает и возвращает отступы для данного типа рамки.
+     *
      * @param c Компонент.
      * @param insets Корректируемые отступы.
      * @return Скорректированные отступы.

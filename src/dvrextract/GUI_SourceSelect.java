@@ -17,6 +17,7 @@ import net.miginfocom.swing.MigLayout;
 
 /**
  * Диалог выбора источника (с запуском сканирования при выборе).
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class GUI_SourceSelect extends GUIDialog implements ActionListener {
@@ -49,11 +50,14 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
      * Кнопка сканирования источника - подтверждение выбора.
      */
     private JButton buttonScan;
-    private boolean isxfs;
+    /**
+     * Тип выбранной ФС.
+     */
+    private int fstype;
     /**
      * Текстовые ресурсы для интерфейса.
      */
-    public static String x_All, x_Cam, x_GoScan, x_Hint, x_Select, x_Source, 
+    public static String x_All, x_Cam, x_GoScan, x_Hint, x_Select, x_Source,
             x_Title, x_Type, x_SelectSource, x_Cancel, x_SelectDev;
 
     /**
@@ -108,7 +112,7 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         setResizable(false); // После вычисления размера - изменение ни к чему.
 
         textType.setText(SourceFileFilter.getType(App.Source.getName()).title);
-        isxfs = App.Source.getName().id != 0;
+        fstype = App.Source.getName().type;
     }
 
     @Override
@@ -131,8 +135,8 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
     }
 
     /**
-     * Обработка нажатия на кнопку выбора источника.
-     * Вызывается диалог выбора файла/каталога.
+     * Обработка нажатия на кнопку выбора источника. Вызывается диалог выбора
+     * файла/каталога.
      */
     private void fireSelect() {
         SelectDialog dlg = new SelectDialog();
@@ -141,8 +145,8 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
     }
 
     /**
-     * Обработка нажатия на кнопку выбора устройства-источника.
-     * Вызывается диалог выбора устройства.
+     * Обработка нажатия на кнопку выбора устройства-источника. Вызывается
+     * диалог выбора устройства.
      */
     private void fireSelectDev() {
         SelectDevDialog dlg = new SelectDevDialog();
@@ -151,9 +155,9 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
     }
 
     /**
-     * Обработка нажатия на кнопку сканирования.
-     * Стартует сканирование источника. Можно запускать только при отсутсвии 
-     * текущего процесса сканирования \ обработки.
+     * Обработка нажатия на кнопку сканирования. Стартует сканирование
+     * источника. Можно запускать только при отсутсвии текущего процесса
+     * сканирования \ обработки.
      */
     private void fireScan() {
         // Запуск задачи сканирования.
@@ -163,9 +167,9 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
     }
 
     /**
-     * Обработка нажатия на кнопку сканирования.
-     * Стартует сканирование источника. Можно запускать только при отсутсвии 
-     * текущего процесса сканирования \ обработки.
+     * Обработка нажатия на кнопку сканирования. Стартует сканирование
+     * источника. Можно запускать только при отсутсвии текущего процесса
+     * сканирования \ обработки.
      */
     private void fireCancel() {
         dispose(); // Закрываем окно.
@@ -179,9 +183,7 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         @Override
         public void task() {
             // Сканирование источника.
-            // FileDesc.id - тут как маркер xfs, в любом случае будет 
-            // вычислен реальный корневой узел для сканирования.
-            Files.scan(new FileDesc(isxfs ? 1 : 0, textSource.getText()), comboCam.getSelectedItem().id);
+            Files.scan(new FileDesc(textSource.getText(), fstype), comboCam.getSelectedItem().id);
         }
     }
 
@@ -213,7 +215,7 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
             textSource.setText(f.getAbsolutePath());
             textType.setText(SourceFileFilter.getType(new FileDesc(f.getName())).title);
             buttonScan.setEnabled(!textSource.getText().isEmpty());
-            isxfs = false;
+            fstype = FileDesc.FS;
         }
     }
 
@@ -231,11 +233,11 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
 
         @Override
         public void fireSelect() {
-            String dev = (String)comboDev.getSelectedItem().object;
+            String dev = (String) comboDev.getSelectedItem().object;
             textSource.setText(dev);
             textType.setText(FileType.XFS.title);
             buttonScan.setEnabled(!textSource.getText().isEmpty());
-            isxfs = true;
+            fstype = FileDesc.XFS;
             super.fireSelect();
         }
     }

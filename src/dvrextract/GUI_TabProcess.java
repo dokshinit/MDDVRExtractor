@@ -6,30 +6,20 @@ package dvrextract;
 
 import dvrextract.FFMpeg.Cmd;
 import dvrextract.FFMpeg.FFCodec;
-import dvrextract.gui.GUI;
-import dvrextract.gui.JDateTimeField;
-import dvrextract.gui.JExtComboBox;
 import dvrextract.gui.JExtComboBox.ExtItem;
-import dvrextract.gui.JVScrolledPanel;
-import dvrextract.gui.RoundPanel;
-import dvrextract.gui.GroupBorder;
+import dvrextract.gui.*;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-import java.util.Calendar;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import net.miginfocom.swing.MigLayout;
 
 /**
  * Вкладка "Обработка".
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class GUI_TabProcess extends JPanel implements ActionListener {
@@ -118,7 +108,8 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      */
     private JExtComboBox comboSubFormat;
     /**
-     * Скролл для всей закладки (добавляется в панель - единственный компонет в ней).
+     * Скролл для всей закладки (добавляется в панель - единственный компонет в
+     * ней).
      */
     private JScrollPane scroll;
     /**
@@ -134,6 +125,9 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             x_ToVideo, x_Video, x_WOConvert, x_CalcEnd, x_CalcStart,
             x_SelectDestFile, x_NotePreDecoding, x_NoteSimple,
             x_CheckExpert, x_Rest;
+    /**
+     * Текстовые надписи (хранение для интернационализации).
+     */
     private JLabel labelCam;
     private JLabel labelPeriod1;
     private JLabel labelPeriod2;
@@ -281,6 +275,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
     /**
      * Создание комбо компонента.
+     *
      * @return Компонент.
      */
     private JExtComboBox createCombo() {
@@ -291,6 +286,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
     /**
      * Создание компонента кнопки.
+     *
      * @param title Название.
      * @return Компонент.
      */
@@ -302,6 +298,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
     /**
      * Создание компонента текстового поля.
+     *
      * @param size Длина для расчета размеров.
      * @return Компонент.
      */
@@ -310,13 +307,29 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         text.setEditable(false);
         return text;
     }
+    /**
+     * Панели групп элементов.
+     */
     private GroupPanel gpVideo, gpAudio, gpSub, gpSource;
 
+    /**
+     * Панель группы элементов.
+     */
     private class GroupPanel extends RoundPanel {
 
+        /**
+         * Рамка окна.
+         */
         GroupBorder border;
+        /**
+         * Панель контента.
+         */
         JPanel content;
 
+        /**
+         * Конструктор.
+         * @param title Название панели.
+         */
         public GroupPanel(String title) {
             super(new MigLayout("ins 3", "grow", ""), 16);
             setBorder(border = new GroupBorder(title, false,
@@ -334,6 +347,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
     /**
      * Добавление панели группы на подложку.
+     *
      * @param title Метка названия.
      * @return Панель-тело для наполнения группы.
      */
@@ -521,6 +535,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
     /**
      * Возвращает текущий режим интерфейса закладки.
+     *
      * @return Режим: true - экперт, false - простой.
      */
     public boolean isExpert() {
@@ -529,6 +544,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
     /**
      * Возвращает строку с опциями для видео согласно выбранным опциям.
+     *
      * @return Строка опций.
      */
     private Cmd getVideoOptions() {
@@ -565,6 +581,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
     /**
      * Возвращает строку с опциями для аудио.
+     *
      * @return Строка опций.
      */
     private Cmd getAudioOptions() {
@@ -587,6 +604,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
     /**
      * Возвращает строку с опциями для субтитров.
+     *
      * @return Строка опций.
      */
     private Cmd getSubOptions() {
@@ -603,6 +621,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
     /**
      * Отображение названия выбранной на закладке источника камеры.
+     *
      * @param title Название камеры.
      */
     public void validateSelectedCam(final String title) {
@@ -698,6 +717,9 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         Task.start(new EstimateTask());
     }
 
+    /**
+     * Обработка изменения начальной даты.
+     */
     private void fireStartDateChange() {
         if (dateStart.getTime().after(dateEnd.getTime())) {
             dateEnd.setTime(dateStart.getTime());
@@ -705,6 +727,9 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         App.Dest.setTimeStart(dateStart.getTime());
     }
 
+    /**
+     * Обработка изменения конечной даты.
+     */
     private void fireEndDateChange() {
         if (dateEnd.getTime().before(dateStart.getTime())) {
             dateStart.setTime(dateEnd.getTime());
@@ -843,6 +868,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
         /**
          * Конструктор.
+         *
          * @param title Отображаемое название.
          * @param name Имя.
          */
@@ -853,6 +879,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
 
         /**
          * Конструктор.
+         *
          * @param title Отображаемое название (имя = название).
          */
         public Item(String title) {

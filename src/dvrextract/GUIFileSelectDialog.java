@@ -15,6 +15,7 @@ import javax.swing.UIManager;
 
 /**
  * Диалог выбора файла/каталога (для чтения/записи).
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class GUIFileSelectDialog extends GUIDialog {
@@ -78,6 +79,7 @@ public class GUIFileSelectDialog extends GUIDialog {
 
         /**
          * Конструктор.
+         *
          * @param id Код режима.
          */
         private Mode(int id) {
@@ -87,14 +89,17 @@ public class GUIFileSelectDialog extends GUIDialog {
 
     /**
      * Конструктор.
+     *
      * @param owner Компонент-владелец диалога (null - без владельца).
      * @param title Название.
      * @param filename Начальное имя файла\каталога.
-     * @param defname Имя файла\каталога\маски по умолчанию (если filename не задано).
+     * @param defname Имя файла\каталога\маски по умолчанию (если filename не
+     * задано).
      * @param target Тип цели.
      * @param mode Режим работы.
      */
-    protected GUIFileSelectDialog(Window owner, String title, String filename, String defname, Target target, Mode mode) {
+    protected GUIFileSelectDialog(Window owner, String title, String filename, 
+            String defname, Target target, Mode mode) {
         super(owner);
 
         setTitle(title);
@@ -151,6 +156,7 @@ public class GUIFileSelectDialog extends GUIDialog {
 
     /**
      * Вызывается при инициализации, до выбора тек.файла.
+     *
      * @param fc Передача компонента выбора файла.
      */
     public void fireInit(FileChooser fc) {
@@ -158,16 +164,20 @@ public class GUIFileSelectDialog extends GUIDialog {
 
     /**
      * Вызывается при выборе файла.
+     *
      * @param fc Передача компонента выбора файла.
-     * @exception CancelActionExeption Вызывается при необходимости отмены действия.
+     * @exception CancelActionExeption Вызывается при необходимости отмены
+     * действия.
      */
     public void fireApply(FileChooser fc) throws CancelActionExeption {
     }
 
     /**
      * Вызывается при отмене выбора.
+     *
      * @param fc Передача компонента выбора файла.
-     * @exception CancelActionExeption Вызывается при необходимости отмены действия.
+     * @exception CancelActionExeption Вызывается при необходимости отмены
+     * действия.
      */
     public void fireCancel(FileChooser fc) throws CancelActionExeption {
     }

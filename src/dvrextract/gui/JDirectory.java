@@ -1,10 +1,12 @@
 /*
- * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Copyright (c) 2011-2012, Aleksey Nikolaevich Dokshin. All right reserved.
  * Contacts: dant.it@gmail.com, dokshin@list.ru.
  */
 package dvrextract.gui;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
@@ -18,6 +20,7 @@ import org.jdesktop.swingx.table.TableColumnExt;
 
 /**
  * GUI компонент для отображения типового справочника.
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class JDirectory extends JPanel {
@@ -50,6 +53,7 @@ public class JDirectory extends JPanel {
 
     /**
      * Конструктор.
+     *
      * @param model Модель данных таблицы.
      * @param cmodel Модель столбцов таблицы.
      */
@@ -61,18 +65,18 @@ public class JDirectory extends JPanel {
         scrolled = false;
         table = new JXTable(tableModel, columnModel);
         table.setColumnControlVisible(false);
-        
+
         Color tabColor = UIManager.getColor("Table.background");
         Color rowColor1 = tabColor;
         Color rowColor2 = new Color((int) (tabColor.getRed() * .95),
-                    (int) (tabColor.getGreen() * .95),
-                    (int) (tabColor.getBlue() * .95));
+                (int) (tabColor.getGreen() * .95),
+                (int) (tabColor.getBlue() * .95));
         table.setRowHeight(table.getRowHeight() + 4);
 
-                    
+
         table.setHighlighters(HighlighterFactory.createAlternateStriping(
                 rowColor1, rowColor2));
-                //new Color(255, 255, 255), new Color(245, 250, 255)));
+        //new Color(255, 255, 255), new Color(245, 250, 255)));
         // Установка параметров таблицы.
         // Сохранение редактируемого значения при потере фокуса ячейкой.
         table.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
@@ -129,8 +133,9 @@ public class JDirectory extends JPanel {
     }
 
     /**
-     * Метод вызываемый при двойном клике на ячейке или нажатии Enter.
-     * При условии, что ячейка ридонли, иначе - редактирование.
+     * Метод вызываемый при двойном клике на ячейке или нажатии Enter. При
+     * условии, что ячейка ридонли, иначе - редактирование.
+     *
      * @param e Событие.
      */
     protected void fireEdit(ActionEvent e) {
@@ -138,6 +143,7 @@ public class JDirectory extends JPanel {
 
     /**
      * Метод вызываемый при выборе строки в таблице.
+     *
      * @param e Событие.
      * @param l Модель выделения.
      */
@@ -146,6 +152,7 @@ public class JDirectory extends JPanel {
 
     /**
      * Добавление столбца в модель столбцов таблицы.
+     *
      * @param colname Имя (идентификатор) столбца.
      * @param header Заголовок.
      * @param width Ширина.
@@ -159,9 +166,9 @@ public class JDirectory extends JPanel {
     }
 
     /**
-     * Обработчик изменения размеров компонента.
-     * Включает по необходимости горизонтальный скроллинг и выключает при
-     * отсутсвии необходимости в нем.
+     * Обработчик изменения размеров компонента. Включает по необходимости
+     * горизонтальный скроллинг и выключает при отсутсвии необходимости в нем.
+     *
      * @param evt Событие.
      */
     private void scrollComponentResized(java.awt.event.ComponentEvent evt) {
@@ -199,6 +206,7 @@ public class JDirectory extends JPanel {
 
     /**
      * Возвращает компонент таблицы.
+     *
      * @return Таблица.
      */
     public JXTable getTable() {
@@ -207,6 +215,7 @@ public class JDirectory extends JPanel {
 
     /**
      * Возвращает скролл компонент.
+     *
      * @return Скролл.
      */
     public JScrollPane getScroll() {
@@ -215,6 +224,7 @@ public class JDirectory extends JPanel {
 
     /**
      * Возвращает модель столбцов таблицы.
+     *
      * @return Модель столбцов таблицы.
      */
     public TableColumnModel getColumnModel() {
@@ -223,6 +233,7 @@ public class JDirectory extends JPanel {
 
     /**
      * Установка новой модели столбцов таблицы.
+     *
      * @param columnModel Модель столбцов таблицы.
      */
     public void setColumnModel(TableColumnModel columnModel) {
@@ -233,6 +244,7 @@ public class JDirectory extends JPanel {
 
     /**
      * Возвращает модель таблицы.
+     *
      * @return Модель таблицы.
      */
     public AbstractTableModel getTableModel() {
@@ -241,6 +253,7 @@ public class JDirectory extends JPanel {
 
     /**
      * Установка новой модели данных таблицы.
+     *
      * @param tableModel Модель данных таблицы.
      */
     public void setTableModel(AbstractTableModel tableModel) {
@@ -251,6 +264,7 @@ public class JDirectory extends JPanel {
 
     /**
      * Установка моделей таблицы.
+     *
      * @param tableModel Модель данных.
      * @param columnModel Модель столбцов.
      */
@@ -263,8 +277,9 @@ public class JDirectory extends JPanel {
     }
 
     /**
-     * Делает указанную строку таблицы (не модели!!!) видимой в видимом окне 
+     * Делает указанную строку таблицы (не модели!!!) видимой в видимом окне
      * скролла (прокручивает таблицу если нужно).
+     *
      * @param index Номер строки.
      */
     public void displayTableRow(int index) {

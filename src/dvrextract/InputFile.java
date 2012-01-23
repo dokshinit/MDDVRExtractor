@@ -10,6 +10,7 @@ import xfsengine.XFS.XFSException;
 
 /**
  * Низкоуровневые операции с файлом-источником.
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class InputFile {
@@ -25,34 +26,37 @@ public class InputFile {
 
     /**
      * Конструктор.
+     *
      * @param fileDesc Имя файла-источника.
      * @throws FileNotFoundException Ошибка при отсутствии файла.
      * @throws IOException Ошибка при позиционировании.
+     * @throws XFSException Ошибка XFS.
      */
     public InputFile(FileDesc fileDesc) throws FileNotFoundException, IOException, XFSException {
-        desc = fileDesc;
-        in = null;
-        if (desc != null) {
-            if (desc.id == 0) {
-                in = new NativeFileReader(desc.name);
-            } else {
-                in = new NativeXFSReader(desc.id, desc.name);
-            }
-            in.seek(0);
+        if (fileDesc == null || fileDesc.name == null) {
+            throw new IOException("Filename is null!");
         }
+        desc = fileDesc;
+        switch (desc.type) {
+            case FileDesc.FS:
+                in = new NativeFileReader(desc.name);
+                break;
+            case FileDesc.XFS:
+                in = new NativeXFSReader(desc.name);
+                break;
+        }
+        in.seek(0);
     }
 
     @Override
     protected void finalize() throws Throwable {
-        try {
-            in.close();
-        } catch (Exception e) {
-        }
+        in.closeSafe();
         super.finalize();
     }
 
     /**
      * Возвращает размер файла.
+     *
      * @return Размер файла.
      * @throws IOException Ошибка ввода-вывода.
      */
@@ -63,6 +67,7 @@ public class InputFile {
     /**
      * Позиционирует текущий указатель чтения/записи на заданную позицию от
      * начала файла.
+     *
      * @param n Позиция.
      * @throws IOException Ошибка ввода-вывода.
      */
@@ -73,6 +78,7 @@ public class InputFile {
     /**
      * Пропуск указанного кол-ва байт от текущей позиции (смещение позиции на
      * указанное кол-во байт).
+     *
      * @param n Смещение в байтах.
      * @throws IOException Ошибка ввода-вывода.
      */
@@ -82,6 +88,7 @@ public class InputFile {
 
     /**
      * Чтение блока данных с текущей позиции в буфер (с начала).
+     *
      * @param ba Буфер.
      * @param size Размер данных в байтах.
      * @throws IOException Ошибка ввода-вывода.
@@ -92,12 +99,13 @@ public class InputFile {
 
     /**
      * Закрытие файла-источника.
+     *
      * @throws IOException Ошибка ввода-вывода.
      */
     public void close() throws IOException {
         in.close();
     }
-    
+
     /**
      * Безопасный вариант закрытия файла-источника (не вызывает исключений).
      */

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Copyright (c) 2011-2012, Aleksey Nikolaevich Dokshin. All right reserved.
  * Contacts: dant.it@gmail.com, dokshin@list.ru.
  */
 package dvrextract.gui;
@@ -10,18 +10,16 @@ import java.awt.event.KeyEvent;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import javax.swing.AbstractAction;
-import javax.swing.InputVerifier;
-import javax.swing.JComponent;
-import javax.swing.JFormattedTextField;
-import javax.swing.KeyStroke;
+import javax.swing.*;
 import javax.swing.text.DefaultFormatterFactory;
 import javax.swing.text.MaskFormatter;
 
 /**
  * Граф.элемент - Поле ввода даты\времени по маске.
- * В случае, если какие-то поля отсутствуют в маске, то выставляются по 
+ *
+ * В случае, если какие-то поля отсутствуют в маске, то выставляются по
  * умолчанию (время в 0, дата в 1).
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class JDateTimeField extends JFormattedTextField {
@@ -49,6 +47,7 @@ public class JDateTimeField extends JFormattedTextField {
 
     /**
      * Конструктор.
+     *
      * @param fmt Строка формата для ввода (если null - по умолчению).
      * @param dt Начальное значение (если null - текущая дата).
      */
@@ -67,6 +66,7 @@ public class JDateTimeField extends JFormattedTextField {
 
     /**
      * Конструктор.
+     *
      * @param fmt Строка формата даты-времени для ввода.
      */
     public JDateTimeField(String fmt) {
@@ -75,6 +75,7 @@ public class JDateTimeField extends JFormattedTextField {
 
     /**
      * Конструктор.
+     *
      * @param dt Начальное значение даты.
      */
     public JDateTimeField(Date dt) {
@@ -89,10 +90,11 @@ public class JDateTimeField extends JFormattedTextField {
     }
 
     /**
-     * Включение\выключение режима блокирующей проверки значения поля.
-     * При включении - не даёт сменить фокус пока не введено правильное значение.
-     * При отключении - неверные значения исправляются откатом к пред.значению 
+     * Включение\выключение режима блокирующей проверки значения поля. При
+     * включении - не даёт сменить фокус пока не введено правильное значение.
+     * При отключении - неверные значения исправляются откатом к пред.значению
      * (с проеркой на валидность).
+     *
      * @param isOn Режим.
      */
     public void setLockingVerify(boolean isOn) {
@@ -101,6 +103,7 @@ public class JDateTimeField extends JFormattedTextField {
 
     /**
      * Устанавливает формат вводимых данных (в том числе маску ввода).
+     *
      * @param fmt Строка формата для ввода (если null - формат по умолчанию).
      * @return Состояние выполнения true-успешно, false-ошибка.
      */
@@ -140,11 +143,12 @@ public class JDateTimeField extends JFormattedTextField {
     }
 
     /**
-     * Возвращает верную для действующих ограничений дату путём сдвигания 
+     * Возвращает верную для действующих ограничений дату путём сдвигания
      * указанной даты в действующий диапазон (если необходимо).
+     *
      * @param dt Проверяемая на валидность дата.
-     * @return Верная дата (если исодная была верной, то она же и 
-     * возвращается - удобно для проверки на "коррекцию").
+     * @return Верная дата (если исодная была верной, то она же и возвращается -
+     * удобно для проверки на "коррекцию").
      */
     public Date getValidDate(Date dt) {
         if (dt == null) {
@@ -160,8 +164,9 @@ public class JDateTimeField extends JFormattedTextField {
     }
 
     /**
-     * Устанавливает значение поля указанной датой. Если дата выходит за 
+     * Устанавливает значение поля указанной датой. Если дата выходит за
      * диапазон разрешенных, но присвоениея не происходит!
+     *
      * @param dt Дата.
      */
     public void setTime(Date dt) {
@@ -170,6 +175,7 @@ public class JDateTimeField extends JFormattedTextField {
 
     /**
      * Возвращает текущую дату поля.
+     *
      * @return Текущая дата.
      */
     public Date getTime() {
@@ -178,6 +184,7 @@ public class JDateTimeField extends JFormattedTextField {
 
     /**
      * Установка минимальной даты.
+     *
      * @param dt Дата.
      */
     public void setMinTime(Date dt) {
@@ -194,6 +201,7 @@ public class JDateTimeField extends JFormattedTextField {
 
     /**
      * Установка максимальной даты.
+     *
      * @param dt Дата.
      */
     public void setMaxTime(Date dt) {
@@ -209,11 +217,14 @@ public class JDateTimeField extends JFormattedTextField {
     }
 
     /**
-     * Установка текста элемента напрямую. Строка парсится согласно формату,
-     * полученная дата проверяется на валидность и в элемент ставится её 
-     * представление. Т.е. в результате может быть совсем не исходной строкой.
-     * По формированию даты при ошибках - см. getValidDate().
-     * Нежелательно использование вовне! Необходимо использовать setTime().
+     * Установка текста элемента напрямую.
+     *
+     * Строка парсится согласно формату, полученная дата проверяется на
+     * валидность и в элемент ставится её представление. Т.е. в результате может
+     * быть совсем не исходной строкой. По формированию даты при ошибках - см.
+     * getValidDate(). Нежелательно использование вовне! Необходимо использовать
+     * setTime().
+     *
      * @param s Строка с датой.
      */
     @Override
@@ -242,8 +253,9 @@ public class JDateTimeField extends JFormattedTextField {
     public final static int ID_TIMECHANGE = 1;
 
     /**
-     * Преобразование строки в дату по текущему формату. С проверкой 
+     * Преобразование строки в дату по текущему формату. С проверкой
      * идентичности при обратном преобразовании.
+     *
      * @param s Строка с датой по формату.
      * @return Дата, в случае ошибки = null.
      */

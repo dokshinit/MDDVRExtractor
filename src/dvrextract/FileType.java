@@ -6,6 +6,7 @@ package dvrextract;
 
 /**
  * Типы обрабатываемых файлов.
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public enum FileType {
@@ -41,6 +42,7 @@ public enum FileType {
 
     /**
      * Конструктор.
+     *
      * @param id Код.
      * @param title Название.
      */

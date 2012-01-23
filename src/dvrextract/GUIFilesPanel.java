@@ -24,6 +24,10 @@ import org.jdesktop.swingx.table.TableColumnExt;
 
 /**
  * Панель со списком файлов-источников.
+ * 
+ * TODO: Реализовать выбор файлов? 
+ * TODo: Двойной клик или выпад.меню для действий - выбор времени по файлу/группе файлов.
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class GUIFilesPanel extends JPanel {
@@ -59,7 +63,8 @@ public final class GUIFilesPanel extends JPanel {
 
     /**
      * Конструктор.
-     * @param info Ссылка на связанную панель вывода информации о файле (для 
+     *
+     * @param info Ссылка на связанную панель вывода информации о файле (для
      * отображении инфы о файле при выборе файла).
      */
     public GUIFilesPanel(GUIFileInfoPanel info) {
@@ -69,8 +74,8 @@ public final class GUIFilesPanel extends JPanel {
     }
 
     /**
-     * Инициализация графических компонентов.
-     * Построение модели для текущей камеры (если camNumber=0 - пустой список).
+     * Инициализация графических компонентов. Построение модели для текущей
+     * камеры (если camNumber=0 - пустой список).
      */
     private void init() {
         setLayout(new BorderLayout());
@@ -107,8 +112,9 @@ public final class GUIFilesPanel extends JPanel {
     }
 
     /**
-     * Построение модели для указанного номера камеры
-     * (если номер камеры соответствует текущему - построения не происходит).
+     * Построение модели для указанного номера камеры (если номер камеры
+     * соответствует текущему - построения не происходит).
+     *
      * @param cam Номер камеры.
      */
     public void setModel(int cam) {
@@ -120,6 +126,7 @@ public final class GUIFilesPanel extends JPanel {
 
     /**
      * Обработка выбора файла в таблице файлов.
+     *
      * @param row Строка (0-N - строка, -1-потеря выбора).
      * @param info Инфо о файле (при потере выбора = null).
      */
@@ -134,6 +141,7 @@ public final class GUIFilesPanel extends JPanel {
 
         /**
          * Конструктор.
+         *
          * @param m Модель данных.
          * @param tm Модель столбцов.
          */

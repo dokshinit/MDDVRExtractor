@@ -1,12 +1,13 @@
 /*
- * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Copyright (c) 2011-2012, Aleksey Nikolaevich Dokshin. All right reserved.
  * Contacts: dant.it@gmail.com, dokshin@list.ru.
  */
 package dvrextract.gui;
 
 import java.awt.Dimension;
-import java.util.*;
-import javax.swing.*;
+import java.util.ArrayList;
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JComboBox;
 
 /**
  * <pre><b>Расширенный ComboBox</b>
@@ -25,10 +26,11 @@ import javax.swing.*;
  *         showData();
  *     }
  * }
- * 
+ *
  * JModeComboBox b = new JModeComboBox();
- * b.showData();
+ * b.showData(); // Обязательное действие - отображение модели.
  * </pre>
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class JExtComboBox extends JComboBox {
@@ -37,7 +39,7 @@ public class JExtComboBox extends JComboBox {
      * Объекты записей списка.
      */
     protected ArrayList<ExtItem> items;
-    
+
     /**
      * Конструктор.
      */
@@ -55,8 +57,9 @@ public class JExtComboBox extends JComboBox {
     }
 
     /**
-     * Добавление элемента в список
-     * (для отображения необходимо вызвать showData()).
+     * Добавление элемента в список (для отображения необходимо вызвать
+     * showData()).
+     *
      * @param item Элемент списка.
      */
     public void addItem(ExtItem item) {
@@ -64,8 +67,9 @@ public class JExtComboBox extends JComboBox {
     }
 
     /**
-     * Добавление элемента в список
-     * (для отображения необходимо вызвать showData()).
+     * Добавление элемента в список (для отображения необходимо вызвать
+     * showData()).
+     *
      * @param id Код.
      * @param object Объект.
      */
@@ -75,26 +79,31 @@ public class JExtComboBox extends JComboBox {
 
     /**
      * Возвращает объект с заданным id.
+     *
      * @param id Числовой идентификатор объекта.
      * @return Объект.
      */
     public Object getItemObject(int id) {
         for (ExtItem i : items) {
-            if (i.id == id) return i.object;
+            if (i.id == id) {
+                return i.object;
+            }
         }
         return null;
     }
-    
+
     /**
-     * Очистка записей из списка 
-     * (для отображения необходимо вызвать showData()).
+     * Очистка записей из списка (для отображения необходимо вызвать
+     * showData()).
      */
     public void removeItems() {
         items.clear();
     }
 
     /**
-     * Возвращает кол-во позиций в подготовленном списке (не кол-во отображенных!).
+     * Возвращает кол-во позиций в подготовленном списке (не кол-во
+     * отображенных!).
+     *
      * @return Кол-во позиций в списке.
      */
     public int getListItemCount() {
@@ -102,9 +111,10 @@ public class JExtComboBox extends JComboBox {
     }
 
     /**
-     * Устанавливает компоненту постоянную ширину.
-     * Имеет смысл если заполнение идет в отдельном потоке и необходимо 
-     * избежать изменения размера компонента после загрузки.
+     * Устанавливает компоненту постоянную ширину. Имеет смысл если заполнение
+     * идет в отдельном потоке и необходимо избежать изменения размера
+     * компонента после загрузки.
+     *
      * @param width Ширина.
      */
     public void setConstWidth(int width) {
@@ -118,6 +128,7 @@ public class JExtComboBox extends JComboBox {
 
     /**
      * Возвращает текущий выбранный элемент.
+     *
      * @return Текущий элемент списка.
      */
     @Override
@@ -127,6 +138,7 @@ public class JExtComboBox extends JComboBox {
 
     /**
      * Установка текущего выбранного элемента по его коду.
+     *
      * @param id Код.
      * @return Результат выполнения: true - успешно, false - ошибка.
      */
@@ -150,13 +162,14 @@ public class JExtComboBox extends JComboBox {
          */
         public int id;
         /**
-         * Объект (обязательно должен иметь текстовое представление, которое 
+         * Объект (обязательно должен иметь текстовое представление, которое
          * будет отображаться в списке!).
          */
         public Object object;
 
         /**
          * Конструктор.
+         *
          * @param id Код.
          * @param object Объект.
          */
@@ -167,6 +180,7 @@ public class JExtComboBox extends JComboBox {
 
         /**
          * Представление записи для отображения.
+         *
          * @return Название.
          */
         @Override

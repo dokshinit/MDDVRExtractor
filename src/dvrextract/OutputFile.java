@@ -4,15 +4,11 @@
  */
 package dvrextract;
 
-import java.io.BufferedOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 
 /**
  * Сохранение сырых данных в файл.
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class OutputFile {
@@ -28,6 +24,7 @@ public class OutputFile {
 
     /**
      * Конструктор.
+     *
      * @param fileName Имя файла.
      * @throws FileNotFoundException Ошибка при отсутствии файла.
      */
@@ -45,6 +42,7 @@ public class OutputFile {
 
     /**
      * Запись данных из буфера в файл.
+     *
      * @param ba Буфер данных.
      * @param offset Смещение в буфере (в байтах).
      * @param size Размер данных для записи (в байтах).
@@ -58,6 +56,7 @@ public class OutputFile {
 
     /**
      * Закрытие файла с сохранением буферизированных данных.
+     *
      * @throws IOException Ошибка при операции записи.
      */
     public void close() throws IOException {

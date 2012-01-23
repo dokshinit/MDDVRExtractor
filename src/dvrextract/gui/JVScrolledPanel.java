@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Copyright (c) 2011-2012, Aleksey Nikolaevich Dokshin. All right reserved.
  * Contacts: dant.it@gmail.com, dokshin@list.ru.
  */
 package dvrextract.gui;
@@ -13,6 +13,7 @@ import javax.swing.Scrollable;
 /**
  * Панель с правилами для скроллирования - только по вертикали, по горизонтали
  * ведёт себя как обычно - подгоняет под ширину (!).
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class JVScrolledPanel extends JPanel implements Scrollable {
@@ -26,6 +27,7 @@ public class JVScrolledPanel extends JPanel implements Scrollable {
 
     /**
      * Конструктор.
+     *
      * @param layout Менеджер раскладки.
      */
     public JVScrolledPanel(LayoutManager layout) {

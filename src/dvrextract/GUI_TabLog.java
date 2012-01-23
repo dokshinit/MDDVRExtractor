@@ -10,6 +10,7 @@ import javax.swing.JPanel;
 
 /**
  * Вкладка "Лог".
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class GUI_TabLog extends JPanel {
@@ -47,6 +48,7 @@ public final class GUI_TabLog extends JPanel {
 
     /**
      * Возвращает указатель на панель лога.
+     *
      * @return Панель лога.
      */
     public GUILogPanel getLogPanel() {

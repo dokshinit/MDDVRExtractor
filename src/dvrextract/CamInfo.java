@@ -7,8 +7,8 @@ package dvrextract;
 import java.util.ArrayList;
 
 /**
- * Информация по камере 
- * (создаётся при сканировании, дополняется при обработке).
+ * Информация по камере (создаётся при сканировании, дополняется при обработке).
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class CamInfo {
@@ -83,7 +83,8 @@ public final class CamInfo {
 
     /**
      * Добавление файла в список файлов камеры.
-     * @param info 
+     *
+     * @param info
      */
     public void addFile(FileInfo info) {
         isExists = true;

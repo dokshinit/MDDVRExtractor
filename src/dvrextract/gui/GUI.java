@@ -1,24 +1,22 @@
 /*
- * Copyright (c) 2011, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Copyright (c) 2011-2012, Aleksey Nikolaevich Dokshin. All right reserved.
  * Contacts: dant.it@gmail.com, dokshin@list.ru.
  */
 package dvrextract.gui;
 
 import dvrextract.Err;
-import java.awt.Color;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GraphicsEnvironment;
-import java.awt.Point;
-import java.awt.Toolkit;
-import java.awt.Transparency;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import javax.swing.*;
-import javax.swing.border.*;
+import javax.swing.border.Border;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
 import javax.swing.text.MaskFormatter;
 
 /**
  * Общие настройки граф.интерфейса.
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class GUI {
@@ -73,8 +71,9 @@ public class GUI {
     }
 
     /**
-     * Создание производного от HSB цвета из базы и указанных смещений для его 
+     * Создание производного от HSB цвета из базы и указанных смещений для его
      * компонент.
+     *
      * @param base Базовый цвет.
      * @param dH Изменение цвета.
      * @param dS Изменение насыщенности.
@@ -87,14 +86,15 @@ public class GUI {
         hsb[1] += dS;
         hsb[2] += dB;
         return Color.getHSBColor(
-                hsb[0] < 0? 0 : (hsb[0] > 1? 1 : hsb[0]),
-                hsb[1] < 0? 0 : (hsb[1] > 1? 1 : hsb[1]),
-                hsb[2] < 0? 0 : (hsb[2] > 1? 1 : hsb[2]));
-                                               
+                hsb[0] < 0 ? 0 : (hsb[0] > 1 ? 1 : hsb[0]),
+                hsb[1] < 0 ? 0 : (hsb[1] > 1 ? 1 : hsb[1]),
+                hsb[2] < 0 ? 0 : (hsb[2] > 1 ? 1 : hsb[2]));
+
     }
 
     /**
      * Создание производного цвета с новой прозрачностью.
+     *
      * @param base Базовый цвет.
      * @param alpha Значение прозрачности.
      * @return Результирующий цвет.
@@ -102,21 +102,22 @@ public class GUI {
     public static Color deriveColorAlpha(Color base, int alpha) {
         return new Color(base.getRed(), base.getGreen(), base.getBlue(), alpha);
     }
-    
-    
+
     /**
-     * Создание изображения заданных размеров и с возможностью попиксельной прозрачности.
+     * Создание изображения заданных размеров и с возможностью попиксельной
+     * прозрачности.
+     *
      * @param width Ширина.
      * @param height Высота.
      * @return Изображение.
      */
     public static BufferedImage createTranslucentImage(int width, int height) {
-        
-        return GraphicsEnvironment.getLocalGraphicsEnvironment().
-                    getDefaultScreenDevice().getDefaultConfiguration().createCompatibleImage(width, height, Transparency.TRANSLUCENT);
-               
+        GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+        GraphicsConfiguration conf = ge.getDefaultScreenDevice().getDefaultConfiguration();
+        return conf.createCompatibleImage(width, height, Transparency.TRANSLUCENT);
+
     }
-    
+
     ////////////////////////////////////////////////////////////////////////////
     // Окантовки
     ////////////////////////////////////////////////////////////////////////////
@@ -124,19 +125,19 @@ public class GUI {
      * Инициализация цветовых схем и компонентов интерфейса.
      */
     public static void init() {
-        
+
         Color c = UIManager.getColor("nimbusBase");
 
         float hsb[] = Color.RGBtoHSB(c.getRed(), c.getGreen(),
                 c.getBlue(), null);
-        
+
         Process.Group.gradient1 = Color.getHSBColor(hsb[0] - .013f, .15f, .85f);
         Process.Group.gradient2 = Color.getHSBColor(hsb[0] - .005f, .24f, .80f);
         Process.Group.fgtitle = Color.getHSBColor(hsb[0], .54f, .40f);
         c = UIManager.getColor("Panel.background");
         Process.Group.bgcontent = deriveColorHSB(c, 0, 0, .06f);
         Process.bgscroll = deriveColorHSB(c, 0, 0, -.06f);
-        
+
         About.Group.gradient1 = Color.getHSBColor(hsb[0] - .013f, .15f, .85f);
         About.Group.gradient2 = Color.getHSBColor(hsb[0] - .005f, .24f, .80f);
         About.Group.fgtitle = Color.getHSBColor(hsb[0], .54f, .40f);
@@ -151,7 +152,7 @@ public class GUI {
         Note.border = new CompoundBorder(
                 new LineBorder(deriveColorHSB(c, -0.04f, -.15f, -.1f)),
                 new EmptyBorder(1, 1, 1, 1));
-        
+
         c = UIManager.getColor("nimbusBase");
         Preview.fg = deriveColorHSB(c, 0, -.3f, .2f);
         Preview.bg = deriveColorHSB(c, 0, -.3f, 0f);
@@ -160,6 +161,7 @@ public class GUI {
 
     /**
      * Создание конфигурированной текстовой метки.
+     *
      * @param title Текст.
      * @param color Цвет.
      * @return Текстовая метка.
@@ -172,6 +174,7 @@ public class GUI {
 
     /**
      * Создание конфигурированной текстовой метки.
+     *
      * @param title Текст.
      * @return Текстовая метка.
      */
@@ -182,6 +185,7 @@ public class GUI {
 
     /**
      * Построение форматированного текста примечания для указанного сообщения.
+     *
      * @param title Текст примечания.
      * @return Форматированный текст примечания.
      */
@@ -195,6 +199,7 @@ public class GUI {
 
     /**
      * Создание конфигурированной текстовой метки-примечания.
+     *
      * @param title Текст примечания.
      * @return Текстовая метка-примечание.
      */
@@ -209,6 +214,7 @@ public class GUI {
 
     /**
      * Создание конфигурированного форматированного поля ввода.
+     *
      * @param format Формат для ввода.
      * @return Поле ввода.
      */
@@ -219,6 +225,7 @@ public class GUI {
 
     /**
      * Создание конфигурированного поля ввода даты-время.
+     *
      * @return Поле ввода.
      */
     public static JDateTimeField createDTText() {
@@ -228,6 +235,7 @@ public class GUI {
 
     /**
      * Создание конфигурированного поля ввода.
+     *
      * @param title Начальный текст.
      * @param size Пердпочтительный размер текста (в символах), для отображения.
      * @return Поле ввода.
@@ -239,6 +247,7 @@ public class GUI {
 
     /**
      * Создание конфигурированного поля ввода.
+     *
      * @param size Пердпочтительный размер текста (в символах), для отображения.
      * @return Поле ввода.
      */
@@ -248,6 +257,7 @@ public class GUI {
 
     /**
      * Создание конфигурированного чекбокса.
+     *
      * @param title Текст названия.
      * @param state Начальное состояние (true-выбран).
      * @return Чекбокс,
@@ -259,6 +269,7 @@ public class GUI {
 
     /**
      * Создание конфигурированной кнопки.
+     *
      * @param title Текст на кнопке.
      * @return Кнопка.
      */
@@ -269,6 +280,7 @@ public class GUI {
 
     /**
      * Создание конфигурированной кнопки с состоянием.
+     *
      * @param title Текст на кнопке.
      * @return Кнопка с состоянием.
      */
@@ -279,6 +291,7 @@ public class GUI {
 
     /**
      * Создание конфигурированного комбобокса.
+     *
      * @return Комбобокс.
      */
     public static JExtComboBox createCombo() {
@@ -288,6 +301,7 @@ public class GUI {
 
     /**
      * Центрирует компонент относительно экрана.
+     *
      * @param frame Центрируемый компонент.
      */
     public static void centerizeFrame(Component frame) {
@@ -299,6 +313,7 @@ public class GUI {
 
     /**
      * Центрирует компонент относительно другого компонента.
+     *
      * @param frame Центрируемый компонент.
      * @param parent Компонент относительно которого производится центровка.
      */
@@ -311,10 +326,11 @@ public class GUI {
     }
 
     /**
-     * Гарантированный запуск задания в потоке Swing с ожиданием завершения 
-     * выполнения.
-     * Если в потоке Swing - выполняется сразу вызовом метода.
-     * Если не в потоке Swing - ставится на выполнение в очередь и ожидает завершения.
+     * Гарантированный запуск задания в потоке Swing с ожиданием завершения
+     * выполнения. Если в потоке Swing - выполняется сразу вызовом метода. Если
+     * не в потоке Swing - ставится на выполнение в очередь и ожидает
+     * завершения.
+     *
      * @param obj Задание.
      */
     public static void InSwingWait(final Runnable obj) {
@@ -330,10 +346,10 @@ public class GUI {
     }
 
     /**
-     * Гарантированный запуск задания в потоке Swing без ожидания завершения 
-     * выполнения.
-     * Если в потоке Swing - выполняется сразу вызовом метода.
-     * Если не в потоке Swing - ставится на выполнение в очередь и выходит.
+     * Гарантированный запуск задания в потоке Swing без ожидания завершения
+     * выполнения. Если в потоке Swing - выполняется сразу вызовом метода. Если
+     * не в потоке Swing - ставится на выполнение в очередь и выходит.
+     *
      * @param obj Задание.
      */
     public static void InSwingLater(final Runnable obj) {

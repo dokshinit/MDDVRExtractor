@@ -5,8 +5,8 @@
 package dvrextract;
 
 import dvrextract.FFMpeg.Cmd;
-import dvrextract.gui.GUI;
 import dvrextract.I18n.Lang;
+import dvrextract.gui.GUI;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
@@ -18,6 +18,7 @@ import xfsengine.XFS.XFSException;
 
 /**
  * Глобальный класс приложения.
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class App {
@@ -57,22 +58,24 @@ public class App {
 
     /**
      * Модель источника.
-     * Подразумевается, что источником может быть или одиночный файл или
-     * каталог. При этом каждый файл распознаётся исходя из имени файла:
-     * по шаблону *.exe - файл архива, по шаблону da*. - файл hdd.
+     *
+     * Подразумевается, что источником может быть: одиночный файл, каталог,
+     * устройство HDD-XFS. При этом для обычных файлов распознавание происходит
+     * по имени файла: по шаблону *.exe - файл архива, по шаблону da*. - файл
+     * hdd, а для HDD-XFS жестко задан шаблон da*.
      */
     public static class Source {
 
         /**
          * Полное имя файла / каталога / устройства с XFS.
          */
-        private static FileDesc name = new FileDesc(0, "");
+        private static FileDesc name = new FileDesc();
         /**
          * ФС XFS.
          */
         private static XFS xfs = null;
         /**
-         * Тип источника: 0-EXE, 1-HDD
+         * Тип источника: 0-EXE, 1-HDD.
          */
         private static FileType type = FileType.NO;
         /**
@@ -90,6 +93,7 @@ public class App {
 
         /**
          * Возвращает путь\файл источника.
+         *
          * @return Путь\файл источника.
          */
         public static FileDesc getName() {
@@ -98,6 +102,7 @@ public class App {
 
         /**
          * Возвращает текущую XFS.
+         *
          * @return XFS.
          */
         public static XFS getXFS() {
@@ -105,8 +110,9 @@ public class App {
         }
 
         /**
-         * Открывает XFS для текущего устройства.
-         * Если уже открыта - предварительно закрывает старую.
+         * Открывает XFS для текущего устройства. Если уже открыта -
+         * предварительно закрывает старую.
+         *
          * @return XFS.
          * @throws FileNotFoundException Файл устройства не найден.
          * @throws IOException Ошибка ввода-вывода.
@@ -136,6 +142,7 @@ public class App {
 
         /**
          * Возвращает тип источника.
+         *
          * @return Тип источника.
          */
         public static FileType getType() {
@@ -144,6 +151,7 @@ public class App {
 
         /**
          * Возвращает номер камеры жёсткого оганичения при сканировании.
+         *
          * @return Номер камеры ограничения (0 - без ограничений).
          */
         public static int getLimitedCam() {
@@ -152,6 +160,7 @@ public class App {
 
         /**
          * Возвращает номер выбранной камеры.
+         *
          * @return Номер выбранной камеры.
          */
         public static int getSelectedCam() {
@@ -160,6 +169,7 @@ public class App {
 
         /**
          * Возвразает информацию для указанной камеры.
+         *
          * @param index Номер камеры (не индекс массива!): 1..MAXCAM
          * @return Информация для указанной камеры.
          */
@@ -169,15 +179,16 @@ public class App {
 
         /**
          * Устанавливает новый источник.
+         *
          * @param newName Путь\имя файла источкика.
          * @param newType Тип источника.
          * @param limited Жесткое ограничение по камере (0 - без ограничений).
          */
         public static void set(FileDesc newName, FileType newType, int limited) {
             if (newName == null) {
-                newName = new FileDesc(0, "");
+                newName = new FileDesc();
             }
-            name = new FileDesc(newName.id, newName.name.trim());
+            name = new FileDesc(newName);
             type = newType;
             limitedCam = limited;
 
@@ -193,6 +204,7 @@ public class App {
 
         /**
          * Установка выбранной камеры.
+         *
          * @param newCam Номер камеры.
          */
         public static void setSelectedCam(int newCam) {
@@ -242,16 +254,19 @@ public class App {
          */
         private static Cmd subOptions = new Cmd(false);
         /**
-         * Режим сохранения аудио: -1-не сохранять, 0-в файл аудио, 1-в файл видео.
+         * Режим сохранения аудио: -1-не сохранять, 0-в файл аудио, 1-в файл
+         * видео.
          */
         private static int audioType;
         /**
-         * Режим сохранения субтитров: -1-не сохранять, 0-в файл субтитров, 1-в файл видео.
+         * Режим сохранения субтитров: -1-не сохранять, 0-в файл субтитров, 1-в
+         * файл видео.
          */
         private static int subType;
 
         /**
          * Возвращает дату начала сохраняемого периода.
+         *
          * @return Дата.
          */
         public static Date getTimeStart() {
@@ -260,6 +275,7 @@ public class App {
 
         /**
          * Возвращает дату конца сохраняемого периода.
+         *
          * @return Дата.
          */
         public static Date getTimeEnd() {
@@ -268,6 +284,7 @@ public class App {
 
         /**
          * Возвращает имя файла-приёмника видео.
+         *
          * @return Имя файла.
          */
         public static String getVideoName() {
@@ -276,6 +293,7 @@ public class App {
 
         /**
          * Возвращает имя файла-приёмника аудио.
+         *
          * @return Имя файла.
          */
         public static String getAudioName() {
@@ -284,6 +302,7 @@ public class App {
 
         /**
          * Возвращает имя файла-приёмника субтитров.
+         *
          * @return Имя файла.
          */
         public static String getSubName() {
@@ -292,6 +311,7 @@ public class App {
 
         /**
          * Возвращает опции ffmpeg для видео.
+         *
          * @return Опции.
          */
         public static Cmd getVideoOptions() {
@@ -300,6 +320,7 @@ public class App {
 
         /**
          * Возвращает опции ffmpeg для аудио.
+         *
          * @return Опции.
          */
         public static Cmd getAudioOptions() {
@@ -308,6 +329,7 @@ public class App {
 
         /**
          * Возвращает опции ffmpeg для субтитров.
+         *
          * @return Опции.
          */
         public static Cmd getSubOptions() {
@@ -316,6 +338,7 @@ public class App {
 
         /**
          * Возвращает тип сохранения аудио.
+         *
          * @return Тип: -1 - не сохранять, 0 - в файл аудио, 1 - в файл видео.
          */
         public static int getAudioType() {
@@ -324,7 +347,9 @@ public class App {
 
         /**
          * Возвращает тип сохранения субтитров.
-         * @return Тип: -1 - не сохранять, 0 - в файл субтитров, 1 - в файл видео.
+         *
+         * @return Тип: -1 - не сохранять, 0 - в файл субтитров, 1 - в файл
+         * видео.
          */
         public static int getSubType() {
             return subType;
@@ -332,6 +357,7 @@ public class App {
 
         /**
          * Устанавливает дату начала сохраняемого периода.
+         *
          * @param time Дата
          */
         public static void setTimeStart(Date time) {
@@ -341,6 +367,7 @@ public class App {
 
         /**
          * Устанавливает дату конца сохраняемого периода.
+         *
          * @param time Дата
          */
         public static void setTimeEnd(Date time) {
@@ -350,6 +377,7 @@ public class App {
 
         /**
          * Устанавливает имя файла-приёмника для видео.
+         *
          * @param name Имя файла.
          */
         public static void setVideoName(String name) {
@@ -361,6 +389,7 @@ public class App {
 
         /**
          * Устанавливает имя файла-приёмника для аудио.
+         *
          * @param name Имя файла.
          */
         public static void setAudioName(String name) {
@@ -370,6 +399,7 @@ public class App {
 
         /**
          * Устанавливает имя файла-приёмника для субтитров.
+         *
          * @param name Имя файла.
          */
         public static void setSubName(String name) {
@@ -379,6 +409,7 @@ public class App {
 
         /**
          * Устанавливает опции ffmpeg для видео.
+         *
          * @param opt Опции.
          */
         public static void setVideoOptions(Cmd opt) {
@@ -388,6 +419,7 @@ public class App {
 
         /**
          * Устанавливает опции ffmpeg для аудио.
+         *
          * @param opt Опции.
          */
         public static void setAudioOptions(Cmd opt) {
@@ -397,6 +429,7 @@ public class App {
 
         /**
          * Устанавливает опции ffmpeg для субтитров.
+         *
          * @param opt Опции.
          */
         public static void setSubOptions(Cmd opt) {
@@ -406,7 +439,9 @@ public class App {
 
         /**
          * Устанавливает тип сохранения аудио.
-         * @param mode Тип: -1 - не сохранять, 0 - в файл аудио, 1 - в файл видео.
+         *
+         * @param mode Тип: -1 - не сохранять, 0 - в файл аудио, 1 - в файл
+         * видео.
          */
         public static void setAudioType(int mode) {
             audioType = mode;
@@ -415,7 +450,9 @@ public class App {
 
         /**
          * Устанавливает тип сохранения субтитров.
-         * @param mode Тип: -1 - не сохранять, 0 - в файл аудио, 1 - в файл видео.
+         *
+         * @param mode Тип: -1 - не сохранять, 0 - в файл аудио, 1 - в файл
+         * видео.
          */
         public static void setSubType(int mode) {
             subType = mode;
@@ -425,6 +462,7 @@ public class App {
 
     /**
      * Вывод строки лога с типом.
+     *
      * @param type Тип сообщения.
      * @param text Текст сообщения.
      */
@@ -437,6 +475,7 @@ public class App {
 
     /**
      * Обновление последней строки лога с типом.
+     *
      * @param type Тип сообщения.
      * @param text Текст сообщения.
      */
@@ -449,6 +488,7 @@ public class App {
 
     /**
      * Вывод строки лога.
+     *
      * @param text Текст сообщения.
      */
     public static void log(String text) {
@@ -457,6 +497,7 @@ public class App {
 
     /**
      * Обновление последней строки лога.
+     *
      * @param text Текст сообщения.
      */
     public static void logupd(String text) {
@@ -482,6 +523,7 @@ public class App {
 
     /**
      * Точка запуска приложения.
+     *
      * @param args Аргументы.
      */
     public static void main(String[] args) {

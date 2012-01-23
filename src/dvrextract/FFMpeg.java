@@ -6,11 +6,7 @@ package dvrextract;
 
 import java.awt.Dimension;
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -20,6 +16,7 @@ import javax.imageio.ImageIO;
 
 /**
  * Класс для работы с функционалом FFMpeg.
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class FFMpeg {
@@ -36,8 +33,8 @@ public final class FFMpeg {
             Pattern.compile("^\\ ([D\\ ])([E\\ ])([VAS])([S\\ ])([D\\ ])([T\\ ])\\ "
             + "(\\w{1,})\\s{1,}((?:[\\S&&[^iJG]]|i(?!mage)|J(?!PEG)|G(?!IF)|\\s){1,})\\s*$");
     /**
-     * Флаг наличия нужного кодека для финальной сборки аудио (в видео), 
-     * а также процессинга аудио.
+     * Флаг наличия нужного кодека для финальной сборки аудио (в видео), а также
+     * процессинга аудио.
      */
     public static boolean isAudio_pcm_s16le = false;
     /**
@@ -47,14 +44,17 @@ public final class FFMpeg {
 
     /**
      * Возвращает текущий списо кодеков.
-     * @return 
+     *
+     * @return
      */
     public static ArrayList<FFCodec> getCodecs() {
         return codecs;
     }
 
     /**
-     * Проверяет инициализирован ли FFMpeg (если проблемы, то список кодеков будет пуст).
+     * Проверяет инициализирован ли FFMpeg (если проблемы, то список кодеков
+     * будет пуст).
+     *
      * @return true - всё в порядке, false - ffmpeg не работает корректно.
      */
     public static boolean isWorking() {
@@ -71,7 +71,7 @@ public final class FFMpeg {
             pr = Runtime.getRuntime().exec(new Cmd("-codecs", "-").getArray());
             InputStream is = pr.getInputStream();
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
-            String s = null;
+            String s;
             int flag = 0;
             while ((s = br.readLine()) != null) {
                 if (flag == 0 && s.startsWith("Codecs")) {
@@ -97,6 +97,7 @@ public final class FFMpeg {
 
     /**
      * Парсит строку и в случае успеха - добавляет кодек в список.
+     *
      * @param s Строка с кодеком.
      */
     private static void addCodec(String s) {
@@ -137,6 +138,7 @@ public final class FFMpeg {
 
         /**
          * Конструктор.
+         *
          * @param name Имя кодека.
          * @param title Название.
          * @param isDecode Возможность декодирования.
@@ -160,7 +162,7 @@ public final class FFMpeg {
     static void flushInput(InputStream is) {
         try {
             byte[] buffer = new byte[512];
-            int i = 0;
+            int i;
             while ((i = is.available()) > 0) {
                 int len = Math.min(i, buffer.length);
                 is.read(buffer, 0, len);
@@ -170,14 +172,16 @@ public final class FFMpeg {
     }
 
     /**
-     * Возвращает изображение из первого ключевого кадра файла для указанной камеры.
+     * Возвращает изображение из первого ключевого кадра файла для указанной
+     * камеры.
+     *
      * @param info Инфо о файле.
      * @param cam Номер камеры.
      * @return Изображение (в случае неудачи = null).
      */
-    public static BufferedImage getFirstFrameImage(FileInfo info, int cam) {
+    public static BufferedImage getFirstKeyFrameImage(FileInfo info, int cam) {
         BufferedImage image = null;
-        Frame frame = Files.getFirstMainFrame(info, cam);
+        Frame frame = Files.getFirstKeyFrame(info, cam);
         Process process = null;
         if (frame != null) {
             try {
@@ -187,15 +191,9 @@ public final class FFMpeg {
                 in.read(ba, frame.videoSize);
                 in.close();
 
-                // TODO: для отладки убрать в релизе!                
-//                OutputFile of = new OutputFile("1.raw");
-//                of.write(ba, 0, ba.length);
-//                of.closeSafe();
-
                 Dimension d = info.frameFirst.getResolution();
-
                 Cmd cmd = new Cmd("-f", "h264", "-dframes", "1", "-r", "1", "-i", "-", "-f", "image2", "-s", "" + d.width + "x" + d.height, "-");
-                App.log(cmd.toString());
+                //App.log(cmd.toString());
 
                 process = Runtime.getRuntime().exec(cmd.getArray());
                 InputStream is = process.getInputStream();
@@ -235,15 +233,19 @@ public final class FFMpeg {
         private ArrayList<String> tokens = new ArrayList<String>();
 
         /**
-         * Конструктор - создаёт команду по умолчанию с токеном для запуска ffmpeg.
+         * Конструктор - создаёт команду по умолчанию с токеном для запуска
+         * ffmpeg.
          */
         public Cmd() {
             this(true);
         }
 
         /**
-         * Конструктор - создаёт команду (с токеном для запуска ffmpeg или пустую).
-         * @param isAddFfmpeg Флаг создания токена: true - создать, false - не создавать.
+         * Конструктор - создаёт команду (с токеном для запуска ffmpeg или
+         * пустую).
+         *
+         * @param isAddFfmpeg Флаг создания токена: true - создать, false - не
+         * создавать.
          */
         public Cmd(boolean isAddFfmpeg) {
             if (isAddFfmpeg) {
@@ -254,6 +256,7 @@ public final class FFMpeg {
         /**
          * Конструктор - создаёт команду с токеном запуска ffmpeg и добавляет
          * все токены из аргументов.
+         *
          * @param ar Токены.
          */
         public Cmd(String... ar) {
@@ -263,6 +266,7 @@ public final class FFMpeg {
 
         /**
          * Добавление перечисленных токенов в команду.
+         *
          * @param ar Токены.
          * @return Ссылка на себя для сцепки.
          */
@@ -273,6 +277,7 @@ public final class FFMpeg {
 
         /**
          * Добавление токенов из указанной команды.
+         *
          * @param c Команда.
          * @return Ссылка на себя для сцепки.
          */
@@ -283,6 +288,7 @@ public final class FFMpeg {
 
         /**
          * Возвращает массив строк токенов.
+         *
          * @return Массив строк токенов.
          */
         public String[] getArray() {
@@ -291,6 +297,7 @@ public final class FFMpeg {
 
         /**
          * Возвращает токены в виде коллекции строк.
+         *
          * @return Коллекция строк.
          */
         public Collection<String> getCollection() {
@@ -298,7 +305,9 @@ public final class FFMpeg {
         }
 
         /**
-         * Замещение в токенах команды параметров помещенных оригинальными маркерами.
+         * Замещение в токенах команды параметров помещенных оригинальными
+         * маркерами.
+         *
          * @param sfps Строка для подстановки - частота.
          * @param ssize Строка для подстановки - размеры.
          * @return Ссылка на себя для сцепки.
@@ -316,6 +325,7 @@ public final class FFMpeg {
 
         /**
          * Переопределение представления в качестве строки.
+         *
          * @return Строка состоящая из токенов разделённых пробелами.
          */
         @Override

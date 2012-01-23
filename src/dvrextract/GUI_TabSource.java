@@ -11,15 +11,12 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JSplitPane;
-import javax.swing.JTextField;
+import javax.swing.*;
 import net.miginfocom.swing.MigLayout;
 
 /**
  * Вкладка "Источник".
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public final class GUI_TabSource extends JPanel implements ActionListener {
@@ -147,7 +144,7 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
     }
 
     /**
-     * Вызывается при изменении источнкика. Актуализацирует отображение 
+     * Вызывается при изменении источнкика. Актуализацирует отображение
      * источника и списка камер.
      */
     public void validateSourceChange() {
@@ -166,7 +163,7 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
     }
 
     /**
-     * Вызывается при изменении списка камер источника. Актуализирует 
+     * Вызывается при изменении списка камер источника. Актуализирует
      * отображение и выбранную камеру.
      */
     public void validateCamsListChange() {
@@ -198,8 +195,8 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
     }
 
     /**
-     * Выставление блокировок элементов согласно текущему состоянию.
-     * Отдельно не вызывается, только из основного окна (пожтому нет тредсейф).
+     * Выставление блокировок элементов согласно текущему состоянию. Отдельно не
+     * вызывается, только из основного окна (пожтому нет тредсейф).
      */
     public void validateLocks() {
         GUI.InSwingLater(new Runnable() {

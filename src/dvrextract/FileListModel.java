@@ -10,7 +10,10 @@ import javax.swing.table.AbstractTableModel;
 
 /**
  * Модель табличных данных для списка файлов.
- * Подразумевается, что первый столбец невидимый и используется для системных нужд.
+ *
+ * Подразумевается, что первый столбец невидимый и используется для системных
+ * нужд.
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class FileListModel extends AbstractTableModel {
@@ -30,6 +33,7 @@ public class FileListModel extends AbstractTableModel {
 
     /**
      * Конструктор.
+     *
      * @param cam Номер камеры для которой создаётся модель.
      */
     public FileListModel(int cam) {
@@ -42,6 +46,7 @@ public class FileListModel extends AbstractTableModel {
 
     /**
      * Возвращает количество строк.
+     *
      * @return Количество строк.
      */
     @Override
@@ -53,6 +58,7 @@ public class FileListModel extends AbstractTableModel {
 
     /**
      * Возвращает количество столбцов.
+     *
      * @return Количество столбцов.
      */
     @Override
@@ -62,6 +68,7 @@ public class FileListModel extends AbstractTableModel {
 
     /**
      * Возвращает тип данных столбца.
+     *
      * @param column Номер столбца.
      * @return Тип данных столбца.
      */
@@ -72,6 +79,7 @@ public class FileListModel extends AbstractTableModel {
 
     /**
      * Название столбца.
+     *
      * @param column Столбец.
      * @return Название.
      */
@@ -82,6 +90,7 @@ public class FileListModel extends AbstractTableModel {
 
     /**
      * Данные в ячейке.
+     *
      * @param row Строка.
      * @param column Столбец.
      * @return Значение.
@@ -110,6 +119,7 @@ public class FileListModel extends AbstractTableModel {
 
     /**
      * Установка значения в ячейку.
+     *
      * @param value Значение.
      * @param row Строка.
      * @param column Столбец.
@@ -120,6 +130,7 @@ public class FileListModel extends AbstractTableModel {
 
     /**
      * Статус редактируемости для ячейки.
+     *
      * @param rowIndex Строка.
      * @param columnIndex Столбец.
      * @return Статус (у нас всегда false - нельзя).

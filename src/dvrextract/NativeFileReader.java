@@ -10,6 +10,7 @@ import java.io.RandomAccessFile;
 
 /**
  * Реализация ридера для чтения обычных файлов (всё, что поддерживает ОС).
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class NativeFileReader implements NativeReader {
@@ -25,7 +26,8 @@ public class NativeFileReader implements NativeReader {
 
     /**
      * Конструктор.
-     * @param fileDesc Имя файла-источника.
+     *
+     * @param name Дескриптор файла-источника.
      * @throws FileNotFoundException Ошибка при отсутствии файла.
      * @throws IOException Ошибка при позиционировании.
      */
