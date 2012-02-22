@@ -96,7 +96,7 @@ public class Files {
                     scanXFSDir(f, "/", cam);
                     break;
             }
-
+            
             msg = x_SourceScaning;
             App.log(msg);
             App.gui.setProgressInfo(msg);
@@ -229,8 +229,10 @@ public class Files {
         } catch (Exception ex) {
             Err.log("File path = " + path);
             Err.log(ex);
-        }
+        } 
     }
+    
+ 
 
     /**
      * Сканирование файла-источника.

@@ -9,7 +9,9 @@ import dvrextract.I18n.Lang;
 import dvrextract.gui.GUI;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import xfsengine.Device;
@@ -508,7 +510,11 @@ public class App {
      * Инициализация Look&Feel.
      */
     public static void initLAF() {
+        //String laf = "javax.swing.plaf.metal.MetalLookAndFeel";
         String laf = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
+        // Отключение жирного шрифта в UI.
+        UIManager.put("swing.boldMetal", Boolean.FALSE);
+
         try {
             Class c = Class.forName(laf);
             UIManager.setLookAndFeel(laf);

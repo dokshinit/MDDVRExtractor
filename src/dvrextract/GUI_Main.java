@@ -11,6 +11,7 @@ import dvrextract.gui.GUITabPane;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -309,13 +310,23 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
             @Override
             public void run() {
                 progressBar.setString(text);
-                if (text == null) {
-                    progressBar.setString("");
-                }
+//                if (text == null) {
+//                    progressBar.setString("");
+//                }
             }
         });
     }
 
+    public void setProgressText2(final String text) {
+        EventQueue.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                progressBar.setString(text);
+            }
+        });
+    }
+    
     /**
      * Инициализация и запуск нового прогресса.
      *
@@ -330,11 +341,12 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
 
             @Override
             public void run() {
-                progressBar.setIndeterminate(startpos == -1 && endpos == -1);
-                progressBar.setMinimum(startpos);
-                progressBar.setMaximum(endpos);
+                boolean isInd = startpos == -1 && endpos == -1;
+                progressBar.setIndeterminate(isInd);
+                progressBar.setMinimum(isInd ? 0 : startpos);
+                progressBar.setMaximum(isInd ? 100 : endpos);
                 progressBar.setStringPainted(true);
-                progressBar.setValue(startpos);
+                progressBar.setValue(isInd ? 0 : startpos);
                 progressBar.setString("");
             }
         });
@@ -372,7 +384,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
             public void run() {
                 progressBar.setIndeterminate(false);
                 progressBar.setMinimum(0);
-                progressBar.setMaximum(0);
+                progressBar.setMaximum(100);
                 progressBar.setValue(0);
                 progressBar.setString("");
             }
