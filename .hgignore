@@ -24,3 +24,5 @@
 
 \.err\.log
 \.exe
+\.log
+\.raw
