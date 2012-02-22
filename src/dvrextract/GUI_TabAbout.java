@@ -220,11 +220,11 @@ public final class GUI_TabAbout extends JPanel {
 
         gp[2] = addGroupPanel(gn++, "[10:10:10, right][]");
         gp[2].addLine(n++);
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < 4; i++) {
             gp[2].addListLine(n++);
         }
         gp[2].addLine(n++);
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 9; i++) {
             gp[2].addListLine(n++);
         }
         gp[2].addLine(n++);

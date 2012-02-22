@@ -126,7 +126,10 @@ public class GUI {
      */
     public static void init() {
 
-        Color c = new Color(0x33628C);//UIManager.getColor("nimbusBase");
+        Color c = UIManager.getColor("nimbusBase");
+        if (c == null) {
+            c = new Color(0x33628C);
+        }
 
         float hsb[] = Color.RGBtoHSB(c.getRed(), c.getGreen(),
                 c.getBlue(), null);
@@ -134,26 +137,41 @@ public class GUI {
         Process.Group.gradient1 = Color.getHSBColor(hsb[0] - .013f, .15f, .85f);
         Process.Group.gradient2 = Color.getHSBColor(hsb[0] - .005f, .24f, .80f);
         Process.Group.fgtitle = Color.getHSBColor(hsb[0], .54f, .40f);
-        c = new Color(0xD6D9DF); //UIManager.getColor("Panel.background");
+        c = UIManager.getColor("Panel.background");
+        if (c == null) {
+            c = new Color(0xD6D9DF);
+        }
         Process.Group.bgcontent = deriveColorHSB(c, 0, 0, .06f);
         Process.bgscroll = deriveColorHSB(c, 0, 0, -.06f);
 
         About.Group.gradient1 = Color.getHSBColor(hsb[0] - .013f, .15f, .85f);
         About.Group.gradient2 = Color.getHSBColor(hsb[0] - .005f, .24f, .80f);
         About.Group.fgtitle = Color.getHSBColor(hsb[0], .54f, .40f);
-        c = new Color(0xF2F2BD); //UIManager.getColor("info");
+        if (c == null) {
+            c = new Color(0xF2F2BD);
+        }
+        c = UIManager.getColor("info");
         About.Group.bgcontent = deriveColorHSB(c, 0, -.18f, .08f);
         About.bgscroll = deriveColorHSB(c, -0.04f, -.15f, -.02f);
 
-        c = new Color(0x2F5CB4); //UIManager.getColor("nimbusInfoBlue");
+        if (c == null) {
+            c = new Color(0x2F5CB4);
+        }
+        c = UIManager.getColor("nimbusInfoBlue");
         Note.fg = deriveColorHSB(c, 0, .2f, 0f);
-        c = new Color(0xF2F2BD); //UIManager.getColor("info");
+        if (c == null) {
+            c = new Color(0xF2F2BD);
+        }
+        c = UIManager.getColor("info");
         Note.bg = deriveColorHSB(c, 0, -.15f, .05f);
         Note.border = new CompoundBorder(
                 new LineBorder(deriveColorHSB(c, -0.04f, -.15f, -.1f)),
                 new EmptyBorder(1, 1, 1, 1));
 
-        c = new Color(0x33628C); //UIManager.getColor("nimbusBase");
+        if (c == null) {
+            c = new Color(0x33628C);
+        }
+        c = UIManager.getColor("nimbusBase");
         Preview.fg = deriveColorHSB(c, 0, -.3f, .2f);
         Preview.bg = deriveColorHSB(c, 0, -.3f, 0f);
         Preview.border = Color.WHITE;
