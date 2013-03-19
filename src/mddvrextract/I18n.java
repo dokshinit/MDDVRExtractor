@@ -450,10 +450,12 @@ public class I18n {
             text("Для запуска программы необходим Java SE (JRE/JDK) v1.6.x.",
             "To run the program requires Java SE (JRE / JDK) v1.6.x."),
             text("Страница загрузки:", "Download page:"),
-            text("Для обработки и транскодирования требуется ffmpeg. Желательно использовать идущий в комплекте - "+
-                "от версии к версии изменялись ключи и поведение при обработке. "+
-                "При более ранних версиях возможна как частичная, так и полная неработоспособность программы.",
-            "Ffmpeg is required for processing and transcoding. "),
+            text("Для обработки и транскодирования требуется ffmpeg. Желательно использовать идущий в комплекте - "
+            + "от версии к версии изменялись ключи и поведение при обработке. "
+            + "При более ранних версиях возможна как частичная, так и полная неработоспособность программы.",
+            "Ffmpeg is required for processing and transcoding. "
+            + "It is desirable to use the included because the keys and the processing behavior differs from version to version. "
+            + "The program may do not work with earlier versions of ffmpeg."),
             text("Страница загрузки:", "Download page:"),
             text("Детальная информация по установке, настройкам и работе содержится в файле <b>MDDVRExtract.ru.pdf</b>. Также освещён процесс извлечения данных с HDD регистратора.",
             "Detailed information on installing, configuring and workflow is explained in the file <b>MDDVRExtract.en.pdf</b>. The data extraction from HDD recorder is also clarified."),
@@ -514,5 +516,3 @@ public class I18n {
         };
     }
 }
-
-
