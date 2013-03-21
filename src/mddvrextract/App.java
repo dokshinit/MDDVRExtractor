@@ -42,7 +42,7 @@ public class App {
     /**
      * Для отладки, если true - подробный лог.
      */
-    public static boolean isDebug = true;
+    public static boolean isDebug = false;
     /**
      * Флаг запуска под Linux.
      */
@@ -116,7 +116,7 @@ public class App {
          * @return XFS.
          * @throws FileNotFoundException Файл устройства не найден.
          * @throws IOException Ошибка ввода-вывода.
-         * @throws xfsengine.XFS.XFSException Ошибка структуры XFS.
+         * @throws XFSException Ошибка структуры XFS.
          */
         public static XFS openXFS() throws FileNotFoundException, IOException, XFSException {
             if (xfs != null) {

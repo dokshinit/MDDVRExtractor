@@ -9,17 +9,35 @@ import java.text.NumberFormat;
 
 /**
  * Расширенный функционал для операций с числами.
- * 
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class NumberTools {
 
-    static public NumberFormat format0 = new DecimalFormat("#,##0");
-    static public NumberFormat format1 = new DecimalFormat("#,##0.0");
-    static public NumberFormat format2 = new DecimalFormat("#,##0.00");
-    static public NumberFormat format3 = new DecimalFormat("#,##0.000");
+    /**
+     * Предопределенный формат для вывода с точностью 0 знаков после запятой.
+     */
+    public static NumberFormat format0 = new DecimalFormat("#,##0");
+    /**
+     * Предопределенный формат для вывода с точностью 1 знак после запятой.
+     */
+    public static NumberFormat format1 = new DecimalFormat("#,##0.0");
+    /**
+     * Предопределенный формат для вывода с точностью 2 знака после запятой.
+     */
+    public static NumberFormat format2 = new DecimalFormat("#,##0.00");
+    /**
+     * Предопределенный формат для вывода с точностью 3 знака после запятой.
+     */
+    public static NumberFormat format3 = new DecimalFormat("#,##0.000");
 
-    static public NumberFormat getFormat(int digits) {
+    /**
+     * Возвращает форматер для заданного кол-ва знаков после зяпятой.
+     *
+     * @param digits Кол-во знаков после запятой (0-3).
+     * @return Форматер.
+     */
+    public static NumberFormat getFormat(int digits) {
         switch (digits) {
             case 0:
                 return format0;
@@ -33,7 +51,16 @@ public class NumberTools {
         return format0;
     }
 
-    static public String integerToFormatString(Integer value, NumberFormat f,
+    /**
+     * Преобразует целое число в строку с форматированием.
+     *
+     * @param value Число.
+     * @param f Форматер для преобразования в строку.
+     * @param sNull Строка выводимая при пустом значении.
+     * @param sZero Строка выводимая при нулевом значении.
+     * @return Форматированная строка.
+     */
+    public static String integerToFormatString(Integer value, NumberFormat f,
             String sNull, String sZero) {
         if (value == null) {
             return sNull;
@@ -44,7 +71,16 @@ public class NumberTools {
         return f.format(value);
     }
 
-    static public String doubleToFormatString(Double value, NumberFormat f,
+    /**
+     * Преобразует число с плавающей точкой в строку с форматированием.
+     *
+     * @param value Число с плавающей точкой.
+     * @param f Форматер для преобразования в строку.
+     * @param sNull Строка выводимая при пустом значении.
+     * @param sZero Строка выводимая при нулевом значении.
+     * @return Форматированная строка.
+     */
+    public static String doubleToFormatString(Double value, NumberFormat f,
             String sNull, String sZero) {
         if (value == null) {
             return sNull;
@@ -54,5 +90,4 @@ public class NumberTools {
         }
         return f.format(value);
     }
-
 }

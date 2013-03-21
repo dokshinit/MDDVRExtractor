@@ -317,16 +317,6 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         });
     }
 
-    public void setProgressText2(final String text) {
-        EventQueue.invokeLater(new Runnable() {
-
-            @Override
-            public void run() {
-                progressBar.setString(text);
-            }
-        });
-    }
-    
     /**
      * Инициализация и запуск нового прогресса.
      *

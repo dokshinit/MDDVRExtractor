@@ -6,8 +6,10 @@ package mddvrextract;
 
 import java.awt.Dimension;
 import java.nio.ByteBuffer;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import mddvrextract.util.DateTools;
 
 /**
  * Работа с кадрами источника.
@@ -69,10 +71,19 @@ public class Frame {
      */
     public FileType type;
     /**
-     * TODO: Trial remove.
+     * TODO: Trial injection (not used?).
      */
     public byte tm;
 
+    /**
+     * Минимально возможная дата кадра (для проверки кадра).
+     */
+    private static Date dtMin = DateTools.get(2000, 1, 1);
+    /**
+     * Максимально возможная дата кадра (для проверки кадра).
+     */
+    private static Date dtMax = DateTools.get(2020, 1, 1);
+    
     /**
      * Конструктор.
      *
@@ -225,12 +236,21 @@ public class Frame {
                 return 100;
         }
 
-        int b1 = bb.get(offset + nameofs);
-        int b2 = bb.get(offset + nameofs + 1);
-        int b3 = bb.get(offset + nameofs + 2);
-        if (b1 != 'C' || b2 != 'A' || b3 != 'M') {
-            return 1;
+        // Информации о камере может и не быть, закомментировал!
+        //int b1 = bb.get(offset + nameofs);
+        //int b2 = bb.get(offset + nameofs + 1);
+        //int b3 = bb.get(offset + nameofs + 2);
+        //if (b1 != 'C' || b2 != 'A' || b3 != 'M') {
+        //    return 1;
+        //}
+        for (int i = 0; i < 8; i++) {
+            int b1 = bb.get(offset + nameofs + i);
+            if (b1 == 0) { // Конец имени камеры (дальше может быть мусор).
+                break;
+            }
+            if (b1 < 0x20 || b1 > 0x7E ) return 1; // Если не разрешённый символ.
         }
+
         // Номер камеры (+допинфа в старшем байте? игнорируем).
         camNumber = (bb.getInt(offset + 0x8) & 0xFF) + 1;
         if (camNumber < 1 || camNumber > App.MAXCAMS) {
@@ -243,12 +263,12 @@ public class Frame {
         }
         // Количество кадров в секунду.
         fps = bb.get(offset + 0x12);
-        if (fps < 0 || fps > 60) {
+        if (fps <= 0 || fps > 60) {
             return 4;
         }
         // Флаг ключевого (базового) кадра.
         int mf = bb.get(offset + 0x13);
-        if (mf > 1) { // MainFrame
+        if (mf < 0 || mf > 1) { // MainFrame
             return 5;
         }
         // Размер кадра видеоданных.
@@ -266,9 +286,13 @@ public class Frame {
         if (time == null) {// || (time.getTime() < 1104541200000L)) { // 
             return 8;
         }
+        if (time.before(dtMin) || time.after(dtMax)) {
+            return 8;
+        }
+        
         // Номер кадра.
         number = bb.getInt(offset + 0x2D);
-        // TODO: Trial remove.
+        // TODO: Trial injection (not used).
         tm = bb.get(offset + 7);
         // Базовый кадр.
         isMain = (mf == 0) ? true : false;

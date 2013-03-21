@@ -131,7 +131,7 @@ public final class GUIFilesPanel extends JPanel {
      * @param info Инфо о файле (при потере выбора = null).
      */
     public void fireSelect(int row, FileInfo info) {
-        infoPanel.displayInfo(info);
+        infoPanel.displayInfo(info, true);
     }
 
     /**

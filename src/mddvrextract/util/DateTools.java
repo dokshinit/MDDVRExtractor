@@ -10,15 +10,28 @@ import java.util.Date;
 
 /**
  * Расширение функционала операций с датами.
- * 
+ *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
 public class DateTools {
 
-    static public SimpleDateFormat formatShort = new SimpleDateFormat("dd.MM.yy");
-    static public SimpleDateFormat formatFull = new SimpleDateFormat("dd.MM.yyyy");
+    /**
+     * Предопределенный формат для вывода даты с номером года 2 знака.
+     */
+    public static SimpleDateFormat formatShort = new SimpleDateFormat("dd.MM.yy");
+    /**
+     * Предопределенный формат для вывода даты с номером года 4 знака.
+     */
+    public static SimpleDateFormat formatFull = new SimpleDateFormat("dd.MM.yyyy");
 
-    static public SimpleDateFormat getFormat(boolean isShort) {
+    /**
+     * Возвращает формат для преобразования даты в строку в соответствии с
+     * флагом.
+     *
+     * @param isShort Флаг - короткий формат (true) или длинный (false).
+     * @return Форматер.
+     */
+    public static SimpleDateFormat getFormat(boolean isShort) {
         if (isShort) {
             return formatShort;
         } else {
@@ -27,13 +40,14 @@ public class DateTools {
     }
 
     /**
-     * Комбинирует дату из двух дат. Из первого параметра берёт дату, из
-     * второго - время.
+     * Комбинирует дату из двух дат. Из первого параметра берёт дату, из второго
+     * - время.
+     *
      * @param date Дата.
      * @param time Время.
      * @return Комбинированная дата.
      */
-    static public Date getDT(Date date, Date time) {
+    public static Date getDT(Date date, Date time) {
         // ВНИМАНИЕ!!!
         // Переносим именно поля даты из первого аргумента во второй!
         // Т.к. при операциях с полями времени заморочки с UTS и поясами,
@@ -50,11 +64,12 @@ public class DateTools {
 
     /**
      * Добавляет к дате заданное количество дней.
+     *
      * @param date Дата.
      * @param count Количество дней. Может быть отрицательным для уменьшения.
      * @return Инкрементированная дата.
      */
-    static public Date addDay(Date date, int count) {
+    public static Date addDay(Date date, int count) {
         Calendar c = Calendar.getInstance();
         c.setTime(date);
         c.add(Calendar.DAY_OF_MONTH, count);
@@ -63,12 +78,13 @@ public class DateTools {
 
     /**
      * Создает дату по указанным дню, месяцу и году.
+     *
      * @param day День.
      * @param month Месяц.
      * @param year Год.
      * @return Дата.
      */
-    static public Date getDate(int day, int month, int year) {
+    public static Date getDate(int day, int month, int year) {
         //TimeZone curZone = TimeZone.getDefault();
         Calendar d = Calendar.getInstance();
         d.clear();
@@ -78,10 +94,11 @@ public class DateTools {
 
     /**
      * Возвращает дату, переданную в значении.
+     *
      * @param value Значение.
      * @return Если значение - дата, то возвращается дата, если нет - null.
      */
-    static public Date getDateFromValue(Object value) {
+    public static Date getDateFromValue(Object value) {
         if ((value != null) && (value instanceof Date)) {
             return (Date) value;
         } else {
@@ -91,10 +108,11 @@ public class DateTools {
 
     /**
      * Возвращает значение из переданной даты.
+     *
      * @param date Дата.
      * @return Если дата не null, то возвращается дата, если нет - целое = 0.
      */
-    static public Object getValueFromDate(Date date) {
+    public static Object getValueFromDate(Date date) {
         if (date != null) {
             return date;
         } else {
@@ -102,18 +120,43 @@ public class DateTools {
         }
     }
 
-    static public Date getStartMonth(Date date) {
+    /**
+     * Возвращает дату начала месяца.
+     *
+     * @param date Исходная дата.
+     * @return Дата начала месяца.
+     */
+    public static Date getStartMonth(Date date) {
         Calendar c = Calendar.getInstance();
         c.setTime(date);
         c.set(Calendar.DAY_OF_MONTH, 1);
         return c.getTime();
     }
 
-    static public Date getEndMonth(Date date) {
+    /**
+     * Возвращает дату конца месяца.
+     *
+     * @param date Исходная дата.
+     * @return Дата конца месяца.
+     */
+    public static Date getEndMonth(Date date) {
         Calendar c = Calendar.getInstance();
         c.setTime(date);
         c.set(Calendar.DAY_OF_MONTH, 1);
         c.roll(Calendar.DAY_OF_MONTH, -1);
+        return c.getTime();
+    }
+
+    /**
+     * Возвращает дату по указанным числовым данным.
+     * @param year Год.
+     * @param month Месяц (1..12)!
+     * @param day День.
+     * @return Дата.
+     */
+    public static Date get(int year, int month, int day) {
+        Calendar c = Calendar.getInstance();
+        c.set(year, month + 1, day);
         return c.getTime();
     }
 }

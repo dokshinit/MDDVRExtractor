@@ -46,7 +46,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
      */
     private JButton buttonEstimate;
     /**
-     * TODO: Trial remove.
+     * TODO: Trial remove (info label).
      */
     private JLabel labelRest;
     ////////////////////////////////////////////////////////////////////////////
@@ -172,7 +172,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         labelVideoCustom = GUI.createLabel(x_CustomOption);
         labelAudioMode = GUI.createLabel(x_Mode);
         labelAudioCodec = GUI.createLabel(x_Codec);
-        labelNote = GUI.createNoteLabel(x_NotePreDecoding + " 'Signed PCM 16bit LowEndian'");
+        labelNote = GUI.createNoteLabel(x_NotePreDecoding + " 'Signed PCM 16bit Little-Endian'");
         labelAudioCustom = GUI.createLabel(x_CustomOption);
         labelSubMode = GUI.createLabel(x_Mode);
         labelSubFormat = GUI.createLabel(x_Format);
@@ -192,12 +192,18 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         comboVideoSize = createCombo();
         comboVideoFPS = createCombo();
         textVideoCustom = createText(300);
+        // TODO: Trial remove (info text).
+        textVideoCustom.setText(x_Rest);
+        textVideoCustom.setForeground(Color.red);
 
         comboAudioMode = createCombo();
         textDestAudio = createText(300);
         buttonSelectAudio = createButton(x_Select);
         comboAudioFormat = createCombo();
         textAudioCustom = createText(300);
+        // TODO: Trial remove (info text).
+        textAudioCustom.setText(x_Rest);
+        textAudioCustom.setForeground(Color.red);
 
         comboSubMode = createCombo();
         textDestSub = createText(300);
@@ -264,7 +270,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         comboSubMode.setSelectedId(FFMpeg.isSub_srt ? 1 : 0);
         comboSubFormat.setSelectedId(0);
 
-        // TODO: Trial remove.
+        // TODO: Trial injection (commented).
 //        Calendar c = Calendar.getInstance();
 //        c.set(2011, 7, 01, 0, 0, 0);
 //        c.set(Calendar.MILLISECOND, 0);
@@ -479,6 +485,10 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         //dateEnd = ;
         buttonEstimate.setText(x_Evaluate);
 
+        // TODO: Trial remove (info text).
+        textVideoCustom.setText(x_Rest);
+        textAudioCustom.setText(x_Rest);
+        
         buttonSelectVideo.setText(x_Select);
         buttonSelectAudio.setText(x_Select);
         buttonSelectSub.setText(x_Select);
@@ -578,9 +588,10 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             } else {
                 s.add("-s", ((Item) i.object).name);
             }
-            if (isCustom) {
-                s.add(textVideoCustom.getText().trim());
-            }
+            // TODO: Trial remove (выключение влияния ручных настроек)
+            //if (isCustom) {
+            //    s.add(textVideoCustom.getText().trim());
+            //}
         } else {  // Режим упрощенных настроек (без потери качества).
             // ВНИМАНИЕ! "-sameq" - не поддерживается, заменил на "-qscale 0"
             s.add("-vcodec", "mpeg4", "-qscale", "0", "-r", "{origfps}", "-s", "{origsize}");
@@ -600,7 +611,8 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             if (i.id >= 0) {
                 i = comboAudioFormat.getSelectedItem();
                 if (i.id == 1000) {
-                    s.add(textAudioCustom.getText().trim());
+                    // TODO: Trial remove (выключение влияния ручных настроек)
+                    //s.add(textAudioCustom.getText().trim());
                 } else {
                     s.add("-acodec", ((Item) i.object).name);
                 }

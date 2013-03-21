@@ -54,6 +54,7 @@ public class Device {
      *
      * @param name Имя файла устройства. См. в описании класса.
      * @throws FileNotFoundException Если файл не найден.
+     * @throws IOException Ошибка ввода-вывода.
      */
     public Device(String name) throws FileNotFoundException, IOException {
         isOpen = false;

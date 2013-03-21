@@ -636,7 +636,7 @@ public class DataProcessor {
                 in.read(baFrame, frameSize);
                 if (f.parseHeader(bbF, 0) == 0) {
                     // Берем только фреймы выбранной камеры (актуально для EXE файла).
-                    if (f.camNumber == cam) { // && f.tm == 0x4E) { // TODO: Trial remove.
+                    if (f.camNumber == cam) { // && f.tm == 0x4E) { // TODO: Trial injection (commented).
                         // Если это не ключевой кадр и в выводе пусто - пропускаем.
                         // TODO: Возможно будет нужно доработать логику! 
                         // Т.к. может случится так, что первый кадр файла не ключевой,
@@ -649,7 +649,7 @@ public class DataProcessor {
                         if ((timeMax == -1 || time >= timeMax)
                                 // Ограничение по времени.
                                 && (time >= timeStart && time <= timeEnd)) {
-                            //&& ((time >> 32) - 0x133 < 2)) { // TODO: Trial remove.
+                            //&& ((time >> 32) - 0x133 < 2)) { // TODO: Trial injection (commented).
 
                             // Если не было обработанных кадров - начинаем только с ключевого,
                             // если были - включаем любые.

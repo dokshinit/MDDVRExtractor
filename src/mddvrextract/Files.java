@@ -10,6 +10,8 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
+import mddvrextract.util.DateTools;
 import mddvrextract.xfsengine.XFS.DirEntry;
 import mddvrextract.xfsengine.XFS.Node;
 
@@ -18,7 +20,7 @@ import mddvrextract.xfsengine.XFS.Node;
  * <pre>
  * -----------------------------------------------------------------------------
  * ФОРМАТ ОПИСАТЕЛЯ ДАННЫХ EXE ФАЙЛА:
- * <конец данных>
+ * [конец данных]
  * int ?; =2
  * int ?; =1
  * int[16] ?;            // (=0 - если камера есть, =-1 - если нет)
@@ -34,7 +36,7 @@ import mddvrextract.xfsengine.XFS.Node;
  * long endDataPos;      // Конец данных в файле (начало данного блока инфы)
  * long[15] ?;           // Нули.
  * long[16] frameCount;  // Общее кол-во кадров по камерам.
- * <конец файла>
+ * [конец файла]
  * -----------------------------------------------------------------------------
  * </pre>
  *
@@ -57,7 +59,6 @@ public class Files {
      */
     public static String x_BuildFileList, x_FileScaning, x_ScanFinish,
             x_ScanFinishBreak, x_SourceScaning, x_ScanError;
-
     /**
      * Сканирование источника (с рекурсивным обходом подкаталогов).
      *
@@ -96,7 +97,7 @@ public class Files {
                     scanXFSDir(f, "/", cam);
                     break;
             }
-            
+
             msg = x_SourceScaning;
             App.log(msg);
             App.gui.setProgressInfo(msg);
@@ -229,10 +230,8 @@ public class Files {
         } catch (Exception ex) {
             Err.log("File path = " + path);
             Err.log(ex);
-        } 
+        }
     }
-    
- 
 
     /**
      * Сканирование файла-источника.
@@ -366,7 +365,12 @@ public class Files {
                 in.seek(pos);
                 in.read(baFrame, frameSize);
                 if (f.parseHeader(bbF, 0) == 0) {
-                    break;
+                    // Дополнительная проверка на корректность найденной позиции
+                    // (т.к. убрана проверка по маске имени камеры).
+                    if (f.time.after(info.frameFirst.time)
+                            && (pos + frameSize + f.videoSize + f.audioSize) != endpos) {
+                        break;
+                    }
                 }
             }
             if (!f.isParsed) { // Разбор не получился.

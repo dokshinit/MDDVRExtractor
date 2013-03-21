@@ -184,14 +184,17 @@ public final class GUIFileInfoPanel extends JPanel {
         infoLastTime.label.setText(x_End);
         infoAmountTime.label.setText(x_Duration);
         labelNote.setText(GUI.buildNoteLabelText(x_HintChangeZoom));
+        
+        displayInfo(curInfo, true);
     }
 
     /**
      * Отображение инфы заданного файла.
      *
      * @param info Инфа о файле.
+     * @param isForce Флаг принудительного отображения.
      */
-    public void displayInfo(FileInfo info) {
+    public void displayInfo(FileInfo info, boolean isForce) {
         if (info == null) {
             infoName.text.setText("");
             infoSize.text.setText("");
@@ -204,7 +207,7 @@ public final class GUIFileInfoPanel extends JPanel {
             infoAmountTime.text.setText("");
             panelImage.setImage(null);
         } else {
-            if (curInfo != info) {
+            if (isForce || (curInfo != info)) {
                 infoName.text.setText(info.fileName.toString());
                 infoSize.text.setText(NumberTools.doubleToFormatString(
                         (double) info.fileSize, NumberTools.format0, "", "") + " " + x_Bytes);
