@@ -59,6 +59,7 @@ public class Files {
      */
     public static String x_BuildFileList, x_FileScaning, x_ScanFinish,
             x_ScanFinishBreak, x_SourceScaning, x_ScanError;
+
     /**
      * Сканирование источника (с рекурсивным обходом подкаталогов).
      *
@@ -298,37 +299,52 @@ public class Files {
 
             // Если это EXE - делаем разбор инфы в конце файла.
             if (type == FileType.EXE) {
-                long exepos = in.getSize() - exeInfoSize;
-                if (exepos < exeplayersize) {
-                    return null;
-                }
-                in.seek(exepos);
-                // Инфа по камерам.
-                for (int n = 0; n < App.MAXCAMS; n++) {
-                    // Наличие данных камер.
-                    int isExist = in.readInt(exepos + 8 + (4 * n));
-                    if (isExist == -1) {
-                        continue; // Камеры нет.
-                    }
-                    // Если есть такая камера (по которой ограничение), то сбрасываем ограничение
-                    // чтобы не отфильтровывало при парсинге файла.
-                    if (cam > 0 && cam == n + 1) {
-                        cam = 0;
-                    }
-                    // Смещение первого фрейма.
-                    long frameOffs = in.readLong(exepos + 72 + (808 * n));
-                    info.addCamData(n + 1, frameOffs, null);
-                    if (App.isDebug) {
-                        App.log(Type.INFO, "CAM" + (n + 1) + " data exist!");
+                // Пробегаем по секциям и находим смещение после самой последней в файле.
+                // Т.е. начало неиспользуемого пространства.
+                int pepos = in.readInt(0x3C);
+                int seccount = in.readShort(pepos + 6);
+                int secpos = pepos + 0xF8;
+                for (int i = 0; i < seccount; i++, secpos += 0x28) {
+                    int posafter = in.readInt(secpos + 0x10) + in.readInt(secpos + 0x14);
+                    if (posafter > pos) {
+                        pos = posafter;
                     }
                 }
+
+                // Страый вариант разбора - привязан к формату информационного блока в конце файла.
+                // Как оказалось - он зависит от версии проигрывателя. Поэтому решил отказаться
+                // от его использования (его использование ускоряет поиск первого кадра).
+//                long exepos = in.getSize() - exeInfoSize;
+//                if (exepos < exeplayersize) {
+//                    return null;
+//                }
+//                in.seek(exepos);
+//                // Инфа по камерам.
+//                for (int n = 0; n < App.MAXCAMS; n++) {
+//                    // Наличие данных камер.
+//                    int isExist = in.readInt(exepos + 8 + (4 * n));
+//                    if (isExist == -1) {
+//                        continue; // Камеры нет.
+//                    }
+//                    // Если есть такая камера (по которой ограничение), то сбрасываем ограничение
+//                    // чтобы не отфильтровывало при парсинге файла.
+//                    if (cam > 0 && cam == n + 1) {
+//                        cam = 0;
+//                    }
+//                    // Смещение первого фрейма.
+//                    long frameOffs = in.readLong(exepos + 72 + (808 * n));
+//                    info.addCamData(n + 1, frameOffs, null);
+//                    if (App.isDebug) {
+//                        App.log(Type.INFO, "CAM" + (n + 1) + " data exist!");
+//                    }
+//                }
                 // Позиции начала и конца данных в файле.
-                info.startDataPos = in.readLong(exepos + 19532);
-                if (info.startDataPos < exeplayersize || info.startDataPos > in.getSize() - exeInfoSize) {
+                info.startDataPos = pos; //in.readLong(exepos + 19532);
+                if (info.startDataPos < exeplayersize || info.startDataPos > endpos - exeInfoSize) {
                     return null;
                 }
-                info.endDataPos = in.readLong(exepos + 19660);
-                if (info.endDataPos < exeplayersize || info.endDataPos > in.getSize() - exeInfoSize) {
+                info.endDataPos = endpos - exeInfoSize; //in.readLong(exepos + 19660);
+                if (info.endDataPos < exeplayersize || info.endDataPos > endpos - exeInfoSize) {
                     return null;
                 }
                 pos = info.startDataPos; // Начало.
