@@ -87,6 +87,51 @@ public class I18n {
                 "Некорректная работа FFMPEG", "FFMPEG works wrong"); // "FFMPEG is not working correctly"
         App.x_CodecsWrong = text(
                 "Ошибка запроса кодеков FFMPEG", "Error of FFMPEG codecs request");
+        App.x_InitEnvironmentError = text(
+                "Ошибка инициализации переменных окружения!", "Environment initialization error!");
+        App.x_CriticalError = text(
+                "Критическая ошибка!", "Critical error!");
+        App.x_Close = text(
+                "Закрыть", "Close");
+        App.x_Error = text(
+                "Ошибка", "Error");
+        App.x_Warning = text(
+                "Предупреждение", "Warning");
+        App.x_Info = text(
+                "Информация", "Information");
+        App.x_Confirmation = text(
+                "Подтверждение", "Confirmation");
+        App.x_Yes = text(
+                "Да", "Yes");
+        App.x_No = text(
+                "Нет", "No");
+        App.x_Bytes = text(
+                "байт", "bytes");
+        App.x_DurationFormat = text(
+                "%d час. %d мин. %d сек. %d мсек.", "%d h. %d m. %d s. %d ms.");
+
+        Resources.x_AccessError = text(
+                "Ошибка доступа к ресурсу!", "Resource access error!");
+        Resources.x_EnvironmentNotInit = text(
+                "Не инициализировано окружение!", "Environment is not initialized!");
+        Resources.x_AccessToEmbeddedError = text(
+                "Ошибка доступа к встроенному ресурсу!", "Embedded resouce access error!");
+
+        // DataCalculator
+        DataCalculator.x_CalcEnd = text(
+                "Оценка данных для обработки завершён.", "Evaluation is completed.");
+        DataCalculator.x_CalcStart = text(
+                "Оценка данных для обработки...", "Evaluation is running...");
+        DataCalculator.x_Results = text(
+                "Результаты оценки", "Evaluation results");
+        DataCalculator.x_Cam = text(
+                "Камера", "Cam");
+        DataCalculator.x_Duration = text(
+                "Длительность", "Duration");
+        DataCalculator.x_VideoSize = text(
+                "Размер видеоданных", "Video size");
+        DataCalculator.x_AudioSize = text(
+                "Размер аудиоданных", "Audio size");
 
         // DataProcessor
         DataProcessor.x_ProcessSource = text(
@@ -171,13 +216,32 @@ public class I18n {
         Files.x_ScanError = text(
                 "Прерывание по критической ошибке", "Critial error occurred"); // "Building a list of source files..."
 
+        // GUIEstimateInfoDialog
+        GUIEvaluationInfoDialog.x_Title = text(
+                "Результаты оценки", "Evaluation results");
+        GUIEvaluationInfoDialog.x_Period1 = text(
+                "Период c", "Period from");
+        GUIEvaluationInfoDialog.x_Period2 = text(
+                "по", "to");
+        GUIEvaluationInfoDialog.x_Note = text(
+                "Следует помнить, что расчитан размер <b>исходных</b> данных!<br>"
+                + "Объём сохранённых данных будет приблизительно соответствовать<br>"
+                + "расчётным только в режиме \"без преобразования\"!<br>"
+                + "В противном случае размер будет зависеть от выбранных параметров<br>"
+                + "конвертирования.",
+                "Remember, what volumes calculated for <b>source</b> data!<br>"
+                + "The stored data volume will be approximately match only<br>"
+                + "in the mode \"without transcode\"!"
+                + "Otherwise, the data volume will depend on the selected<br>"
+                + "transcode parameters.");
+        GUIEvaluationInfoDialog.x_Close = text(
+                "Закрыть", "Close");
+
         // GUIFileInfoPanel
         GUIFileInfoPanel.x_Cams = text(
                 "Камеры", "Cameras");
         GUIFileInfoPanel.x_Duration = text(
                 "Длительность", "Duration");
-        GUIFileInfoPanel.x_DurationFormat = text(
-                "%d час. %d мин. %d сек. %d мсек.", "%d h. %d m. %d s. %d ms.");
         GUIFileInfoPanel.x_End = text(
                 "Конец", "End");
         GUIFileInfoPanel.x_FirstKeyFrame = text(
@@ -199,8 +263,6 @@ public class I18n {
                 "%d x %d", "%d x %d");
         GUIFileInfoPanel.x_Size = text(
                 "Размер", "Size");
-        GUIFileInfoPanel.x_Bytes = text(
-                "байт", "bytes");
         GUIFileInfoPanel.x_Start = text(
                 "Начало", "Start");
         GUIFileInfoPanel.x_Type = text(
@@ -286,7 +348,7 @@ public class I18n {
 
         // GUI_Main
         GUI_Main.x_TitleSuffix = text(
-                "(ознакомительная версия)", "(trial version)");
+                "(только для тестирования)", "(for testing only)");
         GUI_Main.x_LabelInfo = text(
                 "Инфо:", "Info:");
         GUI_Main.x_TabSource = text(
@@ -299,14 +361,8 @@ public class I18n {
                 "Лог", "Log");
         GUI_Main.x_TabHelp = text(
                 "Справка", "Help");
-        GUI_Main.x_Confirmation = text(
-                "Подтверждение", "Confirmation");
         GUI_Main.x_ExitQuest = text(
                 "Выйти из программы?", "Exit the program?");
-        GUI_Main.x_Yes = text(
-                "Да", "Yes");
-        GUI_Main.x_No = text(
-                "Нет", "No");
         GUI_Main.x_ButtonProcess = text(
                 "Обработка", "Process");
         GUI_Main.x_ButtonInterrupt = text(
@@ -350,8 +406,6 @@ public class I18n {
                 "Ручные настройки", "Manual settings");
         GUI_TabProcess.x_Evaluate = text(
                 "Оценка", "Evaluation");
-        GUI_TabProcess.x_Rest = text(
-                "Ограничения триальной версии", "Trial version limitations");
         GUI_TabProcess.x_File = text(
                 "Файл", "File");
         GUI_TabProcess.x_Format = text(
@@ -382,10 +436,6 @@ public class I18n {
                 "Видео", "Video");
         GUI_TabProcess.x_WOConvert = text(
                 "Без преобразования", "Without transcoding");
-        GUI_TabProcess.x_CalcEnd = text(
-                "Подсчёт данных для обработки завершён.", "Calculation of process is completed."); // "Calculation of data to process is completed."
-        GUI_TabProcess.x_CalcStart = text(
-                "Подсчёт данных для обработки...", "Calculation of process is running..."); // "Calculation of data to process..."
         GUI_TabProcess.x_SelectDestFile = text(
                 "Выбор файла приёмника", "Select destination file");
         GUI_TabProcess.x_NotePreDecoding = text(
@@ -437,9 +487,9 @@ public class I18n {
             text("<b>Версия</b>", "<b>Version</b>"),
             text(App.version + " от " + App.versionDate, App.version + " of " + App.versionDate),
             text("<b>Автор</b>", "<b>Author</b>"),
-            text("Алексей Докшин (все права принадлежат автору)",
-            "Aleksey Dokshin (all rihgts reserved)"),
-            text("<b>Контакты</b>", "<b>Contacts</b>"),
+            text("Алексей Докшин", "Aleksey Dokshin"),
+            text("<b>Заказчик</b>", "<b>Customer</b>"),
+            text("ООО \"ЭМ ДИ РУС\" (все права принадлежат заказчику)", "ООО \"ЭМ ДИ РУС\" (all rights reserved)"),
             //text("dant.it@gmail.com", "dant.it@gmail.com"),
             text("<b>Лицензия</b>", "<b>License</b>"),
             text("Ограниченная ознакомительная версия только для некоммерческого персонального использования",

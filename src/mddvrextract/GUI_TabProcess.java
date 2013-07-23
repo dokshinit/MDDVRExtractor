@@ -13,7 +13,6 @@ import mddvrextract.gui.RoundPanel;
 import mddvrextract.FFMpeg.Cmd;
 import mddvrextract.FFMpeg.FFCodec;
 import mddvrextract.gui.JExtComboBox.ExtItem;
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -44,11 +43,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     /**
      * Кнопка оценки объёмов.
      */
-    private JButton buttonEstimate;
-    /**
-     * TODO: Trial remove (info label).
-     */
-    private JLabel labelRest;
+    private JButton buttonEvaluate;
     ////////////////////////////////////////////////////////////////////////////
     /**
      * Путь к файлу-приёмнику.
@@ -127,9 +122,8 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     public static String x_Audio, x_Cam, x_Codec, x_CustomOption, x_Evaluate,
             x_File, x_Format, x_FramePerSec, x_Mode, x_NotSave,
             x_Period1, x_Period2, x_Select, x_Resolution, x_Source, x_Sub, x_ToFile,
-            x_ToVideo, x_Video, x_WOConvert, x_CalcEnd, x_CalcStart,
-            x_SelectDestFile, x_NotePreDecoding, x_NoteSimple,
-            x_CheckExpert, x_Rest;
+            x_ToVideo, x_Video, x_WOConvert, x_SelectDestFile, x_NotePreDecoding,
+            x_NoteSimple, x_CheckExpert;
     /**
      * Текстовые надписи (хранение для интернационализации).
      */
@@ -164,7 +158,6 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         labelCam = GUI.createLabel(x_Cam);
         labelPeriod1 = GUI.createLabel(x_Period1);
         labelPeriod2 = GUI.createLabel(x_Period2);
-        labelRest = GUI.createLabel(x_Rest, Color.RED);
         labelVideoFile = GUI.createLabel(x_File);
         labelVideoCodec = GUI.createLabel(x_Codec);
         labelVideoResolution = GUI.createLabel(x_Resolution);
@@ -184,7 +177,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         dateStart.addActionListener(GUI_TabProcess.this);
         dateEnd = GUI.createDTText();
         dateEnd.addActionListener(GUI_TabProcess.this);
-        buttonEstimate = createButton(x_Evaluate);
+        buttonEvaluate = createButton(x_Evaluate);
 
         textDestVideo = createText(300);
         buttonSelectVideo = createButton(x_Select);
@@ -192,18 +185,14 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         comboVideoSize = createCombo();
         comboVideoFPS = createCombo();
         textVideoCustom = createText(300);
-        // TODO: Trial remove (info text).
-        textVideoCustom.setText(x_Rest);
-        textVideoCustom.setForeground(Color.red);
+        textVideoCustom.setEditable(true);
 
         comboAudioMode = createCombo();
         textDestAudio = createText(300);
         buttonSelectAudio = createButton(x_Select);
         comboAudioFormat = createCombo();
         textAudioCustom = createText(300);
-        // TODO: Trial remove (info text).
-        textAudioCustom.setText(x_Rest);
-        textAudioCustom.setForeground(Color.red);
+        textAudioCustom.setEditable(true);
 
         comboSubMode = createCombo();
         textDestSub = createText(300);
@@ -269,19 +258,6 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         comboAudioFormat.setSelectedId(0);
         comboSubMode.setSelectedId(FFMpeg.isSub_srt ? 1 : 0);
         comboSubFormat.setSelectedId(0);
-
-        // TODO: Trial injection (commented).
-//        Calendar c = Calendar.getInstance();
-//        c.set(2011, 7, 01, 0, 0, 0);
-//        c.set(Calendar.MILLISECOND, 0);
-//        dateStart.setMinTime(c.getTime());
-//        dateEnd.setMinTime(c.getTime());
-//        dateStart.setTime(c.getTime());
-//        c.set(2011, 11, 31, 23, 59, 59);
-//        c.set(Calendar.MILLISECOND, 999);
-//        dateStart.setMaxTime(c.getTime());
-//        dateEnd.setMaxTime(c.getTime());
-//        dateEnd.setTime(c.getTime());
     }
 
     /**
@@ -393,8 +369,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         p1.add(dateStart, "w 150, spanx, split 5");
         p1.add(labelPeriod2);
         p1.add(dateEnd, "w 150");
-        p1.add(buttonEstimate);
-        p1.add(labelRest);
+        p1.add(buttonEvaluate);
 
         if (checkExpert.isSelected()) { // Режим расширенных настроек.
 
@@ -466,7 +441,6 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         labelCam.setText(x_Cam);
         labelPeriod1.setText(x_Period1);
         labelPeriod2.setText(x_Period2);
-        labelRest.setText(x_Rest);
         labelVideoFile.setText(x_File);
         labelVideoCodec.setText(x_Codec);
         labelVideoResolution.setText(x_Resolution);
@@ -481,14 +455,8 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         labelNoteSimple.setText(GUI.buildNoteLabelText(x_NoteSimple));
 
         checkExpert.setText(x_CheckExpert);
-        //dateStart = ;
-        //dateEnd = ;
-        buttonEstimate.setText(x_Evaluate);
+        buttonEvaluate.setText(x_Evaluate);
 
-        // TODO: Trial remove (info text).
-        textVideoCustom.setText(x_Rest);
-        textAudioCustom.setText(x_Rest);
-        
         buttonSelectVideo.setText(x_Select);
         buttonSelectAudio.setText(x_Select);
         buttonSelectSub.setText(x_Select);
@@ -524,8 +492,8 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             fireStartDateChange();
         } else if (e.getSource() == dateEnd) {
             fireEndDateChange();
-        } else if (e.getSource() == buttonEstimate) {
-            fireEstimate();
+        } else if (e.getSource() == buttonEvaluate) {
+            fireEvaluate();
         } else if (e.getSource() == buttonSelectVideo) {
             fireSelectVideoDestination();
         } else if (e.getSource() == comboVideoFormat
@@ -588,10 +556,9 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             } else {
                 s.add("-s", ((Item) i.object).name);
             }
-            // TODO: Trial remove (выключение влияния ручных настроек)
-            //if (isCustom) {
-            //    s.add(textVideoCustom.getText().trim());
-            //}
+            if (isCustom) {
+                s.add(textVideoCustom.getText().trim());
+            }
         } else {  // Режим упрощенных настроек (без потери качества).
             // ВНИМАНИЕ! "-sameq" - не поддерживается, заменил на "-qscale 0"
             s.add("-vcodec", "mpeg4", "-qscale", "0", "-r", "{origfps}", "-s", "{origsize}");
@@ -611,8 +578,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             if (i.id >= 0) {
                 i = comboAudioFormat.getSelectedItem();
                 if (i.id == 1000) {
-                    // TODO: Trial remove (выключение влияния ручных настроек)
-                    //s.add(textAudioCustom.getText().trim());
+                    s.add(textAudioCustom.getText().trim());
                 } else {
                     s.add("-acodec", ((Item) i.object).name);
                 }
@@ -667,7 +633,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
                     checkExpert.setEnabled(false);
                     dateStart.setEditable(false);
                     dateEnd.setEditable(false);
-                    buttonEstimate.setEnabled(false);
+                    buttonEvaluate.setEnabled(false);
                     buttonSelectVideo.setEnabled(false);
                     comboVideoFormat.setEnabled(false);
                     comboVideoSize.setEnabled(false);
@@ -685,7 +651,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
                     checkExpert.setEnabled(true);
                     dateStart.setEditable(true);
                     dateEnd.setEditable(true);
-                    buttonEstimate.setEnabled(false); //(App.Source.getSelectedCam() > 0) TODO: убрать когда реализую вычисления.
+                    buttonEvaluate.setEnabled(App.Source.getSelectedCam() > 0);
                     buttonSelectVideo.setEnabled(true);
                     comboVideoFormat.setEnabled(true);
                     ExtItem i = comboVideoFormat.getSelectedItem();
@@ -710,7 +676,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
                     i = comboAudioMode.getSelectedItem();
                     if (i != null && i.id == -1) {
                         comboAudioFormat.setEnabled(false);
-                        textAudioCustom.setEditable(false);
+                        textAudioCustom.setEnabled(false);
                     } else {
                         comboAudioFormat.setEnabled(true);
                         i = comboAudioFormat.getSelectedItem();
@@ -729,11 +695,15 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         });
     }
 
+    public String getSelectedCamText() {
+        return textCam == null ? "" : textCam.getText();
+    }
+
     /**
      * Обработка оценки данных за выбранный период (запуск диалога с инфой).
      */
-    private void fireEstimate() {
-        Task.start(new EstimateTask());
+    private void fireEvaluate() {
+        Task.start(new EvaluateTask());
     }
 
     /**
@@ -843,31 +813,20 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
     /**
      * Задача - подсчёт примерных данных за введённый период.
      */
-    private class EstimateTask extends Task.Thread {
+    private class EvaluateTask extends Task.Thread {
 
         @Override
         public void task() {
-            int cam = App.Source.getSelectedCam();
-            if (cam <= 0) {
-                return;
+            DataCalculator.process();
+            if (DataCalculator.errorMessage == null) {
+                // Окно с информацией.
+                GUIEvaluationInfoDialog dlg = new GUIEvaluationInfoDialog();
+                GUI.centerizeFrame(dlg);
+                dlg.setVisible(true);
+            } else {
+                // Сообщение об ошибке.
+                App.showErrorDialog(DataCalculator.errorMessage);
             }
-            App.gui.startProgress();
-            String msg = x_CalcStart;
-            App.gui.setProgressInfo(msg);
-            App.log(msg);
-
-            // Вычисление приблизительных результатов к обработке.
-            CamInfo ci = App.Source.getCamInfo(cam);
-            for (FileInfo info : ci.files) {
-                // TODO: Подсчёт данных для обработки.
-            }
-
-            App.gui.stopProgress();
-            msg = x_CalcEnd;
-            App.gui.setProgressInfo(msg);
-            App.log(msg);
-
-            // TODO: Вывод окна с информацией о данных для обработки.
         }
     }
 
@@ -1000,5 +959,13 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
             App.Dest.setSubName(name);
             textDestSub.setText(name);
         }
+    }
+
+    public JDateTimeField getDateStart() {
+        return dateStart;
+    }
+
+    public JDateTimeField getDateEnd() {
+        return dateEnd;
     }
 }

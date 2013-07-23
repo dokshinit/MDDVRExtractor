@@ -79,16 +79,10 @@ public final class FFMpeg {
             try {
                 String s = new File(".").getCanonicalPath() + File.separator
                         + "ffmpeg" + File.separator + execName;
-                if (App.isDebug) {
-                    System.out.println("ffmpeg check = " + s);
-                }
                 if (new File(s).exists()) {
                     execName = s;
                 }
             } finally {
-                if (App.isDebug) {
-                    System.out.println("ffmpeg exec = " + execName);
-                }
             }
 
             codecs.clear();
@@ -218,13 +212,15 @@ public final class FFMpeg {
                 Dimension d = info.frameFirst.getResolution();
                 Cmd cmd = new Cmd("-f", "h264", "-r", "1", "-i", "-", "-f", "image2",
                         "-dframes", "1", "-s", "" + d.width + "x" + d.height, "-");
-                if (App.isDebug) {
-                    App.log("ImageExtract: " + cmd.toString());
-                }
 
                 process = cmd.startProcess();
                 InputStream is = process.getInputStream();
                 OutputStream os = process.getOutputStream();
+
+                FileOutputStream ss = new FileOutputStream("1.out");
+                ss.write(ba, 0, ba.length);
+                ss.flush();
+                ss.close();
 
                 os.write(ba, 0, ba.length);
                 // Вынуждаем обработать данные (если не закрыть - во вх.потоке 

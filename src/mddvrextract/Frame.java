@@ -6,7 +6,6 @@ package mddvrextract;
 
 import java.awt.Dimension;
 import java.nio.ByteBuffer;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 import mddvrextract.util.DateTools;

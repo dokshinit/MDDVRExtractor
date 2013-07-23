@@ -64,26 +64,33 @@ public class Device {
         fio = new RandomAccessFile(name, "r");
         byte[] b = new byte[65536];
         // Проверка на произвольный доступ.
-        fio.seek(0);
         try {
+            fio.seek(0);
             fio.read(b, 0, 1);
             isOpen = true;
 
         } catch (Exception ex) {
             // Поиск размера сектора.
             for (int n = 8; n <= 16; n++) {
-                fio.seek(0);
                 try {
+                    fio.seek(0);
                     fio.read(b, 0, 1 << n);
                     // Нашли!
                     log2_bsize = n;
                     bsize = 1 << n;
                     buffer = new byte[bsize * 2];
-                    return;
+                    isOpen = true;
+                    break;
                 } catch (Exception ex2) {
                 }
             }
+        }
+        if (isOpen == false) {
             throw new IOException("Sector size not found!");
+        }
+        fio.seek(((fio.length() >> 16) << 16) - 0x10000);
+        if (fio.readUnsignedShort() == 0x4EfC && fio.readUnsignedShort() == 0xA92B) {
+            throw new IOException("RAID not supported yet!");
         }
     }
 
@@ -200,7 +207,8 @@ public class Device {
                 for (int step = 1; osize > 0 && step != 0; index += step, osize -= step, n += step) {
                     step = fio.read(buf, index, osize);
                     if (step == -1) {
-                        return n; // Прерываем чтение.
+                        break; // Больше нет данных, достигнут конец файла (устройства).
+                        //return n; // Прерываем чтение.
                     }
                 }
                 if (osize != 0) {

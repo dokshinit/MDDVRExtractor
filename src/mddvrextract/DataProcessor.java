@@ -191,10 +191,6 @@ public class DataProcessor {
         }
         vcmd.add(App.Dest.getVideoName());
 
-        if (App.isDebug) {
-            App.log("FFMpeg Make = " + vcmd.toString());
-        }
-
         String msg = x_FinalMakeStart;
         App.log(msg);
         App.gui.setProgressInfo(msg);
@@ -412,14 +408,10 @@ public class DataProcessor {
             acmd.add(App.Dest.getAudioOptions()).add(audioName);
         }
 
-        if (App.isDebug) {
-            App.log("FFMpeg Video = " + vcmd.toString());
-            App.log("FFMpeg Audio = " + acmd.toString());
-        }
-
         ////////////////////////////////////////////////////////////////////
         // Стартуем процесс обработки видео.
         try {
+            System.out.println(vcmd.toString());
             processVideo = vcmd.startProcess();
         } catch (IOException ex) {
             throw new FatalException("FFMPEG-VIDEO: " + x_ErrorFFMpegStart);
@@ -599,8 +591,6 @@ public class DataProcessor {
 
             OutputStream videoOut = processVideo.getOutputStream();
             OutputStream audioOut = isAudio ? processAudio.getOutputStream() : null;
-            OutputFile rawVOut = App.isDebug ? new OutputFile(fileInfo.fileName + ".video.raw") : null;
-            OutputFile rawAOut = (App.isDebug && isAudio) ? new OutputFile(fileInfo.fileName + ".audio.raw") : null;
 
             int cam = App.Source.getSelectedCam();
             Frame f = new Frame(fileInfo.fileType);
@@ -611,10 +601,6 @@ public class DataProcessor {
             if (fileInfo.fileType == FileType.EXE) {
                 FileInfo.CamData cd = fileInfo.getCamData(cam);
                 pos = cd.mainFrameOffset;
-            }
-            if (App.isDebug) {
-                App.log("File:" + fileInfo.fileName + " start=" + pos + " end=" + endpos + " size=" + fileInfo.fileSize);
-                
             }
             // Буфер чтения и парсинга данных.
             final byte[] baFrame = new byte[1000000];
@@ -658,14 +644,8 @@ public class DataProcessor {
                                 in.read(baFrame, f.videoSize + f.audioSize);
                                 // Пишем видео в поток.
                                 videoOut.write(baFrame, 0, f.videoSize);
-                                if (App.isDebug) {
-                                    rawVOut.write(baFrame, 0, f.videoSize);
-                                }
                                 // Пишем аудио в поток.
                                 if (isAudio) {
-                                    if (App.isDebug) {
-                                        rawAOut.write(baFrame, f.videoSize, f.audioSize);
-                                    }
                                     for (int np = 0; np < f.audioSize;) {
                                         int res = decoder.HI_VOICE_Decode(f.videoSize + np, 0);
                                         if (res == 0) {
@@ -710,15 +690,6 @@ public class DataProcessor {
                 writeSub(new Date(), true);
             }
 
-            if (App.isDebug) {
-                App.log("Frame parsed = " + frameParsedCount);
-                App.log("Frame processed = " + frameProcessCount);
-                App.log("Video size = " + videoProcessSize);
-                App.log("Audio size = " + audioProcessSize);
-                rawVOut.closeSafe();
-                if (isAudio) rawAOut.closeSafe();
-            }
-
         } catch (IOException ioe) {
             Err.log("File name = " + fileinfo.fileName);
             Err.log(ioe);
@@ -752,13 +723,13 @@ public class DataProcessor {
      * с заданным сдвигом в миллисекундах. Используется для записи в файл
      * длительности титров.
      *
-     * @param frames Номер кадра (1-первый).
+     * @param frame Номер кадра (1-первый).
      * @param shift Сдвиг в миллисекундах (может быть отрицательным).
      * @return Строка времени.
      */
-    private static String getFTime(long frames, int shift) {
+    private static String getSubFrameTimeString(long frame, int shift) {
         // Вычисляем время в файле для пред.фрейма.
-        long msec1 = (long) ((double) frames * 1000 / fps) + shift;
+        long msec1 = (long) ((double) frame * 1000 / fps) + shift;
         long h1 = msec1 / 3600 / 1000;
         msec1 -= h1 * 3600 * 1000;
         long m1 = msec1 / 60 / 1000;
@@ -785,52 +756,13 @@ public class DataProcessor {
             if ((t1 != t2 || isend) && subFrameLast < frameProcessCount) { // Отслеживаем смену секунды (как минимум).
                 subCount++;
                 processSubOut.printf("%d\n%s --> %s\n",
-                        subCount, getFTime(subFrameLast, 0), getFTime(frameProcessCount, -1));
+                        subCount, getSubFrameTimeString(subFrameLast, 0), getSubFrameTimeString(frameProcessCount, -1));
                 processSubOut.printf("%1$td.%1$tm.%1$tY %1$tH:%1$tM:%1$tS\n", subTimeLast);
                 long nn = frameProcessCount - subFrameLast;
-                if (App.isDebug) {
-                    processSubOut.printf("st=%1$tM:%1$tS %2$tM:%2$tS sf=%3$d %4$d [%5$d]\n",
-                            subTimeLast, dt, subCount, frameProcessCount, nn);
-                    if (nn != fps) {
-                        App.log(String.format("st=%1$tM:%1$tS %2$tM:%2$tS sf=%3$d %4$d [%5$d]",
-                                subTimeLast, dt, subCount, frameProcessCount, nn));
-                    }
-                }
                 processSubOut.printf("\n");
                 subTimeLast = dt;
                 subFrameLast = frameProcessCount;
             }
-        }
-    }
-
-    /**
-     * Исключение при ошибке запуска ffmpeg или при фатальных ошибках требующих
-     * остановить обработку.
-     */
-    public final static class FatalException extends Exception {
-
-        /**
-         * Конструктор.
-         *
-         * @param msg Текст сообщения об ошибке.
-         */
-        public FatalException(String msg) {
-            super(msg);
-        }
-    }
-
-    /**
-     * Исключение при ошибках источника.
-     */
-    public final static class SourceException extends Exception {
-
-        /**
-         * Конструктор.
-         *
-         * @param msg Текст сообщения об ошибке.
-         */
-        public SourceException(String msg) {
-            super(msg);
         }
     }
 }

@@ -4,14 +4,11 @@
  */
 package mddvrextract;
 
-import mddvrextract.LogTableModel.Type;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import mddvrextract.util.DateTools;
 import mddvrextract.xfsengine.XFS.DirEntry;
 import mddvrextract.xfsengine.XFS.Node;
 
@@ -250,13 +247,6 @@ public class Files {
                         App.Source.getCamInfo(n.camNumber).addFile(info);
                     }
                 }
-                if (App.isDebug) {
-                    App.log(Type.INFO,
-                            (info.frameFirst.pos > 0 ? "Pos=" + info.frameFirst.pos + " " : "")
-                            + "file=" + file.name + " cams=" + info.camInfo.size()
-                            + " [" + info.frameFirst.time.toString()
-                            + " - " + info.frameLast.time.toString() + "]");
-                }
             }
         } catch (Exception ex) {
             Err.log("File name = " + file);
@@ -311,34 +301,39 @@ public class Files {
                     }
                 }
 
-                // Страый вариант разбора - привязан к формату информационного блока в конце файла.
-                // Как оказалось - он зависит от версии проигрывателя. Поэтому решил отказаться
-                // от его использования (его использование ускоряет поиск первого кадра).
-//                long exepos = in.getSize() - exeInfoSize;
-//                if (exepos < exeplayersize) {
-//                    return null;
-//                }
-//                in.seek(exepos);
-//                // Инфа по камерам.
-//                for (int n = 0; n < App.MAXCAMS; n++) {
-//                    // Наличие данных камер.
-//                    int isExist = in.readInt(exepos + 8 + (4 * n));
-//                    if (isExist == -1) {
-//                        continue; // Камеры нет.
-//                    }
-//                    // Если есть такая камера (по которой ограничение), то сбрасываем ограничение
-//                    // чтобы не отфильтровывало при парсинге файла.
-//                    if (cam > 0 && cam == n + 1) {
-//                        cam = 0;
-//                    }
-//                    // Смещение первого фрейма.
-//                    long frameOffs = in.readLong(exepos + 72 + (808 * n));
-//                    info.addCamData(n + 1, frameOffs, null);
-//                    if (App.isDebug) {
-//                        App.log(Type.INFO, "CAM" + (n + 1) + " data exist!");
-//                    }
-//                }
-                // Позиции начала и конца данных в файле.
+                // Вариант разбора EXE - привязан к формату информационного блока в конце файла.
+                // Возможно придётся отказаться от его использования т.к. от версии к версии 
+                // плеера он может меняться (его использование ускоряет поиск первого кадра,
+                // а также исключает необходимость сканировать весь файл для определения списка
+                // камер).
+                long exepos = in.getSize() - exeInfoSize;
+                int mark1 = in.readInt(in.getSize() - 10);
+                if (mark1 == 0x11FE11FE) {
+                    exepos -= 10;
+                }
+                
+                if (exepos < exeplayersize) {
+                    return null;
+                }
+                in.seek(exepos);
+                // Инфа по камерам.
+                for (int n = 0; n < App.MAXCAMS; n++) {
+                    // Наличие данных камер.
+                    int isExist = in.readInt(exepos + 8 + (4 * n));
+                    if (isExist == -1) {
+                        continue; // Камеры нет.
+                    }
+                    // Если есть такая камера (по которой ограничение), то сбрасываем ограничение
+                    // чтобы не отфильтровывало при парсинге файла.
+                    if (cam > 0 && cam == n + 1) {
+                        cam = 0;
+                    }
+                    // Смещение первого фрейма.
+                    long frameOffs = in.readLong(exepos + 72 + (808 * n));
+                    info.addCamData(n + 1, frameOffs, null);
+                }
+                
+                // Позиции начала и конца данных в файле (не привязываемся к EXE!).
                 info.startDataPos = pos; //in.readLong(exepos + 19532);
                 if (info.startDataPos < exeplayersize || info.startDataPos > endpos - exeInfoSize) {
                     return null;
@@ -349,9 +344,6 @@ public class Files {
                 }
                 pos = info.startDataPos; // Начало.
                 endpos = info.endDataPos; // Конец.
-            }
-            if (App.isDebug) {
-                App.log(Type.INFO, "Summary data size = " + (endpos - pos));
             }
 
             // Ищем первый кадр (от начала к концу).

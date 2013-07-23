@@ -10,6 +10,7 @@ import mddvrextract.gui.JVScrolledPanel;
 import mddvrextract.gui.RoundPanel;
 import java.awt.Component;
 import java.net.URI;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -124,19 +125,34 @@ public final class GUI_TabAbout extends JPanel {
             content.add(labels[ihead], "top");
             content.add(labels[itext], "top, wrap");
         }
-        
+
         /**
-         * Добавляет на панель парный текстовый элемент - заголовок + объект.
+         * Добавляет на панель парный текстовый элемент - заголовок + объекты.
          *
          * @param panel Панель.
          * @param head Заголовок.
-         * @param comp Объект.
+         * @param comp Объекты.
          */
-        private void addLine(int ihead, Component comp) {
+        private void addLine(int ihead, Object... comp) {
             // Корректируем текст
             labels[ihead].setText("<html>" + x_labels[ihead] + "</html>");
             content.add(labels[ihead], "top");
-            content.add(comp, "top, wrap");
+            for (int i = 0; i < comp.length; i++) {
+                String s = "top";
+                if (i == 0) {
+                    s += ", spanx, split " + comp.length;
+                }
+                if (i == comp.length-1) {
+                    s += ", wrap";
+                }
+                Component c;
+                if (comp[i] instanceof String) {
+                    c = new JLabel((String) comp[i]);
+                } else {
+                    c = (Component) comp[i];
+                }
+                content.add(c, s);
+            }
         }
 
         /**
@@ -222,10 +238,12 @@ public final class GUI_TabAbout extends JPanel {
 
         int n = 0, gn = 0;
         gp[0] = addGroupPanel(gn++, "[right][]");
+        gp[0].add(new JLabel(new ImageIcon(Resources.GUI.imageLogo)), "spanx, center, wrap");
         gp[0].addLine(n++, n++);
         gp[0].addLine(n++, n++);
+        gp[0].addLine(n++, labels[n++], "(", linkMail, ")");
         gp[0].addLine(n++, n++);
-        gp[0].addLine(n++, linkMail);
+        //gp[0].addLine(n++, linkMail);
         gp[0].addLine(n++, n++);
         gp[0].addLine(n++, n++);
 

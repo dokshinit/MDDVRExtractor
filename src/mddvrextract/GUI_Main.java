@@ -11,7 +11,6 @@ import mddvrextract.gui.GUITabPane;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
@@ -78,8 +77,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
      * Текстовые ресурсы для интерфейса.
      */
     public static String x_TabSource, x_TabProcess, x_TabState, x_TabLog, x_TabHelp,
-            x_LabelInfo, x_Confirmation, x_ExitQuest, x_Yes, x_No,
-            x_TitleSuffix, x_ButtonProcess, x_ButtonInterrupt;
+            x_LabelInfo, x_ExitQuest, x_TitleSuffix, x_ButtonProcess, x_ButtonInterrupt;
 
     /**
      * Создание окна.
@@ -258,7 +256,6 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
      */
     public void validateLocks() {
         GUI.InSwingLater(new Runnable() {
-
             @Override
             public void run() {
                 if (Task.isAlive()) {
@@ -291,7 +288,6 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
      */
     public void setProgressInfo(final String text) {
         GUI.InSwingLater(new Runnable() {
-
             @Override
             public void run() {
                 textInfo.setText(text);
@@ -306,7 +302,6 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
      */
     public void setProgressText(final String text) {
         GUI.InSwingLater(new Runnable() {
-
             @Override
             public void run() {
                 progressBar.setString(text);
@@ -328,7 +323,6 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
      */
     public void startProgress(final int startpos, final int endpos) {
         GUI.InSwingLater(new Runnable() {
-
             @Override
             public void run() {
                 boolean isInd = startpos == -1 && endpos == -1;
@@ -356,7 +350,6 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
      */
     public void setProgress(final int pos) {
         GUI.InSwingLater(new Runnable() {
-
             @Override
             public void run() {
                 progressBar.setValue(pos);
@@ -369,7 +362,6 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
      */
     public void stopProgress() {
         GUI.InSwingLater(new Runnable() {
-
             @Override
             public void run() {
                 progressBar.setIndeterminate(false);
@@ -389,13 +381,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
     @Override
     protected void processWindowEvent(WindowEvent e) {
         if (e.getID() == WindowEvent.WINDOW_CLOSING) {
-
-            Object[] options = {x_Yes, x_No};
-            int n = JOptionPane.showOptionDialog(e.getWindow(), x_ExitQuest,
-                    x_Confirmation, JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE, null, options,
-                    options[1]);
-            if (n == 0) {
+            if (App.showConfirmDialog(x_ExitQuest)) {
                 dispose();
                 System.exit(0);
             }

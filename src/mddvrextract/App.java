@@ -4,6 +4,8 @@
  */
 package mddvrextract;
 
+import java.awt.Container;
+import java.awt.Window;
 import mddvrextract.FFMpeg.Cmd;
 import mddvrextract.I18n.Lang;
 import mddvrextract.gui.GUI;
@@ -26,11 +28,11 @@ public class App {
     /**
      * Дата релиза версии программы.
      */
-    public static final String versionDate = "27.03.2013";
+    public static final String versionDate = "27.07.2013";
     /**
      * Версия программы.
      */
-    public static final String version = "1.2.2";
+    public static final String version = "1.3.0b";
     /**
      * Максимальное кол-во обрабатываемых камер.
      */
@@ -40,10 +42,6 @@ public class App {
      */
     public static GUI_Main gui;
     /**
-     * Для отладки, если true - подробный лог.
-     */
-    public static boolean isDebug = false;
-    /**
      * Флаг запуска под Linux.
      */
     public static boolean isLinux = false;
@@ -52,9 +50,28 @@ public class App {
      */
     public static boolean isWindows = false;
     /**
+     * Рабочий каталог откуда запущено приложение.
+     */
+    public static String dir;
+    /**
+     * Файл проекта с путём отн.раб.каталога.
+     */
+    public static String jar;
+    /**
+     * Флаг: true - запущен JAR, false - запущен класс.
+     */
+    public static boolean isJarRun;
+    /**
+     * Флаг инициализированности окружения: true - да, false - нет.
+     */
+    public static boolean isEnvironmentInit = false;
+    /**
      * Текстовые ресурсы для интерфейса.
      */
-    public static String x_LAFNotFound, x_LAFError, x_FFMpegWrong, x_CodecsWrong;
+    public static String x_LAFNotFound, x_LAFError, x_FFMpegWrong, x_CodecsWrong,
+            x_InitEnvironmentError, x_CriticalError,
+            x_Close, x_Error, x_Warning, x_Info, x_Confirmation, x_Yes, x_No, x_Bytes,
+            x_DurationFormat;
 
     /**
      * Модель источника.
@@ -504,24 +521,87 @@ public class App {
     }
 
     /**
+     * Инициализация путей и файлов окружения.
+     *
+     * @throws Exception Ошибка выполнения операции.
+     */
+    public static void initEnvironment() throws Exception {
+        try {
+            String s = System.getProperty("os.name").substring(0, 3);
+            if (s.equals("lin")) {
+                isLinux = true;
+            }
+
+            dir = System.getProperty("user.dir");
+            if (isLinux) {
+                dir = dir.replace('\\', '/');
+            }
+            jar = System.getProperty("java.class.path");
+            if (jar.endsWith(".jar")) {
+                isJarRun = true;
+                jar = "AppBTI.jar"; // т.к. в свойствах может быть с путём!
+            } else {
+                isJarRun = false;
+                jar = "";
+            }
+
+            // Инициализация переменных.
+            for (int i = 0; i < MAXCAMS; i++) {
+                Source.cams[i] = new CamInfo();
+            }
+
+            isEnvironmentInit = true;
+
+        } catch (Exception ex) {
+            throw new Exception(x_InitEnvironmentError, ex);
+        }
+    }
+
+    /**
+     * Инициализация ресурсов.
+     *
+     * @throws Exception Ошибка выполнения операции.
+     */
+    public static void initResources() throws Exception {
+        Resources.init();
+    }
+
+    /**
      * Инициализация Look&Feel.
      */
-    public static void initLAF() {
-        //String laf = "javax.swing.plaf.metal.MetalLookAndFeel";
+    public static void initLAF() throws Exception {
         String laf = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
-        // Отключение жирного шрифта в UI.
-        UIManager.put("swing.boldMetal", Boolean.FALSE);
-
         try {
             Class c = Class.forName(laf);
             UIManager.setLookAndFeel(laf);
-        } catch (java.lang.ClassNotFoundException e) {
-            App.log(x_LAFNotFound + " [" + laf + "]! " + e);
-        } catch (Exception e) {
-            App.log(x_LAFError + " [" + laf + "]! " + e);
-        }
+            //Color c_Base = new Color(0x992135);
+            //Color c_Control = new Color(0xfff2f4);
+            //UIManager.put("nimbusBase", c_Base);
+            //UIManager.put("control", c_Control);
 
-        GUI.init();
+//            // Шрифты - херня получается.
+//            for (Enumeration e = UIManager.getDefaults().keys(); e.hasMoreElements();) {
+//                Object key = e.nextElement();
+//                Object value = UIManager.get(key);
+//                if (key instanceof String && key.toString().endsWith(".font")) {
+//                    UIManager.put(key, Resources.GUI.font);
+//                } else if (value != null && value instanceof Font) {
+//                    UIManager.put(key, Resources.GUI.font);
+//                }
+//            }
+
+            GUI.init();
+            return;
+
+        } catch (java.lang.ClassNotFoundException e) {
+            String s = x_LAFNotFound + " [" + laf + "]! " + e;
+            App.log(s);
+            throw new Exception(s);
+        } catch (Exception e) {
+            String s = x_LAFError + " [" + laf + "]! " + e;
+            App.log(s);
+            throw new Exception(s);
+        }
     }
 
     /**
@@ -531,48 +611,105 @@ public class App {
      */
     public static void main(String[] args) {
 
-        // Инициализация интернационализации.
-        I18n.init(Lang.RU); // ru\en
+        try {
+            // Инициализация лога ошибок.
+            Err.init();
 
-        // Инициализация лога ошибок.
-        Err.init();
+            // Инициализация окружения.
+            initEnvironment();
 
-        // Инициализация переменных.
-        for (int i = 0; i < MAXCAMS; i++) {
-            Source.cams[i] = new CamInfo();
-        }
-        // Определяем тип ОС.
-        String s = System.getProperty("os.name").toLowerCase();
-        if (s.substring(0, 3).equals("lin")) {
-            isLinux = true;
-        } else if (s.substring(0, 3).equals("win")) {
-            isWindows = true;
-        }
+            // Инициализация ресурсов.
+            initResources();
 
-        // Инициализация Look&Feel.
-        initLAF();
+            // Инициализация интернационализации.
+            I18n.init(Lang.RU); // ru\en
 
-        // Инициализация FFMpeg (получение списков кодеков).
-        FFMpeg.init();
+            // Инициализация Look&Feel.
+            initLAF();
 
-        // Старт многооконного приложения
-        GUI.InSwingLater(new Runnable() {
+            // Инициализация FFMpeg (получение списков кодеков).
+            FFMpeg.init();
 
-            @Override
-            public void run() {
-                // Создание.
-                GUI_Main.create();
-                // Позиционируем по центру экрана.
-                GUI.centerizeFrame(gui);
-                gui.setVisible(true);
-                // При проблемах с ffmpeg - сообщаем.
-                if (!FFMpeg.isWorking()) {
-                    JOptionPane.showMessageDialog(gui,
-                            x_FFMpegWrong,
-                            x_CodecsWrong,
-                            JOptionPane.WARNING_MESSAGE);
+            // Старт многооконного приложения
+            GUI.InSwingLater(new Runnable() {
+                @Override
+                public void run() {
+                    // Создание.
+                    GUI_Main.create();
+                    // Позиционируем по центру экрана.
+                    GUI.centerizeFrame(gui);
+                    gui.setVisible(true);
+                    // При проблемах с ffmpeg - сообщаем.
+                    if (!FFMpeg.isWorking()) {
+                        JOptionPane.showMessageDialog(gui,
+                                x_FFMpegWrong,
+                                x_CodecsWrong,
+                                JOptionPane.WARNING_MESSAGE);
+                    }
                 }
-            }
-        });
+            });
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(gui,
+                    x_CriticalError,
+                    ex.getMessage(),
+                    JOptionPane.WARNING_MESSAGE);
+        }
     }
+
+    public static Window getCurrentWindow() {
+        for (Window w : Window.getWindows()) {
+            if (w.isActive()) {
+                return w;
+            }
+        }
+        return null;
+    }
+
+    public static int showPaneDialog(Container cont, String msg, String title, int type, String... button) {
+        Object[] opt = button;
+        return JOptionPane.showOptionDialog(cont, msg, title, JOptionPane.DEFAULT_OPTION, type, null, opt, null);
+    }
+
+    public static void showPaneDialog(Container cont, String msg, String title, int type) {
+        showPaneDialog(cont, msg, title, type, x_Close);
+    }
+
+    public static void showErrorDialog(Container cont, String msg) {
+        showPaneDialog(cont, msg, x_Error, JOptionPane.ERROR_MESSAGE);
+    }
+
+    public static void showErrorDialog(String msg) {
+        showPaneDialog(getCurrentWindow(), msg, x_Error, JOptionPane.ERROR_MESSAGE);
+    }
+
+    public static void showWarningDialog(String msg) {
+        showPaneDialog(getCurrentWindow(), msg, x_Warning, JOptionPane.WARNING_MESSAGE);
+    }
+
+    public static void showInfoDialog(String msg) {
+        showPaneDialog(getCurrentWindow(), msg, x_Info, JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    public static boolean showConfirmDialog(String msg) {
+        Object[] opt = {x_Yes, x_No};
+        int res = JOptionPane.showOptionDialog(getCurrentWindow(), msg, x_Confirmation,
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, opt, opt[1]);
+        return res == 0;
+    }
+    
+    /**
+     * Конвертирует время (считая, что это длительность в мсек) в строку.
+     *
+     * @param period Длительность в мсек.
+     * @return Строка вида: * час. * мин. * сек. * мсек.
+     */
+    public static String timeToString(long period) {
+        long h = (period) / (3600 * 1000);
+        long m = (period - h * 3600 * 1000) / (60 * 1000);
+        long s = (period - h * 3600 * 1000 - m * 60 * 1000) / (1000);
+        long ms = (period - h * 3600 * 1000 - m * 60 * 1000 - s * 1000);
+        return String.format(x_DurationFormat, h, m, s, ms);
+    }
+    
 }

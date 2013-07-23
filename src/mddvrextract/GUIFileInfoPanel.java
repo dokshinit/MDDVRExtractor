@@ -96,9 +96,9 @@ public final class GUIFileInfoPanel extends JPanel {
     /**
      * Текстовые ресурсы для интерфейса.
      */
-    public static String x_Cams, x_Duration, x_DurationFormat, x_End,
+    public static String x_Cams, x_Duration, x_End,
             x_FirstKeyFrame, x_Freq, x_FreqFormat, x_HintChangeZoom, x_NO,
-            x_Name, x_Resolution, x_ResolutionFormat, x_Size, x_Bytes, x_Start, x_Type;
+            x_Name, x_Resolution, x_ResolutionFormat, x_Size, x_Start, x_Type;
 
     /**
      * Конструктор.
@@ -210,7 +210,7 @@ public final class GUIFileInfoPanel extends JPanel {
             if (isForce || (curInfo != info)) {
                 infoName.text.setText(info.fileName.toString());
                 infoSize.text.setText(NumberTools.doubleToFormatString(
-                        (double) info.fileSize, NumberTools.format0, "", "") + " " + x_Bytes);
+                        (double) info.fileSize, NumberTools.format0, "", "") + " " + App.x_Bytes);
                 infoType.text.setText(info.fileType.title);
                 infoCams.text.setText(info.getCamsToString());
                 if (info.frameFirst != null) {
@@ -229,7 +229,7 @@ public final class GUIFileInfoPanel extends JPanel {
                     infoLastTime.text.setText("");
                 }
                 if (info.frameFirst != null && info.frameLast != null) {
-                    infoAmountTime.text.setText(timeToString(
+                    infoAmountTime.text.setText(App.timeToString(
                             info.frameLast.time.getTime() - info.frameFirst.time.getTime()));
                 } else {
                     infoAmountTime.text.setText("");
@@ -241,19 +241,6 @@ public final class GUIFileInfoPanel extends JPanel {
         setImageSize();
     }
 
-    /**
-     * Конвертирует время (считая, что это длительность в мсек) в строку.
-     *
-     * @param period Длительность в мсек.
-     * @return Строка вида: * час. * мин. * сек. * мсек.
-     */
-    private String timeToString(long period) {
-        long h = (period) / (3600 * 1000);
-        long m = (period - h * 3600 * 1000) / (60 * 1000);
-        long s = (period - h * 3600 * 1000 - m * 60 * 1000) / (1000);
-        long ms = (period - h * 3600 * 1000 - m * 60 * 1000 - s * 1000);
-        return String.format(x_DurationFormat, h, m, s, ms);
-    }
     /**
      * Текущий размер картинки: true - маленький (x=352,y-сжат), false - полный
      * кадр.
