@@ -162,7 +162,7 @@ public final class GUIFileInfoPanel extends JPanel {
         infoLastTime = addInfo(x_End, 15, null);
         infoAmountTime = addInfo(x_Duration, 22, null);
         labelNote = GUI.createNoteLabel(x_HintChangeZoom);
-        panelInfo.add(labelNote, "pushy, spanx, growx, bottom");
+        panelInfo.add(labelNote, "pushy, spanx, bottom");
         
         scrollPane = new JScrollPane(panelInfo);
         scrollPane.getHorizontalScrollBar().setUnitIncrement(40);

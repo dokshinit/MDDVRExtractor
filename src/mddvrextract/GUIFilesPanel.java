@@ -11,6 +11,7 @@ import java.awt.Component;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.swing.DefaultListSelectionModel;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
@@ -96,6 +97,7 @@ public final class GUIFilesPanel extends JPanel {
         c.setCellRenderer(cr);
 
         dir = new JFilesDirectory(m, cm);
+        dir.getTable().setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
         add(dir, BorderLayout.CENTER);
     }
 

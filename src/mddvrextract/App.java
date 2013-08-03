@@ -588,20 +588,7 @@ public class App {
             UIManager.put("control", GUI.c_Control);
             UIManager.put("nimbusSelectionBackground", GUI.c_nimbusSelectionBackground);
             UIManager.put("Table.background", Color.WHITE);
-
-            // Шрифты - херня получается.
-//            Font font;
-//            for (Enumeration e = UIManager.getDefaults().keys(); e.hasMoreElements();) {
-//                Object key = e.nextElement();
-//                Object value = UIManager.get(key);
-//                if (key instanceof String && key.toString().endsWith(".font")) {
-//                    font = Resources.GUI.font;
-//                    UIManager.put(key, font);
-//                } else if (value != null && value instanceof Font) {
-//                    font = Resources.GUI.font;
-//                    UIManager.put(key, font);
-//                }
-//            }
+            UIManager.put("nimbusFocus", GUI.c_nimbusFocus);
 
             GUI.init();
             return;

@@ -31,9 +31,9 @@ public final class GUI {
     public final static Color c_nimbusBase = new Color(0x992135);
     public final static Color c_nimbusOrange = new Color(0x992135);
     public final static Color c_nimbusSelectionBackground = new Color(0xC72B45);
-    public final static Color c_Control = new Color(0xfff2f4);
-    public final static Color c_Info = new Color(0xf2f2bd);
-    public final static Color c_nimbusInfoBlue = new Color(0x2f5cb4);
+    public final static Color c_Control = new Color(0xFFF2F4);
+    public final static Color c_Info = new Color(0xF2F2BD);
+    public final static Color c_nimbusFocus = new Color(0xFF7080);
 
     ////////////////////////////////////////////////////////////////////////////
     // ЦВЕТ
