@@ -6,7 +6,10 @@ package mddvrextract.gui;
 
 import mddvrextract.Err;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
@@ -19,7 +22,18 @@ import javax.swing.text.MaskFormatter;
  *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */
-public class GUI {
+public final class GUI {
+
+    public final static Color c_Base = new Color(0x880026); //0x992135);
+    public final static Color c_BaseDark = new Color(0x490016);//0x4A101A);
+    public final static Color c_BaseLight = new Color(0xC72B45);
+    public final static Color c_GroupBorder = deriveColorHSB(c_BaseLight, 0, -.5f, 0f);
+    public final static Color c_nimbusBase = new Color(0x992135);
+    public final static Color c_nimbusOrange = new Color(0x992135);
+    public final static Color c_nimbusSelectionBackground = new Color(0xC72B45);
+    public final static Color c_Control = new Color(0xfff2f4);
+    public final static Color c_Info = new Color(0xf2f2bd);
+    public final static Color c_nimbusInfoBlue = new Color(0x2f5cb4);
 
     ////////////////////////////////////////////////////////////////////////////
     // ЦВЕТ
@@ -50,6 +64,7 @@ public class GUI {
             public static Color fgcontent, bgcontent;
         }
         public static Color bgscroll;
+        public static Color logoborder;
     }
 
     /**
@@ -126,55 +141,29 @@ public class GUI {
      */
     public static void init() {
 
-        Color c = UIManager.getColor("nimbusBase");
-        if (c == null) {
-            c = new Color(0x33628C);
-        }
+        Process.Group.gradient1 = c_Base; //Color.getHSBColor(hsb[0] - .013f, .15f, .85f);
+        Process.Group.gradient2 = c_BaseLight; //Color.getHSBColor(hsb[0] - .005f, .24f, .80f);
+        Process.Group.fgtitle = Color.WHITE; //Color.getHSBColor(hsb[0], .54f, .40f);
+        Process.Group.bgcontent = deriveColorHSB(c_Control, 0, 0, .06f);
+        Process.bgscroll = deriveColorHSB(c_Control, 0, 0, -.06f);
 
-        float hsb[] = Color.RGBtoHSB(c.getRed(), c.getGreen(),
-                c.getBlue(), null);
+        About.Group.gradient1 = c_Base; // Color.getHSBColor(hsb[0] - .013f, .15f, .85f);
+        About.Group.gradient2 = c_BaseLight; //Color.getHSBColor(hsb[0] - .005f, .24f, .80f);
+        About.Group.fgtitle = Color.WHITE; //Color.getHSBColor(hsb[0], .54f, .40f);
 
-        Process.Group.gradient1 = Color.getHSBColor(hsb[0] - .013f, .15f, .85f);
-        Process.Group.gradient2 = Color.getHSBColor(hsb[0] - .005f, .24f, .80f);
-        Process.Group.fgtitle = Color.getHSBColor(hsb[0], .54f, .40f);
-        c = UIManager.getColor("Panel.background");
-        if (c == null) {
-            c = new Color(0xD6D9DF);
-        }
-        Process.Group.bgcontent = deriveColorHSB(c, 0, 0, .06f);
-        Process.bgscroll = deriveColorHSB(c, 0, 0, -.06f);
+        About.Group.bgcontent = deriveColorHSB(c_Info, 0, -.18f, .08f);
+        About.bgscroll = deriveColorHSB(c_Control, 0, 0, -.06f); //new Color(0xecdbd8);//0xf5ebe5); //c_Base; //deriveColorHSB(c, -0.0f, 0.0f, 0.5f);
+        About.logoborder = c_BaseLight; // deriveColorHSB(GUI.c_Base, 0f,-0.8f,0.5f)));
 
-        About.Group.gradient1 = Color.getHSBColor(hsb[0] - .013f, .15f, .85f);
-        About.Group.gradient2 = Color.getHSBColor(hsb[0] - .005f, .24f, .80f);
-        About.Group.fgtitle = Color.getHSBColor(hsb[0], .54f, .40f);
-        if (c == null) {
-            c = new Color(0xF2F2BD);
-        }
-        c = UIManager.getColor("info");
-        About.Group.bgcontent = deriveColorHSB(c, 0, -.18f, .08f);
-        About.bgscroll = deriveColorHSB(c, -0.04f, -.15f, -.02f);
-
-        if (c == null) {
-            c = new Color(0x2F5CB4);
-        }
-        c = UIManager.getColor("nimbusInfoBlue");
-        Note.fg = deriveColorHSB(c, 0, .2f, 0f);
-        if (c == null) {
-            c = new Color(0xF2F2BD);
-        }
-        c = UIManager.getColor("info");
-        Note.bg = deriveColorHSB(c, 0, -.15f, .05f);
+        Note.fg = Color.WHITE;
+        Note.bg = deriveColorHSB(c_nimbusSelectionBackground, 0, -0.2f, 0.2f); //new Color(0xffe8e8);//c_Base; //deriveColorHSB(c, 0, -.15f, .05f);
         Note.border = new CompoundBorder(
-                new LineBorder(deriveColorHSB(c, -0.04f, -.15f, -.1f)),
+                new LineBorder(c_Base, 1),//new Color(0xe4b0b0), 1),//deriveColorHSB(c, -0.04f, -.15f, -.1f)),
                 new EmptyBorder(1, 1, 1, 1));
 
-        if (c == null) {
-            c = new Color(0x33628C);
-        }
-        c = UIManager.getColor("nimbusBase");
-        Preview.fg = deriveColorHSB(c, 0, -.3f, .2f);
-        Preview.bg = deriveColorHSB(c, 0, -.3f, 0f);
-        Preview.border = Color.WHITE;
+        Preview.fg = c_Base;
+        Preview.bg = Color.WHITE;
+        Preview.border = c_Base;
     }
 
     /**
@@ -293,6 +282,8 @@ public class GUI {
      */
     public static JButton createButton(String title) {
         JButton b = new JButton(title);
+        b.setForeground(Color.WHITE);
+        b.setBackground(c_Base);
         return b;
     }
 
@@ -380,5 +371,94 @@ public class GUI {
         } catch (Exception ex) {
             Err.log(ex);
         }
+    }
+
+    /**
+     * Генерирует список всех компонентов заданного типа содержащихся в
+     * указанном компоненте.
+     *
+     * @param comp Компонент.
+     * @param type Тип.
+     * @return Список компонентов.
+     */
+    public static ArrayList<Component> listComponents(JComponent comp, Class type) {
+        ArrayList<Component> list = new ArrayList<Component>();
+        if (comp != null) {
+            if (comp.getClass() == type) {
+                list.add(comp);
+            }
+            if (comp instanceof Container) {
+                listComponents(comp, list, type);
+            }
+        }
+        return list;
+    }
+
+    private static void listComponents(Container cont, ArrayList<Component> list, Class type) {
+        for (Component c : cont.getComponents()) {
+            if (c.getClass() == type) {
+                list.add(c);
+            }
+            if (c instanceof Container) {
+                listComponents((Container) c, list, type);
+            }
+        }
+    }
+
+    /**
+     * Для указанного компонента находит родителя - JOptionPane.
+     *
+     * @param comp Компонент.
+     * @return Родитель-JOptionPane или null, если такового не имеется.
+     */
+    public static JOptionPane getParentOptionPane(Component comp) {
+        while (comp != null) {
+            if (comp instanceof JOptionPane) {
+                return (JOptionPane) comp;
+            }
+            comp = comp.getParent();
+        }
+        return null;
+    }
+
+    /**
+     * Для указанного компонента находит родителя - JDialog.
+     *
+     * @param comp Компонент.
+     * @return Родитель-JDialog или null, если такового не имеется.
+     */
+    public static JDialog getParentDialog(Component comp) {
+        while (comp != null) {
+            if (comp instanceof JDialog) {
+                return (JDialog) comp;
+            }
+            comp = comp.getParent();
+        }
+        return null;
+    }
+    /**
+     * Действие для кнопок добавляемых в JOptionPane.
+     */
+    private static ActionListener actionForOptionPaneButtons = new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            getParentOptionPane((Component) e.getSource()).setValue(e.getSource());
+            getParentDialog((Component) e.getSource()).dispose();
+        }
+    };
+
+    /**
+     * Создаёт массив конпок для JOptionPane по массиву строк.
+     *
+     * @param titles Массив строк содержащий текст кнопок.
+     * @return Массив кнопок.
+     */
+    public static JButton[] createOptionPaneButtons(String... titles) {
+        final JButton[] array = new JButton[titles.length];
+        for (int i = 0; i < titles.length; i++) {
+            array[i] = GUI.createButton(titles[i]);
+            array[i].addActionListener(actionForOptionPaneButtons);
+        }
+        return array;
     }
 }

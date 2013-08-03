@@ -7,6 +7,7 @@ package mddvrextract.gui;
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
+import mddvrextract.Resources;
 
 /**
  * Рамка с заголовком для панелей групп.
@@ -94,16 +95,16 @@ public class GroupBorder extends RoundBorder {
         g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING,
                 RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
         g2.setColor(c.getForeground());
-        Font f = c.getFont().deriveFont(Font.BOLD);
+        Font f = Resources.GUI.fontBold.deriveFont(14.0f);
         g2.setFont(f);
         FontMetrics metrics = c.getFontMetrics(f);
         if (isCenterized) {
             Rectangle2D rect = metrics.getStringBounds(title, g);
             g2.drawString(title, x + (c.getWidth() - (int) rect.getWidth()) / 2,
-                    y + (titleHeight - metrics.getHeight()) / 2 + metrics.getAscent());
+                    y + (titleHeight - metrics.getAscent()) / 2 + metrics.getAscent());
         } else {
             g2.drawString(title, x + 8,
-                    y + (titleHeight - metrics.getHeight()) / 2 + metrics.getAscent());
+                    y + (titleHeight - metrics.getAscent()) / 2 + metrics.getAscent());
         }
         g2.dispose();
 

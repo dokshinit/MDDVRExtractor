@@ -224,14 +224,14 @@ public class I18n {
         GUIEvaluationInfoDialog.x_Period2 = text(
                 "по", "to");
         GUIEvaluationInfoDialog.x_Note = text(
-                "Следует помнить, что расчитан размер <b>исходных</b> данных!<br>"
+                "Следует помнить, что расcчитан размер <b>исходных</b> данных!<br>"
                 + "Объём сохранённых данных будет приблизительно соответствовать<br>"
                 + "расчётным только в режиме \"без преобразования\"!<br>"
                 + "В противном случае размер будет зависеть от выбранных параметров<br>"
                 + "конвертирования.",
                 "Remember, what volumes calculated for <b>source</b> data!<br>"
                 + "The stored data volume will be approximately match only<br>"
-                + "in the mode \"without transcode\"!"
+                + "in the mode \"without transcode\"!<br>"
                 + "Otherwise, the data volume will depend on the selected<br>"
                 + "transcode parameters.");
         GUIEvaluationInfoDialog.x_Close = text(
@@ -274,8 +274,8 @@ public class I18n {
         GUIDeviceSelectDialog.x_Dev = text(
                 "Устройство", "Device");
         GUIDeviceSelectDialog.x_NoteLinux = text(
-                "Пользователь должен иметь права на чтение файла устройства.",
-                "The user must have read permission for the device.");
+                "Пользователь должен иметь права<br>на чтение файла устройства.",
+                "The user must have read permission<br>for the device.");
         GUIDeviceSelectDialog.x_NoteWindows = text(
                 "Пользователь должен обладать правами администратора.",
                 "The user must have administrative rights.");
@@ -352,22 +352,22 @@ public class I18n {
         GUI_Main.x_LabelInfo = text(
                 "Инфо:", "Info:");
         GUI_Main.x_TabSource = text(
-                "Источник", "Source");
+                "ИСТОЧНИК", "SOURCE");
         GUI_Main.x_TabProcess = text(
-                "Обработка", "Process");
+                "ОБРАБОТКА", "PROCESS");
         GUI_Main.x_TabState = text(
-                "Состояние", "State");
+                "СОСТОЯНИЕ", "STATE");
         GUI_Main.x_TabLog = text(
-                "Лог", "Log");
+                "ЛОГ", "LOG");
         GUI_Main.x_TabHelp = text(
-                "Справка", "Help");
+                "СПРАВКА", "HELP");
         GUI_Main.x_ExitQuest = text(
                 "Выйти из программы?", "Exit the program?");
         GUI_Main.x_ButtonProcess = text(
                 "Обработка", "Process");
         GUI_Main.x_ButtonInterrupt = text(
                 "Прервать", "Cancel");
-
+        
         // GUI_SourceSelect
         GUI_SourceSelect.x_All = text(
                 "< все >", "< all >");
@@ -489,6 +489,7 @@ public class I18n {
             text("<b>Автор</b>", "<b>Author</b>"),
             text("Алексей Докшин", "Aleksey Dokshin"),
             text("<b>Заказчик</b>", "<b>Customer</b>"),
+            // TODO: Необходим английский вариант наименования заказчика!
             text("ООО \"ЭМ ДИ РУС\" (все права принадлежат заказчику)", "ООО \"ЭМ ДИ РУС\" (all rights reserved)"),
             //text("dant.it@gmail.com", "dant.it@gmail.com"),
             text("<b>Лицензия</b>", "<b>License</b>"),

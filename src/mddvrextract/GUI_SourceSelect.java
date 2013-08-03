@@ -91,7 +91,7 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         textType.setHorizontalAlignment(JTextField.CENTER);
         // Примечание:
         JLabel l = GUI.createNoteLabel(x_Hint);
-        add(l, "spany 2, wrap");
+        add(l, "spany 2, growx, wrap");
         // Выбор камеры:
         add(GUI.createLabel(x_Cam), "right");
         add(comboCam = GUI.createCombo(), "growx, wrap");
@@ -102,10 +102,10 @@ public final class GUI_SourceSelect extends GUIDialog implements ActionListener 
         comboCam.showData();
         comboCam.addActionListener(this);
         // Кнопка начала сканиования:
-        add(buttonScan = GUI.createButton(x_GoScan), "gapy 15, h 30, spanx, center, split 2");
+        add(buttonScan = GUI.createButton(x_GoScan), "gapy 15, h 30, sg bbb, spanx, center, split 2");
         buttonScan.addActionListener(this);
         buttonScan.setEnabled(!textSource.getText().isEmpty());
-        add(buttonCancel = GUI.createButton(x_Cancel), "center, wrap");
+        add(buttonCancel = GUI.createButton(x_Cancel), "sg bbb, center, wrap");
         buttonCancel.addActionListener(this);
 
         pack();

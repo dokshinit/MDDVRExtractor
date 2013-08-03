@@ -55,7 +55,7 @@ public class RoundBorder implements Border {
     public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
         Graphics2D g2 = (Graphics2D) g.create();
         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        Color color = GUI.deriveColorHSB(c.getBackground(), 0, 0, -.3f);
+        Color color = GUI.c_GroupBorder;
         g2.setColor(GUI.deriveColorAlpha(color, 40));
         g2.drawRoundRect(x, y + 2, width - 1, height - 3, cornerRadius, cornerRadius);
         g2.setColor(GUI.deriveColorAlpha(color, 90));

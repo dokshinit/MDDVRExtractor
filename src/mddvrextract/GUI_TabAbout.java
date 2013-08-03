@@ -10,10 +10,10 @@ import mddvrextract.gui.JVScrolledPanel;
 import mddvrextract.gui.RoundPanel;
 import java.awt.Component;
 import java.net.URI;
-import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.border.LineBorder;
 import net.miginfocom.swing.MigLayout;
 import org.jdesktop.swingx.JXHyperlink;
 
@@ -95,7 +95,7 @@ public final class GUI_TabAbout extends JPanel {
             setForeground(GUI.About.Group.fgtitle);
             setBackground(GUI.About.Group.bgcontent);
 
-            content = new JPanel(new MigLayout("", cond));
+            content = new JPanel(new MigLayout("fill", cond));
             content.setForeground(GUI.About.Group.fgcontent);
             content.setBackground(GUI.About.Group.bgcontent);
             super.add(content, "gapleft 10, gapright 10, growx");
@@ -236,9 +236,11 @@ public final class GUI_TabAbout extends JPanel {
         scroll.getViewport().setBackground(GUI.About.bgscroll);
         add(scroll, "grow");
 
+        JLabel l;
         int n = 0, gn = 0;
-        gp[0] = addGroupPanel(gn++, "[right][]");
-        gp[0].add(new JLabel(new ImageIcon(Resources.GUI.imageLogo)), "spanx, center, wrap");
+        gp[0] = addGroupPanel(gn++, "[right][grow]");
+        gp[0].add(l = new JLabel(Resources.GUI.imageAboutLogo), "spanx, center, wrap");
+        l.setBorder(new LineBorder(GUI.c_BaseLight));
         gp[0].addLine(n++, n++);
         gp[0].addLine(n++, n++);
         gp[0].addLine(n++, labels[n++], "(", linkMail, ")");

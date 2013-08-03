@@ -83,7 +83,6 @@ public class GUILogPanel extends JPanel {
         JXTable table = dir.getTable();
         table.setSortable(false);
         table.addHighlighter(new LogHighlighter());
-        table.setGridColor(new Color(0xD0D0D0));
 
         add(dir, "grow");
         setPreferredSize(new Dimension(800, 400));

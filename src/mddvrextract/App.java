@@ -4,14 +4,18 @@
  */
 package mddvrextract;
 
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.Window;
+import java.io.File;
 import mddvrextract.FFMpeg.Cmd;
 import mddvrextract.I18n.Lang;
 import mddvrextract.gui.GUI;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Date;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import mddvrextract.xfsengine.Device;
@@ -32,7 +36,7 @@ public class App {
     /**
      * Версия программы.
      */
-    public static final String version = "1.3.0b";
+    public static final String version = "1.3.1b";
     /**
      * Максимальное кол-во обрабатываемых камер.
      */
@@ -527,19 +531,22 @@ public class App {
      */
     public static void initEnvironment() throws Exception {
         try {
-            String s = System.getProperty("os.name").substring(0, 3);
+            String s = System.getProperty("os.name").toLowerCase().substring(0, 3);
             if (s.equals("lin")) {
                 isLinux = true;
             }
 
             dir = System.getProperty("user.dir");
-            if (isLinux) {
-                dir = dir.replace('\\', '/');
-            }
+
             jar = System.getProperty("java.class.path");
             if (jar.endsWith(".jar")) {
                 isJarRun = true;
-                jar = "AppBTI.jar"; // т.к. в свойствах может быть с путём!
+                // Проверяем, не указано ли с путём.
+                int n = jar.lastIndexOf(File.separatorChar);
+                if (n != -1) {
+                    // Вырезаем только имя jar файла.
+                    jar = jar.substring(n + 1);
+                }
             } else {
                 isJarRun = false;
                 jar = "";
@@ -570,23 +577,29 @@ public class App {
      * Инициализация Look&Feel.
      */
     public static void initLAF() throws Exception {
+        JFrame.setDefaultLookAndFeelDecorated(true);
+        JDialog.setDefaultLookAndFeelDecorated(true);
         String laf = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
         try {
             Class c = Class.forName(laf);
             UIManager.setLookAndFeel(laf);
-            //Color c_Base = new Color(0x992135);
-            //Color c_Control = new Color(0xfff2f4);
-            //UIManager.put("nimbusBase", c_Base);
-            //UIManager.put("control", c_Control);
+            UIManager.put("nimbusBase", GUI.c_nimbusBase);
+            UIManager.put("nimbusOrange", GUI.c_nimbusOrange);
+            UIManager.put("control", GUI.c_Control);
+            UIManager.put("nimbusSelectionBackground", GUI.c_nimbusSelectionBackground);
+            UIManager.put("Table.background", Color.WHITE);
 
-//            // Шрифты - херня получается.
+            // Шрифты - херня получается.
+//            Font font;
 //            for (Enumeration e = UIManager.getDefaults().keys(); e.hasMoreElements();) {
 //                Object key = e.nextElement();
 //                Object value = UIManager.get(key);
 //                if (key instanceof String && key.toString().endsWith(".font")) {
-//                    UIManager.put(key, Resources.GUI.font);
+//                    font = Resources.GUI.font;
+//                    UIManager.put(key, font);
 //                } else if (value != null && value instanceof Font) {
-//                    UIManager.put(key, Resources.GUI.font);
+//                    font = Resources.GUI.font;
+//                    UIManager.put(key, font);
 //                }
 //            }
 
@@ -667,7 +680,7 @@ public class App {
     }
 
     public static int showPaneDialog(Container cont, String msg, String title, int type, String... button) {
-        Object[] opt = button;
+        final Object[] opt = GUI.createOptionPaneButtons(button);
         return JOptionPane.showOptionDialog(cont, msg, title, JOptionPane.DEFAULT_OPTION, type, null, opt, null);
     }
 
@@ -692,12 +705,11 @@ public class App {
     }
 
     public static boolean showConfirmDialog(String msg) {
-        Object[] opt = {x_Yes, x_No};
-        int res = JOptionPane.showOptionDialog(getCurrentWindow(), msg, x_Confirmation,
-                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, opt, opt[1]);
-        return res == 0;
+        final Object[] opt = GUI.createOptionPaneButtons(x_Yes, x_No);
+        return JOptionPane.showOptionDialog(getCurrentWindow(), msg, x_Confirmation,
+                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, opt, opt[1]) == 0;
     }
-    
+
     /**
      * Конвертирует время (считая, что это длительность в мсек) в строку.
      *
@@ -711,5 +723,4 @@ public class App {
         long ms = (period - h * 3600 * 1000 - m * 60 * 1000 - s * 1000);
         return String.format(x_DurationFormat, h, m, s, ms);
     }
-    
 }

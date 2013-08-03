@@ -68,10 +68,10 @@ public class GUIDeviceSelectDialog extends GUIDialog implements ActionListener {
         JLabel l = GUI.createNoteLabel(App.isWindows ? x_NoteWindows : x_NoteLinux);
         add(l, "span, growx, center, wrap");
 
-        add(buttonSelect = GUI.createButton(x_Select), "gapy 15, h 30, span, split 2, center");
+        add(buttonSelect = GUI.createButton(x_Select), "gapy 15, h 30, sg bbb, span, split 2, center");
         buttonSelect.addActionListener(GUIDeviceSelectDialog.this);
 
-        add(buttonCancel = GUI.createButton(x_Cancel));
+        add(buttonCancel = GUI.createButton(x_Cancel), "sg bbb");
         buttonCancel.addActionListener(GUIDeviceSelectDialog.this);
 
         pack();

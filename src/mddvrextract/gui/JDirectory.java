@@ -6,17 +6,23 @@ package mddvrextract.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import javax.swing.*;
+import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
+import sun.swing.table.DefaultTableCellHeaderRenderer;
 
 /**
  * GUI компонент для отображения типового справочника.
@@ -50,6 +56,10 @@ public class JDirectory extends JPanel {
      * выключения скроллинга).
      */
     protected int savedResizeMode;
+    /**
+     * Отрисовка заголовка таблицы.
+     */
+    private static ExtHeaderRenderer headerRenderer = new ExtHeaderRenderer();
 
     /**
      * Конструктор.
@@ -68,15 +78,17 @@ public class JDirectory extends JPanel {
 
         Color tabColor = UIManager.getColor("Table.background");
         Color rowColor1 = tabColor;
-        Color rowColor2 = new Color((int) (tabColor.getRed() * .95),
+        Color rowColor2 = new Color((int) (tabColor.getRed() * .98),
                 (int) (tabColor.getGreen() * .95),
                 (int) (tabColor.getBlue() * .95));
         table.setRowHeight(table.getRowHeight() + 4);
-
+        
+        for (int i = 0; i < cmodel.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
+        }
 
         table.setHighlighters(HighlighterFactory.createAlternateStriping(
                 rowColor1, rowColor2));
-        //new Color(255, 255, 255), new Color(245, 250, 255)));
         // Установка параметров таблицы.
         // Сохранение редактируемого значения при потере фокуса ячейкой.
         table.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
@@ -85,14 +97,12 @@ public class JDirectory extends JPanel {
         // Установка отлова двойного клика на ячейке.
         //table.setSortable(true);
         table.addMouseListener(new ExtMouseAdapter() {
-
             @Override
             protected void fireDoubleClick(MouseEvent e) {
                 fireEdit(new ActionEvent(e.getSource(), e.getID(), "mouse-doubleclick"));
             }
         });
         table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
@@ -105,7 +115,6 @@ public class JDirectory extends JPanel {
         // Установка своего обработчика нажатия клавиши Enter.
         table.getInputMap().put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "key-enter");
         table.getActionMap().put("key-enter", new AbstractAction() {
-
             @Override
             public void actionPerformed(ActionEvent e) {
                 int row = table.getSelectedRow();
@@ -120,14 +129,15 @@ public class JDirectory extends JPanel {
         // Добавление скролинга контекста таблицы.
         scroll = new JScrollPane(table);
         scroll.addComponentListener(new java.awt.event.ComponentAdapter() {
-
             @Override
             public void componentResized(java.awt.event.ComponentEvent evt) {
                 scrollComponentResized(evt);
             }
         });
+        //scroll.setBorder(new LineBorder(GUI.c_Base, 1));
+
         //scroll.getViewport().setBackground(rowColors[1]);
-        table.setBackground(rowColor2);
+        //table.setBackground(rowColor2);
         setLayout(new BorderLayout());
         add(scroll, BorderLayout.CENTER);
     }
@@ -162,7 +172,9 @@ public class JDirectory extends JPanel {
      */
     public TableColumnExt addColumn(String colname, String header,
             int width, int minwidth, int maxwidth) {
-        return columnModel.add(colname, header, width, minwidth, maxwidth);
+        TableColumnExt col = columnModel.add(colname, header, width, minwidth, maxwidth);
+        col.setHeaderRenderer(headerRenderer);
+        return col;
     }
 
     /**
@@ -238,6 +250,9 @@ public class JDirectory extends JPanel {
      */
     public void setColumnModel(TableColumnModel columnModel) {
         this.columnModel = columnModel;
+        for (int i = 0; i < columnModel.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
+        }
         this.table.setColumnModel(columnModel);
         columnModel.linkToData(tableModel);
     }
@@ -287,5 +302,48 @@ public class JDirectory extends JPanel {
             Rectangle r = table.getCellRect(index, 0, true);
             scroll.getViewport().scrollRectToVisible(r);
         }
+    }
+}
+
+class ExtHeaderRenderer extends DefaultTableCellHeaderRenderer {
+
+    @Override
+    public Component getTableCellRendererComponent(JTable jtable, Object o, boolean bln, boolean bln1, int i, int i1) {
+        Component c = super.getTableCellRendererComponent(jtable, o, bln, bln1, i, i1);
+        setForeground(Color.WHITE);
+        setBackground(GUI.c_Base);
+        setBorder(new ExtBorder(GUI.c_BaseLight, GUI.c_BaseDark));
+        return c;
+    }
+}
+
+class ExtBorder implements Border {
+
+    Color light, dark;
+
+    public ExtBorder(Color light, Color dark) {
+        this.light = light;
+        this.dark = dark;
+    }
+
+    @Override
+    public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
+        Graphics2D g2 = (Graphics2D) g;
+        g2.setColor(light);
+        g2.drawLine(x, y, x + width - 1, y);
+        g2.drawLine(x, y, x, y + height - 1);
+        g2.setColor(dark);
+        g2.drawLine(x, y + height - 1, x + width - 1, y + height - 1);
+        g2.drawLine(x + width - 1, y, x + width - 1, y + height - 1);
+    }
+
+    @Override
+    public Insets getBorderInsets(Component c) {
+        return new Insets(2, 6, 2, 6);
+    }
+
+    @Override
+    public boolean isBorderOpaque() {
+        return false;
     }
 }

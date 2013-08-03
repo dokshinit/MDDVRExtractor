@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.jar.JarFile;
 import javax.imageio.ImageIO;
+import javax.swing.ImageIcon;
 
 /**
  *
@@ -61,6 +62,11 @@ public class Resources {
         }
     }
 
+    public static ImageIcon getImageIcon(String name) {
+        Image image = getImage(name);
+        return image == null ? null : new ImageIcon(image);
+    }
+
     /**
      * Возвращает ресурс-шрифт.
      *
@@ -107,19 +113,26 @@ public class Resources {
      */
     public static class GUI {
 
-        public static Image imageIcon;
-        public static Image imageLogo;
-        public static Font font;
+        public static ImageIcon imageAboutLogo, imageLogo, imageFlagRus, imageFlagEng;
+        public static Font font, fontBold;
 
         /**
          * Инициализация ресурсов.
          */
         static void init() {
             // Загрузка изображений из ресурсов.
-            imageIcon = getImage("Main.Icon");
-            imageLogo = getImage("Main.Logo");
-            font = getFont(false, "Main.Font");
-            font = font.deriveFont(12.0f);
+            imageAboutLogo = getImageIcon("TabAbout.Logo");
+            imageLogo = getImageIcon("TabPane.Logo");
+            imageFlagRus = getImageIcon("TabPane.Flag_Rus");
+            imageFlagEng = getImageIcon("TabPane.Flag_Eng");
+            font = getFont(true, "Main.Font");
+            if (font != null) {
+                font = font.deriveFont(12.0f);
+            }
+            fontBold = getFont(true, "Main.Font.Bold");
+            if (fontBold != null) {
+                fontBold = fontBold.deriveFont(Font.PLAIN, 11.0f);
+            }
         }
     }
 }

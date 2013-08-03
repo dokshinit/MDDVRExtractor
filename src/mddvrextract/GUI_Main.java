@@ -7,14 +7,14 @@ package mddvrextract;
 import mddvrextract.I18n.Lang;
 import mddvrextract.gui.GUI;
 import mddvrextract.gui.GUIFrame;
-import mddvrextract.gui.GUITabPane;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowEvent;
 import javax.swing.*;
+import mddvrextract.gui.ExtTabPane;
+import mddvrextract.gui.GUIMDRTabPane;
 import net.miginfocom.swing.MigLayout;
 
 /**
@@ -51,7 +51,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
     /**
      * Табулятор.
      */
-    private GUITabPane tabPane;
+    private GUIMDRTabPane tabPane;
     /**
      * Закладка "Источник".
      */
@@ -119,10 +119,12 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         setTitle("MDDVR Extractor v" + App.version + " " + x_TitleSuffix);
         setLayout(new BorderLayout());
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setPreferredSize(new Dimension(920, 660));
+        setPreferredSize(new Dimension(920, 700));
         setMinimumSize(new Dimension(500, 400));
 
-        tabPane = new GUITabPane();
+        tabPane = new GUIMDRTabPane();
+
+        tabPane.addItem(0, ExtTabPane.Item.Type.STATIC, new JLabel(Resources.GUI.imageLogo), "", null);
 
         // Вкладка "Источник"
         tabPane.addTab(x_TabSource, tabSource);
@@ -130,21 +132,18 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         // Вкладка "Обработка"
         tabPane.addTab(x_TabProcess, tabProcess);
 
-//        // Вкладка "Состояние" (обработки - для реализации позже)
-//        JPanel panelTab3 = new JPanel(new MigLayout());
-//        tabPane.addTab(x_TabState, panelTab3);
-//        //tabPane.setEnable(panelTab3, false);
-//        tabPane.setEnabledAt(2, false);
-
         // Вкладка "Лог"
         tabPane.addTab(x_TabLog, tabLog);
 
         // Вкладка "О программе"
         tabPane.addTab(x_TabHelp, tabAbout);
 
-        JPanel p = tabPane.getBarPanel();
-        p.add(new JLabel(), "push");
-        p.add(comboLang);
+//        JPanel p = tabPane.getBarPanel();
+//        p.add(new JLabel(), "push");
+//        p.add(comboLang);
+        tabPane.addFlag(Lang.RU, Resources.GUI.imageFlagRus);
+        tabPane.addFlag(Lang.EN, Resources.GUI.imageFlagEng);
+        
 
         progressBar.setPreferredSize(new Dimension(100, 20));
 
@@ -155,7 +154,6 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         panelButton.add(textInfo, "");
 
         textInfo.setEditable(false);
-        textInfo.setBackground(new Color(0xE0E0E0));
         panelButton.add(buttonProcess, "spany 2, growy, wrap");
         panelButton.add(progressBar, "spanx 2, growx");
         add(panelButton, BorderLayout.SOUTH);
@@ -179,11 +177,11 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
 
         setTitle("MDDVR Extractor v" + App.version + " " + x_TitleSuffix);
 
-        tabPane.setTitleAt(0, x_TabSource);
-        tabPane.setTitleAt(1, x_TabProcess);
+        tabPane.setTitleAt(tabSource, x_TabSource);
+        tabPane.setTitleAt(tabProcess, x_TabProcess);
         //tabPane.setTitleAt(2, x_TabState);
-        tabPane.setTitleAt(2, x_TabLog);
-        tabPane.setTitleAt(3, x_TabHelp);
+        tabPane.setTitleAt(tabLog, x_TabLog);
+        tabPane.setTitleAt(tabAbout, x_TabHelp);
 
         labelInfo.setText(x_LabelInfo);
         textInfo.setText("");

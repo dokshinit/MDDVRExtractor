@@ -56,7 +56,7 @@ public class GUIEvaluationInfoDialog extends GUIDialog implements ActionListener
         // Примечание:
         add(GUI.createNoteLabel(x_Note), "span, growx, center, wrap");
 
-        add(buttonCancel = GUI.createButton(x_Close), "spanx, center");
+        add(buttonCancel = GUI.createButton(x_Close), "gapy 15, h 30, spanx, center");
         buttonCancel.addActionListener(GUIEvaluationInfoDialog.this);
 
         pack();

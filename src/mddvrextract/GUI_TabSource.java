@@ -111,7 +111,6 @@ public final class GUI_TabSource extends JPanel implements ActionListener {
         // Панель отображения информации о файле.
         infoPanel.setMinimumSize(new Dimension(300, 90));
         // Панель отображения файлов источника.
-        filesPanel.setBackground(Color.blue);
         filesPanel.setMinimumSize(new Dimension(300, 90));
 
         JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT, filesPanel, infoPanel);

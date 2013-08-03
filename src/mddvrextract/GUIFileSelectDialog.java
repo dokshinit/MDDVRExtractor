@@ -6,12 +6,17 @@ package mddvrextract;
 
 import mddvrextract.gui.GUIDialog;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Window;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
+import mddvrextract.gui.GUI;
 
 /**
  * Диалог выбора файла/каталога (для чтения/записи).
@@ -98,7 +103,7 @@ public class GUIFileSelectDialog extends GUIDialog {
      * @param target Тип цели.
      * @param mode Режим работы.
      */
-    protected GUIFileSelectDialog(Window owner, String title, String filename, 
+    protected GUIFileSelectDialog(Window owner, String title, String filename,
             String defname, Target target, Mode mode) {
         super(owner);
 
@@ -186,6 +191,18 @@ public class GUIFileSelectDialog extends GUIDialog {
      * Расширение компонента выбора файла.
      */
     protected class FileChooser extends JFileChooser {
+
+        public FileChooser() {
+            ArrayList<Component> listComponents = GUI.listComponents(this, JButton.class);
+            for (Component c : listComponents) {
+                JButton b = (JButton) c;
+                if ("SynthFileChooser.approveButton".equals(b.getName())
+                        || "SynthFileChooser.cancelButton".equals(b.getName())) {
+                    b.setForeground(Color.WHITE);
+                    b.setBackground(GUI.c_Base);
+                }
+            }
+        }
 
         @Override
         public void approveSelection() {

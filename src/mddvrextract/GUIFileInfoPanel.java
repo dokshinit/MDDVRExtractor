@@ -142,9 +142,9 @@ public final class GUIFileInfoPanel extends JPanel {
         JLabel l = panelImage.getLabel();
         l.setFont(new Font(l.getFont().getName(), Font.BOLD, 50));
         l.setForeground(GUI.Preview.fg);
-        panelImage.setBackground(GUI.Preview.bg); //new Color(0x8080A0)
+        panelImage.setBackground(GUI.Preview.bg);
         setImageSize();
-        panelImage.setBorder(new LineBorder(GUI.Preview.border));
+        panelImage.setBorder(new LineBorder(GUI.Preview.border, 2));
         panelImage.addMouseListener(new ImageMouseAdapter());
         panelImage.setToolTipText(x_FirstKeyFrame);
         panelImage.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -162,8 +162,13 @@ public final class GUIFileInfoPanel extends JPanel {
         infoLastTime = addInfo(x_End, 15, null);
         infoAmountTime = addInfo(x_Duration, 22, null);
         labelNote = GUI.createNoteLabel(x_HintChangeZoom);
-        panelInfo.add(labelNote, "spanx, pushy, bottom");
+        panelInfo.add(labelNote, "pushy, spanx, growx, bottom");
+        
         scrollPane = new JScrollPane(panelInfo);
+        scrollPane.getHorizontalScrollBar().setUnitIncrement(40);
+        scrollPane.getHorizontalScrollBar().setBlockIncrement(40);
+        scrollPane.getVerticalScrollBar().setUnitIncrement(40);
+        scrollPane.getVerticalScrollBar().setBlockIncrement(40);
         add(scrollPane, BorderLayout.CENTER);
     }
 
