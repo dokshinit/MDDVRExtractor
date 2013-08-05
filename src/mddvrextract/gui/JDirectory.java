@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2012, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Copyright (c) 2011-2013, Aleksey Nikolaevich Dokshin. All right reserved.
  * Contacts: dant.it@gmail.com, dokshin@list.ru.
  */
 package mddvrextract.gui;
@@ -14,15 +14,18 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.util.List;
 import javax.swing.*;
 import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
+import mddvrextract.Resources;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
-import sun.swing.table.DefaultTableCellHeaderRenderer;
 
 /**
  * GUI компонент для отображения типового справочника.
@@ -82,7 +85,7 @@ public class JDirectory extends JPanel {
                 (int) (tabColor.getGreen() * .95),
                 (int) (tabColor.getBlue() * .95));
         table.setRowHeight(table.getRowHeight() + 4);
-        
+
         for (int i = 0; i < cmodel.getColumnCount(); i++) {
             table.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
         }
@@ -305,23 +308,63 @@ public class JDirectory extends JPanel {
     }
 }
 
-class ExtHeaderRenderer extends DefaultTableCellHeaderRenderer {
+/**
+ * Рендер для отрисовки заголовков таблицы.
+ *
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
+ */
+class ExtHeaderRenderer extends DefaultTableCellRenderer {
+
+    private Icon sortArrow = null;
 
     @Override
-    public Component getTableCellRendererComponent(JTable jtable, Object o, boolean bln, boolean bln1, int i, int i1) {
-        Component c = super.getTableCellRendererComponent(jtable, o, bln, bln1, i, i1);
+    public Component getTableCellRendererComponent(JTable table, Object value,
+            boolean isSelected, boolean hasFocus, int row, int column) {
+        setText(value == null ? "" : value.toString());
         setForeground(Color.WHITE);
         setBackground(GUI.c_Base);
-        setBorder(new ExtBorder(GUI.c_BaseLight, GUI.c_BaseDark));
-        return c;
+        setBorder(new ExtTableHeaderBorder(GUI.c_BaseLight, GUI.c_BaseDark));
+        setHorizontalAlignment(JLabel.CENTER);
+        sortArrow = null;
+
+        if (table != null && table.getRowSorter() != null) {
+            List<? extends RowSorter.SortKey> sortKeys = table.getRowSorter().getSortKeys();
+            if (sortKeys.size() > 0
+                    && sortKeys.get(0).getColumn() == table.convertColumnIndexToModel(column)) {
+                switch (sortKeys.get(0).getSortOrder()) {
+                    case ASCENDING:
+                        sortArrow = Resources.GUI.imageDownArrow;
+                        break;
+                    case DESCENDING:
+                        sortArrow = Resources.GUI.imageUpArrow;
+                        break;
+                }
+            }
+        }
+        return this;
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        super.paintComponent(g);
+        if (sortArrow != null) {
+            int x = getWidth() - sortArrow.getIconWidth() - 6;
+            int y = (getHeight() - sortArrow.getIconHeight()) / 2;
+            sortArrow.paintIcon(this, g, x, y);
+        }
     }
 }
 
-class ExtBorder implements Border {
+/**
+ * Окантовка заголовков таблицы.
+ *
+ * @author Докшин Алексей Николаевич <dant.it@gmail.com>
+ */
+class ExtTableHeaderBorder implements Border {
 
-    Color light, dark;
+    private Color light, dark;
 
-    public ExtBorder(Color light, Color dark) {
+    public ExtTableHeaderBorder(Color light, Color dark) {
         this.light = light;
         this.dark = dark;
     }

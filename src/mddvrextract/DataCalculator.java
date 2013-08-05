@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2012, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Copyright (c) 2011-2013, Aleksey Nikolaevich Dokshin. All right reserved.
  * Contacts: dant.it@gmail.com, dokshin@list.ru.
  */
 package mddvrextract;
@@ -11,7 +11,7 @@ import mddvrextract.util.NumberTools;
 import mddvrextract.xfsengine.XFS.XFSException;
 
 /**
- * Процесс вычсления объёмов данных и времени.
+ * Процесс вычисления объёмов данных и времени.
  *
  * @author Докшин Алексей Николаевич <dant.it@gmail.com>
  */

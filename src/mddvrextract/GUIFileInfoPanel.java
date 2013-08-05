@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2012, Aleksey Nikolaevich Dokshin. All right reserved.
+ * Copyright (c) 2011-2013, Aleksey Nikolaevich Dokshin. All right reserved.
  * Contacts: dant.it@gmail.com, dokshin@list.ru.
  */
 package mddvrextract;
@@ -163,7 +163,7 @@ public final class GUIFileInfoPanel extends JPanel {
         infoAmountTime = addInfo(x_Duration, 22, null);
         labelNote = GUI.createNoteLabel(x_HintChangeZoom);
         panelInfo.add(labelNote, "pushy, spanx, bottom");
-        
+
         scrollPane = new JScrollPane(panelInfo);
         scrollPane.getHorizontalScrollBar().setUnitIncrement(40);
         scrollPane.getHorizontalScrollBar().setBlockIncrement(40);
@@ -189,7 +189,7 @@ public final class GUIFileInfoPanel extends JPanel {
         infoLastTime.label.setText(x_End);
         infoAmountTime.label.setText(x_Duration);
         labelNote.setText(GUI.buildNoteLabelText(x_HintChangeZoom));
-        
+
         displayInfo(curInfo, true);
     }
 
@@ -245,7 +245,6 @@ public final class GUIFileInfoPanel extends JPanel {
         curInfo = info;
         setImageSize();
     }
-
     /**
      * Текущий размер картинки: true - маленький (x=352,y-сжат), false - полный
      * кадр.

@@ -114,6 +114,7 @@ public class Resources {
     public static class GUI {
 
         public static ImageIcon imageAboutLogo, imageLogo, imageFlagRus, imageFlagEng;
+        public static ImageIcon imageUpArrow, imageDownArrow;
         public static Font font, fontBold;
 
         /**
@@ -123,13 +124,16 @@ public class Resources {
             // Загрузка изображений из ресурсов.
             imageAboutLogo = getImageIcon("TabAbout.Logo");
             imageLogo = getImageIcon("TabPane.Logo");
-            imageFlagRus = getImageIcon("TabPane.Flag_Rus");
-            imageFlagEng = getImageIcon("TabPane.Flag_Eng");
-            font = getFont(true, "Main.Font");
+            imageFlagRus = getImageIcon("TabPane.Flag.Rus");
+            imageFlagEng = getImageIcon("TabPane.Flag.Eng");
+            imageUpArrow = getImageIcon("TableHeader.UpArrowIcon");
+            imageDownArrow = getImageIcon("TableHeader.DownArrowIcon");
+
+            font = getFont(true, "Font.Europa.Plain");
             if (font != null) {
                 font = font.deriveFont(12.0f);
             }
-            fontBold = getFont(true, "Main.Font.Bold");
+            fontBold = getFont(true, "Font.Europa.Bold");
             if (fontBold != null) {
                 fontBold = fontBold.deriveFont(Font.PLAIN, 11.0f);
             }

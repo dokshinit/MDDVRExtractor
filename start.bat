@@ -1,1 +1,1 @@
-start javaw -jar MDDVRExtract.jar
+start javaw -Xmx1000m -jar MDDVRExtract.jar
