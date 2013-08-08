@@ -12,9 +12,6 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import javax.swing.text.MaskFormatter;
 
 /**
@@ -156,10 +153,11 @@ public final class GUI {
         About.logoborder = c_BaseLight; // deriveColorHSB(GUI.c_Base, 0f,-0.8f,0.5f)));
 
         Note.fg = Color.WHITE;
-        Note.bg = deriveColorHSB(c_nimbusSelectionBackground, 0, -0.2f, 0.2f); //new Color(0xffe8e8);//c_Base; //deriveColorHSB(c, 0, -.15f, .05f);
-        Note.border = new CompoundBorder(
-                new LineBorder(c_Base, 1),//new Color(0xe4b0b0), 1),//deriveColorHSB(c, -0.04f, -.15f, -.1f)),
-                new EmptyBorder(1, 1, 1, 1));
+        Note.bg = c_nimbusBase; //deriveColorHSB(c_nimbusSelectionBackground, 0, -0.2f, 0.2f); //new Color(0xffe8e8);//c_Base; //deriveColorHSB(c, 0, -.15f, .05f);
+        Note.border = null; 
+        //new CompoundBorder(
+        //        new LineBorder(c_BaseDark, 1),//new Color(0xe4b0b0), 1),//deriveColorHSB(c, -0.04f, -.15f, -.1f)),
+        //        new EmptyBorder(1, 1, 1, 1));
 
         Preview.fg = c_Base;
         Preview.bg = Color.WHITE;

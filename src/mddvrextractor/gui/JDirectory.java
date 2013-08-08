@@ -6,23 +6,14 @@ package mddvrextractor.gui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
-import java.util.List;
 import javax.swing.*;
-import javax.swing.border.Border;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.JTableHeader;
-import mddvrextractor.Resources;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.HighlighterFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
@@ -59,10 +50,6 @@ public class JDirectory extends JPanel {
      * выключения скроллинга).
      */
     protected int savedResizeMode;
-    /**
-     * Отрисовка заголовка таблицы.
-     */
-    private static ExtHeaderRenderer headerRenderer = new ExtHeaderRenderer();
 
     /**
      * Конструктор.
@@ -85,10 +72,6 @@ public class JDirectory extends JPanel {
                 (int) (tabColor.getGreen() * .95),
                 (int) (tabColor.getBlue() * .95));
         table.setRowHeight(table.getRowHeight() + 4);
-
-        for (int i = 0; i < cmodel.getColumnCount(); i++) {
-            table.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
-        }
 
         table.setHighlighters(HighlighterFactory.createAlternateStriping(
                 rowColor1, rowColor2));
@@ -176,7 +159,6 @@ public class JDirectory extends JPanel {
     public TableColumnExt addColumn(String colname, String header,
             int width, int minwidth, int maxwidth) {
         TableColumnExt col = columnModel.add(colname, header, width, minwidth, maxwidth);
-        col.setHeaderRenderer(headerRenderer);
         return col;
     }
 
@@ -253,9 +235,6 @@ public class JDirectory extends JPanel {
      */
     public void setColumnModel(TableColumnModel columnModel) {
         this.columnModel = columnModel;
-        for (int i = 0; i < columnModel.getColumnCount(); i++) {
-            table.getColumnModel().getColumn(i).setHeaderRenderer(headerRenderer);
-        }
         this.table.setColumnModel(columnModel);
         columnModel.linkToData(tableModel);
     }
@@ -305,88 +284,5 @@ public class JDirectory extends JPanel {
             Rectangle r = table.getCellRect(index, 0, true);
             scroll.getViewport().scrollRectToVisible(r);
         }
-    }
-}
-
-/**
- * Рендер для отрисовки заголовков таблицы.
- *
- * @author Докшин Алексей Николаевич <dant.it@gmail.com>
- */
-class ExtHeaderRenderer extends DefaultTableCellRenderer {
-
-    private Icon sortArrow = null;
-
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value,
-            boolean isSelected, boolean hasFocus, int row, int column) {
-        setText(value == null ? "" : value.toString());
-        setForeground(Color.WHITE);
-        setBackground(GUI.c_Base);
-        setBorder(new ExtTableHeaderBorder(GUI.c_BaseLight, GUI.c_BaseDark));
-        setHorizontalAlignment(JLabel.CENTER);
-        sortArrow = null;
-
-        if (table != null && table.getRowSorter() != null) {
-            List<? extends RowSorter.SortKey> sortKeys = table.getRowSorter().getSortKeys();
-            if (sortKeys.size() > 0
-                    && sortKeys.get(0).getColumn() == table.convertColumnIndexToModel(column)) {
-                switch (sortKeys.get(0).getSortOrder()) {
-                    case ASCENDING:
-                        sortArrow = Resources.GUI.imageDownArrow;
-                        break;
-                    case DESCENDING:
-                        sortArrow = Resources.GUI.imageUpArrow;
-                        break;
-                }
-            }
-        }
-        return this;
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        if (sortArrow != null) {
-            int x = getWidth() - sortArrow.getIconWidth() - 6;
-            int y = (getHeight() - sortArrow.getIconHeight()) / 2;
-            sortArrow.paintIcon(this, g, x, y);
-        }
-    }
-}
-
-/**
- * Окантовка заголовков таблицы.
- *
- * @author Докшин Алексей Николаевич <dant.it@gmail.com>
- */
-class ExtTableHeaderBorder implements Border {
-
-    private Color light, dark;
-
-    public ExtTableHeaderBorder(Color light, Color dark) {
-        this.light = light;
-        this.dark = dark;
-    }
-
-    @Override
-    public void paintBorder(Component c, Graphics g, int x, int y, int width, int height) {
-        Graphics2D g2 = (Graphics2D) g;
-        g2.setColor(light);
-        g2.drawLine(x, y, x + width - 1, y);
-        g2.drawLine(x, y, x, y + height - 1);
-        g2.setColor(dark);
-        g2.drawLine(x, y + height - 1, x + width - 1, y + height - 1);
-        g2.drawLine(x + width - 1, y, x + width - 1, y + height - 1);
-    }
-
-    @Override
-    public Insets getBorderInsets(Component c) {
-        return new Insets(2, 6, 2, 6);
-    }
-
-    @Override
-    public boolean isBorderOpaque() {
-        return false;
     }
 }

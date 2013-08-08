@@ -172,7 +172,7 @@ public final class GUI_TabProcess extends JPanel implements ActionListener {
         labelNoteSimple = GUI.createNoteLabel(x_NoteSimple);
 
         textCam = createText(10);
-        textCam.setText(App.Source.getType().title);
+        textCam.setText(GUI_TabSource.x_NotSelected);
         dateStart = GUI.createDTText();
         dateStart.addActionListener(GUI_TabProcess.this);
         dateEnd = GUI.createDTText();

@@ -143,7 +143,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
 //        p.add(comboLang);
         tabPane.addFlag(Lang.RU, Resources.GUI.imageFlagRus);
         tabPane.addFlag(Lang.EN, Resources.GUI.imageFlagEng);
-        
+
 
         progressBar.setPreferredSize(new Dimension(100, 20));
 

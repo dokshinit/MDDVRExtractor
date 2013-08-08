@@ -18,6 +18,8 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
+import javax.swing.plaf.nimbus.ExtNimbusDefaults;
+import static javax.swing.plaf.nimbus.ExtNimbusDefaults.setUIKey;
 import mddvrextractor.xfsengine.Device;
 import mddvrextractor.xfsengine.XFS;
 import mddvrextractor.xfsengine.XFS.XFSException;
@@ -36,7 +38,7 @@ public class App {
     /**
      * Версия программы.
      */
-    public static final String version = "1.3.1b";
+    public static final String version = "1.3.2b";
     /**
      * Максимальное кол-во обрабатываемых камер.
      */
@@ -585,15 +587,21 @@ public class App {
         try {
             Class c = Class.forName(laf);
             UIManager.setLookAndFeel(laf);
-            UIManager.put("nimbusBase", GUI.c_nimbusBase);
-            UIManager.put("nimbusOrange", GUI.c_nimbusOrange);
-            UIManager.put("control", GUI.c_Control);
-            UIManager.put("nimbusSelectionBackground", GUI.c_nimbusSelectionBackground);
-            UIManager.put("Table.background", Color.WHITE);
-            UIManager.put("nimbusFocus", GUI.c_nimbusFocus);
+            //
+            setUIKey("extBase", GUI.c_Base);
+            setUIKey("extBaseDark", GUI.c_BaseDark);
+            setUIKey("extBaseLight", GUI.c_BaseLight);
+            //
+            setUIKey("nimbusBase", GUI.c_nimbusBase);
+            setUIKey("nimbusOrange", GUI.c_nimbusOrange);
+            setUIKey("control", GUI.c_Control);
+            setUIKey("nimbusSelectionBackground", GUI.c_nimbusSelectionBackground);
+            setUIKey("Table.background", Color.WHITE);
+            setUIKey("nimbusFocus", GUI.c_nimbusFocus);
+            //
+            ExtNimbusDefaults.init();
 
             GUI.init();
-            return;
 
         } catch (java.lang.ClassNotFoundException e) {
             String s = x_LAFNotFound + " [" + laf + "]! " + e;
