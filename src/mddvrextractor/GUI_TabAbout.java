@@ -243,8 +243,8 @@ public final class GUI_TabAbout extends JPanel {
         l.setBorder(new LineBorder(GUI.c_BaseLight));
         gp[0].addLine(n++, n++);
         gp[0].addLine(n++, n++);
-        gp[0].addLine(n++, labels[n++], "(", linkMail, ")");
         gp[0].addLine(n++, n++);
+        gp[0].addLine(n++, linkMail);
         //gp[0].addLine(n++, linkMail);
         gp[0].addLine(n++, n++);
         gp[0].addLine(n++, n++);

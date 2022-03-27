@@ -96,6 +96,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         // Первоначально инициализируем переменную, т.к. её используют почти все
         // компонеты, причем в том числе и на этапе инициализации.
         App.gui = GUI_Main.this;
+        setIconImage(Resources.GUI.imageTitleIcon.getImage());
 
         comboLang = new JComboBox(Lang.values());
         comboLang.addActionListener(GUI_Main.this);
@@ -120,7 +121,7 @@ public final class GUI_Main extends GUIFrame implements ActionListener {
         setLayout(new BorderLayout());
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setPreferredSize(new Dimension(920, 700));
-        setMinimumSize(new Dimension(500, 400));
+        setMinimumSize(new Dimension(840, 400));
 
         tabPane = new GUIMDRTabPane();
 

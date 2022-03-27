@@ -13,6 +13,7 @@ import mddvrextractor.I18n.Lang;
 import mddvrextractor.gui.GUI;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Date;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -34,7 +35,7 @@ public class App {
     /**
      * Дата релиза версии программы.
      */
-    public static final String versionDate = "27.07.2013";
+    public static final String versionDate = "08.08.2013";
     /**
      * Версия программы.
      */
@@ -539,6 +540,7 @@ public class App {
             } else {
                 isWindows = true;
             }
+            System.setOut(new PrintStream(System.out, true, "UTF-8"));
 
             dir = System.getProperty("user.dir");
 

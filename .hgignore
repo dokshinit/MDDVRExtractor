@@ -23,6 +23,5 @@
 ^dist/
 
 \.err\.log
-\.exe
 \.log
 \.raw

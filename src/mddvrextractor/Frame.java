@@ -20,7 +20,7 @@ public class Frame {
     /**
      * Смещение времени по зонам.
      */
-    private static long timeZone = TimeZone.getDefault().getRawOffset() + 3600000;
+    private static long timeZone = TimeZone.getDefault().getRawOffset(); // + 3600000;
     ////////////////////////////////////////////////////////////////////////////
     // Поля:
     ////////////////////////////////////////////////////////////////////////////

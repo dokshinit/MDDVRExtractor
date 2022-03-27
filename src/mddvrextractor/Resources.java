@@ -113,7 +113,7 @@ public class Resources {
      */
     public static class GUI {
 
-        public static ImageIcon imageAboutLogo, imageLogo, imageFlagRus, imageFlagEng;
+        public static ImageIcon imageAboutLogo, imageLogo, imageFlagRus, imageFlagEng, imageTitleIcon;
         public static Font font, fontBold;
 
         /**
@@ -125,6 +125,7 @@ public class Resources {
             imageLogo = getImageIcon("TabPane.Logo");
             imageFlagRus = getImageIcon("TabPane.Flag.Rus");
             imageFlagEng = getImageIcon("TabPane.Flag.Eng");
+            imageTitleIcon = getImageIcon("TitleIcon");
 
             font = getFont(true, "Font.Europa.Plain");
             if (font != null) {

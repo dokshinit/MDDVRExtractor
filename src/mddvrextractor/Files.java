@@ -269,7 +269,7 @@ public class Files {
     private static FileInfo parseFile(FileDesc fileName, FileType type, int cam) {
         try {
             final InputBufferedFile in = new InputBufferedFile(fileName, 100000, 100);
-            final int exeplayersize = 1000000; // Минимальный размер встроенного плеера.
+            final int exeplayersize = 0xC0000; // Минимальный размер встроенного плеера.
             final FileInfo info = new FileInfo();
             info.fileName = fileName;
             info.fileSize = in.getSize();

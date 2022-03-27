@@ -21,10 +21,6 @@ public final class ExtNimbusDefaults {
         UIDefaults d = UIManager.getDefaults();
 
         // Компонент: SplitPane
-//        setUIKey("SplitPane:SplitPaneDivider.backgroundPainter", new ExtSplitPaneDividerPainter(ExtSplitPaneDividerPainter.BACKGROUND_ENABLED));
-//        removeUIKey("SplitPane:SplitPaneDivider[Enabled].backgroundPainter");
-//        removeUIKey("SplitPane:SplitPaneDivider[Focused].backgroundPainter");
-//        removeUIKey("SplitPane:SplitPaneDivider[Enabled+Vertical].foregroundPainter");
         setUIKey("SplitPane:SplitPaneDivider[Enabled].backgroundPainter", new LazyPainter("javax.swing.plaf.nimbus.ExtSplitPaneDividerPainter", SplitPaneDividerPainter.BACKGROUND_ENABLED, new Insets(3, 0, 3, 0), new Dimension(68, 10), false, AbstractRegionPainter.PaintContext.CacheMode.NINE_SQUARE_SCALE, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY));
         setUIKey("SplitPane:SplitPaneDivider[Focused].backgroundPainter", new LazyPainter("javax.swing.plaf.nimbus.ExtSplitPaneDividerPainter", SplitPaneDividerPainter.BACKGROUND_FOCUSED, new Insets(3, 0, 3, 0), new Dimension(68, 10), false, AbstractRegionPainter.PaintContext.CacheMode.NINE_SQUARE_SCALE, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY));
         setUIKey("SplitPane:SplitPaneDivider[Enabled].foregroundPainter", new LazyPainter("javax.swing.plaf.nimbus.ExtSplitPaneDividerPainter", SplitPaneDividerPainter.FOREGROUND_ENABLED, new Insets(0, 24, 0, 24), new Dimension(68, 10), true, AbstractRegionPainter.PaintContext.CacheMode.NINE_SQUARE_SCALE, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY));
@@ -86,10 +82,13 @@ public final class ExtNimbusDefaults {
         setUIKey("TableHeader:\"TableHeader.renderer\"[Disabled+Sorted].backgroundPainter", new LazyPainter("javax.swing.plaf.nimbus.ExtTableHeaderRendererPainter", TableHeaderRendererPainter.BACKGROUND_DISABLED_SORTED, new Insets(5, 5, 5, 5), new Dimension(22, 20), false, NINE_SQUARE_SCALE, Double.POSITIVE_INFINITY, Double.POSITIVE_INFINITY));
         setUIKey("TableHeader.textForeground", Color.WHITE);
         
+        // Компонент: ScrollBarThumb
+        setUIKey("ScrollBar:ScrollBarThumb[Enabled].backgroundPainter", new LazyPainter("javax.swing.plaf.nimbus.ExtScrollBarThumbPainter", ExtScrollBarThumbPainter.BACKGROUND_ENABLED, new Insets(0, 15, 0, 15), new Dimension(38, 15), false, AbstractRegionPainter.PaintContext.CacheMode.NINE_SQUARE_SCALE, Double.POSITIVE_INFINITY, 2.0));
+        setUIKey("ScrollBar:ScrollBarThumb[MouseOver].backgroundPainter", new LazyPainter("javax.swing.plaf.nimbus.ExtScrollBarThumbPainter", ExtScrollBarThumbPainter.BACKGROUND_MOUSEOVER, new Insets(0, 15, 0, 15), new Dimension(38, 15), false, AbstractRegionPainter.PaintContext.CacheMode.NINE_SQUARE_SCALE, Double.POSITIVE_INFINITY, 2.0));
+        setUIKey("ScrollBar:ScrollBarThumb[Pressed].backgroundPainter", new LazyPainter("javax.swing.plaf.nimbus.ExtScrollBarThumbPainter", ExtScrollBarThumbPainter.BACKGROUND_PRESSED, new Insets(0, 15, 0, 15), new Dimension(38, 15), false, AbstractRegionPainter.PaintContext.CacheMode.NINE_SQUARE_SCALE, Double.POSITIVE_INFINITY, 2.0));
+
         // Компонент: Button
         
-        // ScrollBar
-
         return d;
     }
 

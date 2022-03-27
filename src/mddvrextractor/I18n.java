@@ -487,19 +487,16 @@ public class I18n {
             text("<b>Версия</b>", "<b>Version</b>"),
             text(App.version + " от " + App.versionDate, App.version + " of " + App.versionDate),
             text("<b>Автор</b>", "<b>Author</b>"),
-            text("Алексей Докшин", "Aleksey Dokshin"),
-            text("<b>Заказчик</b>", "<b>Customer</b>"),
-            // TODO: Необходим английский вариант наименования заказчика!
-            text("ООО \"ЭМ ДИ РУС\" (все права принадлежат заказчику)", "ООО \"ЭМ ДИ РУС\" (all rights reserved)"),
-            //text("dant.it@gmail.com", "dant.it@gmail.com"),
+            text("Алексей Докшин (все права принадлежат автору)", "Aleksey Dokshin (all rights reserved)"),
+            text("<b>Контакты</b>", "<b>Contacts</b>"),
             text("<b>Лицензия</b>", "<b>License</b>"),
             text("Ограниченная ознакомительная версия только для некоммерческого персонального использования",
             "Limited trial version for non-commercial personal use only"),
             text("<b>ВНИМАНИЕ</b>", "<b>ATTENTION</b>"),
             text("Данная программа предоставляется автором 'как есть' - без каких-либо явных или подразумеваемых гарантий. Пользователь использует её целиком на свой страх и риск. Автор не несёт ответственности за любой возможный причинённый ущерб!",
             "This software is provided by the author 'as is' - without any explicit or implied warranty. Use it at your own risk. The author is not liable for any possible damage!"),
-            text("Для запуска программы необходим Java SE (JRE/JDK) v1.6.x.",
-            "To run the program requires Java SE (JRE / JDK) v1.6.x."),
+            text("Для запуска программы необходим Java SE (JRE/JDK) v1.8.x.",
+            "To run the program requires Java SE (JRE / JDK) v1.8.x."),
             text("Страница загрузки:", "Download page:"),
             text("Для обработки и транскодирования требуется ffmpeg. Желательно использовать идущий в комплекте - "
             + "от версии к версии изменялись ключи и поведение при обработке. "
@@ -567,3 +564,4 @@ public class I18n {
         };
     }
 }
+    
