@@ -1,0 +1,16 @@
+\.orig
+\.orig\.*
+\.chg\.*
+\.rej
+\.conflict\~
+
+/build/
+/dist/
+/releases/
+
+\.err\.log
+\.log
+\.raw
+
+/start_java8.sh
+/MDDVRExtractor.jar
